@@ -1,27 +1,48 @@
 
+# 调试模式
 debug=false
+
+# 日志输出等级
 logger.level = info
 
+# 生成代码的路径，可以是相对路径，相对于传入的配置文件
 outroot=../webit-output
 
+# 生成 Model类 的前缀（注意，不包括包名）
 modelPrefix=
+
+# 生成 Model类 的后缀
 modelSuffix=
 
+# 生成类的基本包
 basePkg=com.webit.gen
+
+# 生成 Model类的所在包
 modelPkg=${basePkg}.model
 
+# 数据表黑名单，黑名单中的表竟会被忽略，（不要带表前缀）
 tableBlackList=
 
+# 启用的生成模块
+# modules+= 
+
+# 模版引擎使用的配置文件
 webit.script.props += /webit-script-generator.props
 
+# 数据源的相关设置
 [db]
+# JDBC驱动
 driver=com.mysql.jdbc.Driver
+# 表前缀， 生成代码的时候将自动去除这个前缀
 tablePrefix=
+#数据源 url
 url=jdbc:mysql://localhost:3306/webit_test
+#数据源 用户名
 username=root
+#数据源 密码
 password=
 
-
+# 数据库字段到java中的类型映射
 [javaTypeMapping]
 java.sql.Timestamp=java.util.Date
 java.sql.Date=java.util.Date
@@ -30,6 +51,7 @@ java.lang.Byte=java.lang.Short
 java.math.BigDecimal=java.lang.Long
 
 
+# 类型转换， 一般用于转换默认值从字符串转换到目标格式
 [typeConverter]
 java.lang.Long=webit.generator.core.typeconverter.impl.BooleanConverter
 java.lang.Short=webit.generator.core.typeconverter.impl.ShortConverter
@@ -38,8 +60,13 @@ java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
 java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
 
 
+# 额外的参数， 这里的参数将自动设置成模版引擎的全局常量
 [extra]
+# 应用名
 appname=Webit Gen
+# 应用名简写， 最好只有字母和数字组成 不要带空格
 appname_short=WGen
+# 生成到代码中的版权信息，一般生成到每个java类文件的开头
 COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
+# 生成到代码中的作者，一般用在 java类声明前的JavaDoc中
 author=Webit-Zqq

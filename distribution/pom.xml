@@ -64,7 +64,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <distributionPath>${project.build.directory}/webit-generator-${project.version}</distributionPath>
     </properties>
 </project>

@@ -1,28 +1,56 @@
 
 
+# 调试模式
 debug=false
 
-outroot=jf-blog
+# 日志输出等级
+logger.level = info
+
+# 生成代码的路径，可以是相对路径，相对于传入的配置文件
+outroot=./jf-blog
+
+# 生成 Model类 的前缀（注意，不包括包名）
+modelPrefix=
+
+# 生成 Model类 的后缀
+modelSuffix=
+
+# 生成类的基本包
 basePkg=com.demo.blog
 
-blackEntitys+=
+# 生成 Model类的所在包
+modelPkg=${basePkg}.model
 
-modules= jfinal
+# 数据表黑名单，黑名单中的表竟会被忽略，（不要带表前缀）
+tableBlackList=
+
+# 启用的生成模块
+modules+= jfinal
 
 
+# 数据源的相关设置
 [db]
+# JDBC驱动
 driver=com.mysql.jdbc.Driver
-tableProfix=
+# 表前缀， 生成代码的时候将自动去除这个前缀
+tablePrefix=
+#数据源 url
 url=jdbc:mysql://localhost:3306/jfinal_demo
+#数据源 用户名
 username=root
+#数据源 密码
 password=
 
 
-
+# 额外的参数， 这里的参数将自动设置成模版引擎的全局常量
 [extra]
-appname=JF Blog
+# 应用名
+appname=My JFinal Blog
+# 应用名简写， 最好只有字母和数字组成 不要带空格
 appname_short=JFBlog
+# 生成到代码中的版权信息，一般生成到每个java类文件的开头
 COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
+# 生成到代码中的作者，一般用在 java类声明前的JavaDoc中
 author=Webit-Zqq
 
 
