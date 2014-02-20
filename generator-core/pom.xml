@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.zqq90.webit.generator</groupId>
+        <artifactId>webit-generator-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    
+    <artifactId>generator-core</artifactId>
+    <name>generator-core</name>
+    
+    <properties>
+        <!-- source encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- java versions -->
+        <java.source.version>1.6</java.source.version>
+        <java.target.version>1.6</java.target.version>
+    </properties>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.15</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <configuration>
+                        <debug>false</debug>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <debug>true</debug>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.zqq90.webit-script</groupId>
+            <artifactId>webit-script</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+<!--        <dependency>
+            <groupId>org.jodd</groupId>
+            <artifactId>jodd-core</artifactId>
+            <version>3.4.10</version>
+            <scope>test</scope>
+        </dependency>-->
+    </dependencies>
+</project>

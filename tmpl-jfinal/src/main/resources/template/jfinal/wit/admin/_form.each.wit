@@ -1,0 +1,44 @@
+<%
+
+var entity = currtable.sqlName;
+writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/_form.wit", #{
+%>\<%
+<% 
+
+        for(column : currtable.columns){
+            if(!column.ispk){
+%>
+var ${column.sqlName}Msg; //${column.remarks}<%      
+            }
+        } 
+%>
+var ${entity};
+%>
+<fieldset class="solid">
+    <legend>创建${currtable.remarks}</legend>
+    <input type="hidden" name="${entity}.${currtable.idColumn.sqlName}" value="\${${entity}.${currtable.idColumn.sqlName}}" />
+<% 
+
+        for(column : currtable.columns){
+            if(!column.ispk){
+%>
+    <div>
+        <label>${column.remarks}</label><%
+                if(column.size<260){
+%>
+        <input type="text" name="${entity}.${column.sqlName}" value="\${${entity}.${column.sqlName}}" />\${${column.sqlName}Msg}<%
+                }else{
+%>
+        <textarea name="${entity}.${column.sqlName}" cols="80" rows="5">\${${entity}.${column.sqlName}}</textarea>\${${column.sqlName}Msg}<%
+                }%>
+    </div>
+<%      
+            }
+        } 
+%>
+    <div>
+        <label>&nbsp;</label>
+        <input value="提交" type="submit">
+    </div>
+</fieldset>
+<% }); %>

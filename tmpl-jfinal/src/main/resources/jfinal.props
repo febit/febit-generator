@@ -1,0 +1,70 @@
+
+modules+= maven
+
+inits+=
+
+
+depends+='''
+    com.github.zqq90.webit-script:webit-script:1.4.0
+    mysql:mysql-connector-java:5.1.29
+    c3p0:c3p0:0.9.1.2
+    com.jfinal:jfinal:1.5
+'''
+
+
+testDepends+='''
+  junit:junit:4.8.2
+'''
+
+
+providedDepends+='''
+  javax.servlet:servlet-api:2.5
+'''
+
+
+
+filetypes+=
+
+
+folders+='''
+FT_WEB/WEB-INF/templates
+'''
+
+
+copys+='''
+FT_WEB/css/manage.css
+FT_WEB/WEB-INF/webit-script-webpage.props
+FT_WEB/WEB-INF/templates/common/404.wit
+FT_WEB/WEB-INF/templates/common/500.wit
+FT_WEB/WEB-INF/templates/init/layout.wit
+FT_WEB/WEB-INF/templates/init/paginate.wit
+'''
+
+
+
+tmpls+='''
+/jfinal/java/AdminInterceptor
+/jfinal/java/CommonController
+/jfinal/java/Config
+/jfinal/java/EntityAdminController.each
+/jfinal/java/EntityController.each
+/jfinal/java/EntityModel.each
+/jfinal/java/EntityValidator.each
+/jfinal/java/GlobalInterceptor
+/jfinal/web/web.xml
+/jfinal/web/jfinal.cfg
+/jfinal/wit/index
+/jfinal/wit/admin/add.each
+/jfinal/wit/admin/edit.each
+/jfinal/wit/admin/index.each
+/jfinal/wit/admin/_form.each
+/jfinal/wit/entity/index.each
+
+'''
+
+
+[extra]
+validatorPkg=${basePkg}.validator
+interceptorPkg=${basePkg}.interceptor
+controllerPkg=${basePkg}.controller
+adminControllerPkg=${basePkg}.controller.admin

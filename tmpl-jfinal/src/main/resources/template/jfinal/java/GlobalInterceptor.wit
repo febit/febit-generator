@@ -1,0 +1,19 @@
+<%
+
+writeJavaClass(false, interceptorPkg + ".GlobalInterceptor", #{
+    java_implements("Interceptor");
+    java_imports(
+        "com.jfinal.aop.Interceptor",
+        "com.jfinal.core.ActionInvocation",
+        "com.jfinal.core.Controller"
+    );
+%>
+    @Override
+    public void intercept(ActionInvocation ai) {
+        // Before
+        ai.invoke();
+        // After
+    }
+<%
+});
+%>

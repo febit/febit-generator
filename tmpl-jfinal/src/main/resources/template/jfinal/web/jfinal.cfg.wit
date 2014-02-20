@@ -1,0 +1,13 @@
+<%
+
+writeWebFile(false, "WEB-INF/jfinal.cfg", #{
+
+%>
+devMode = true
+
+db.driver= ${db.driver}
+db.jdbcUrl = ${db.url}
+db.user = ${db.username}
+db.password = ${db.password}
+
+<% }); %>

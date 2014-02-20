@@ -1,0 +1,130 @@
+<%
+var CONST;
+
+var cfg_class_modifier;
+var cfg_abstract;
+var cfg_final;
+var cfg_extends;
+var cfg_implements = new_list();
+var cfg_annotations = new_list();
+var cfg_docs = new_list();
+var cfg_imports = new_list();
+
+var initClassConfig = function(){
+    cfg_class_modifier = "public";
+    cfg_abstract = false;
+    cfg_final = false;
+    cfg_extends = null;
+    cfg_implements@list_clear();
+    cfg_annotations@list_clear();
+    cfg_docs@list_clear();
+    cfg_imports@list_clear();
+};
+
+// init at first
+initClassConfig();
+
+
+CONST.java_to_public = function(){
+    cfg_class_modifier = "public";
+};
+
+CONST.java_to_protected = function(){
+    cfg_class_modifier = "protected";
+};
+
+CONST.java_to_private = function(){
+    cfg_class_modifier = "private";
+};
+
+CONST.java_abstract = function(flag){
+    cfg_abstract = flag ? true : false;
+};
+
+CONST.java_final = function(flag){
+    cfg_final = flag ? true : false;
+};
+
+CONST.java_imports = function(){
+    cfg_imports@list_adds(arguments);
+};
+
+CONST.java_extends = function(classname){
+    cfg_extends = classname;
+};
+
+CONST.java_implements = function(){
+    cfg_implements@list_adds(arguments);
+};
+
+CONST.java_annotations = function(){
+    cfg_annotations@list_adds(arguments);
+};
+
+var java_docs = 
+CONST.java_docs = function(){
+    cfg_docs@list_adds(arguments);
+};
+
+
+var writeClassBody = function(classname, classContent){
+
+    cfg_imports = javaImportsCheck(cfg_imports, classname);
+    java_docs("", "@author "+ author);
+
+    writeCopyright(); 
+%>
+package ${classname@getClassPackageName()};
+<%
+for(aimport : cfg_imports){%>
+import ${aimport};<%
+}%>
+
+/**<%for(doc : cfg_docs){%>
+ * ${doc}<%}else{%>
+ * <%}%>
+ */
+<%
+    for(anno : cfg_annotations){
+%>
+@${anno}<%
+    }%>
+${cfg_class_modifier} ${cfg_abstract?"abstract ":null}${cfg_final?"final ":null}class ${
+    classname@getClassSimpleName()
+}${
+    cfg_extends?(" extends "+ cfg_extends):null
+}${
+    cfg_implements?" implements " + cfg_implements@list_join(", ") :null
+} {
+${classContent}
+}
+<%
+};//end writeClassBody
+
+
+CONST.writeJavaClass = function(cancel, classname, func_classContent){
+    var content;
+    if(!cancel){
+        var classContent;
+        func_classContent() => classContent;
+        writeClassBody(classname, classContent) => content;
+    }
+    writeFile(FT_JAVA, "Java file", cancel, classname, content);
+    initClassConfig();
+};
+
+
+//writeJavaPackageInfo
+CONST.writeJavaPackageInfo = function(cancel, pkgname){
+    var content;
+    if(!cancel){
+        {
+            writeCopyright(); 
+%>package ${pkgname};
+<%
+        }=>content;
+    }
+    writeFile(FT_JAVA, "Java package-info file", cancel, pkgname +".package-info", content);
+};
+
+%>

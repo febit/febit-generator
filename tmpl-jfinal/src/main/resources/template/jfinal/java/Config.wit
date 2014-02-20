@@ -1,0 +1,104 @@
+<%
+
+writeJavaClass(false, basePkg + ".Config", #{
+    java_docs("API引导式配置");
+    java_extends("JFinalConfig");
+    java_imports(
+        controllerPkg +".admin.*",
+        interceptorPkg +".GlobalInterceptor",
+        controllerPkg +".*",
+        modelPkg +".*",
+        "com.jfinal.config.Constants",
+        "com.jfinal.config.Handlers",
+        "com.jfinal.config.Interceptors",
+        "com.jfinal.config.JFinalConfig",
+        "com.jfinal.config.Plugins",
+        "com.jfinal.config.Routes",
+        "com.jfinal.core.JFinal",
+        "com.jfinal.ext.interceptor.SessionInViewInterceptor",
+        "com.jfinal.plugin.activerecord.ActiveRecordPlugin",
+        "com.jfinal.plugin.c3p0.C3p0Plugin",
+        "webit.script.support.jfinal.WebitScriptRenderFactory"
+    );
+    
+%>
+    /**
+     * 配置常量
+     */
+    public void configConstant(Constants constants) {
+
+        loadPropertyFile("jfinal.cfg");
+        constants.setDevMode(getPropertyToBoolean("devMode", false));
+
+        constants.setError404View("/common/404");
+        constants.setError500View("/common/500");
+
+        WebitScriptRenderFactory factory = new WebitScriptRenderFactory(".wit");
+        constants.setMainRenderFactory(factory);
+    }
+
+    /**
+     * 配置路由
+     */
+    public void configRoute(Routes routes) {
+        routes.add("/", CommonController.class);
+    <% 
+    for(table : tables) {
+        var sqlname = table.sqlName;
+        var entity = table.entity;
+        var entityUpperFirst = entity@upperFirst();
+    %>
+        routes.add("/${sqlname}", ${entityUpperFirst}Controller.class);
+        routes.add("/admin/${sqlname}", ${entityUpperFirst}AdminController.class);
+    <% } %>
+    }
+
+    /**
+     * 配置插件
+     */
+    public void configPlugin(Plugins plugins) {
+        // 配置C3p0数据库连接池插件
+        C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("db.jdbcUrl").trim(),
+                getProperty("db.user").trim(), 
+                getProperty("db.password").trim(),
+                getProperty("db.driver").trim()
+        );
+        plugins.add(c3p0Plugin);
+
+        // 配置ActiveRecord插件
+        ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
+        plugins.add(arp);
+<% 
+    for(table : tables) {
+        var sqlname = table.sqlName;
+        var entity = table.entity;
+        var entityUpperFirst = entity@upperFirst();
+%>
+        arp.addMapping("${sqlname}", "${table.idColumn.sqlName}", ${entityUpperFirst}.class);  //table.remarks<%
+    } %>
+    }
+
+    /**
+     * 配置全局拦截器
+     */
+    public void configInterceptor(Interceptors interceptors) {
+        interceptors.add(new SessionInViewInterceptor());
+        interceptors.add(new GlobalInterceptor());
+    }
+
+    /**
+     * 配置处理器
+     */
+    public void configHandler(Handlers handlers) {
+    }
+
+    /**
+     * 建议使用 JFinal 手册推荐的方式启动项目 运行此 main
+     * 方法可以启动项目，此main方法可以放置在任意的Class类定义中，不一定要放于此
+     */
+    public static void main(String[] args) {
+        JFinal.start("${appname_short}", 80, "/", 5);
+    }
+<%
+});
+%>

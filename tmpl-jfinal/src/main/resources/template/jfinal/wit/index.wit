@@ -1,0 +1,27 @@
+<%
+
+writeWebFile(false, "WEB-INF/templates/index.wit", #{
+
+%>\<%
+layout(function(){
+%>
+<h1>生成的首页</h1>
+<div class="table_box">
+    <p>本首页由Webit-Generator生成</p>
+    点击以下链接进行测试：
+    <% 
+    for(table : tables) {
+        var entity = table.sqlName;
+    %>
+    <h2>${table.remarks}</h2>
+    <br>
+    <br>
+    <a href="\${BASE_PATH}/${entity}">/${entity}</a>
+    <br>
+    <a href="\${BASE_PATH}/admin/${entity}">/admin/${entity}</a>
+    <br>
+    <a href="\${BASE_PATH}/admin/${entity}/add">/admin/${entity}/add</a>
+    <% } %>
+</div>
+\<% }); %>
+<% }); %>

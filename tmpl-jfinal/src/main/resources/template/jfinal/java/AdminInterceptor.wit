@@ -1,0 +1,24 @@
+<%
+
+writeJavaClass(false, interceptorPkg + ".AdminInterceptor", #{
+    java_implements("Interceptor");
+    java_imports(
+        "com.jfinal.aop.Interceptor",
+        "com.jfinal.core.ActionInvocation",
+        "com.jfinal.core.Controller"
+    );
+%>
+    @Override
+    public void intercept(ActionInvocation ai) {
+        final Controller controller = ai.getController();
+        //TODO: Check Auth Admin  
+        if (true) {
+            ai.invoke();
+        } else {
+            controller.setAttr("msg", "需要管理员权限");
+            controller.renderError(500);
+        }
+    }
+<%
+});
+%>

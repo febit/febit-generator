@@ -1,0 +1,11 @@
+## Webit Script 配置文件
+
+[engine]
+logger=webit.script.loggers.impl.SimpleLogger
+appendLostSuffix=true
+inits=/init/layout, /init/paginate
+
+
+[global]
+# 附加自己的全局变量注册器
+# registers += 

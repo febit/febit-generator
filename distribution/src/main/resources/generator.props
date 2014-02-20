@@ -1,0 +1,29 @@
+
+
+debug=false
+
+outroot=jf-blog
+basePkg=com.demo.blog
+
+blackEntitys+=
+
+modules= jfinal
+
+
+[db]
+driver=com.mysql.jdbc.Driver
+tableProfix=
+url=jdbc:mysql://localhost:3306/jfinal_demo
+username=root
+password=
+
+
+
+[extra]
+appname=JF Blog
+appname_short=JFBlog
+COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
+author=Webit-Zqq
+
+
+

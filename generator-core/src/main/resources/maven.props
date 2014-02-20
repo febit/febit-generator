@@ -1,0 +1,30 @@
+
+
+modules+=
+
+inits+=
+
+
+depends+='''
+'''
+
+testDepends+='''
+'''
+
+
+providedDepends+='''
+'''
+
+
+folders+='''
+    FT_BASE/src/main/java
+    FT_BASE/src/main/resources
+    FT_BASE/src/test/java
+    FT_BASE/src/test/resources
+'''
+
+
+
+tmpls+='''
+/maven/pom.xml
+'''

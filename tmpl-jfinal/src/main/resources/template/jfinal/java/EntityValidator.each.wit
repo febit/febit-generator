@@ -1,0 +1,56 @@
+<%
+
+var table_sqlname = currtable.sqlName;
+var entity = currtable.entity;
+var entityUpperFirst = entity@upperFirst();
+
+writeJavaClass(false, validatorPkg + "."+ entityUpperFirst +"Validator", #{
+    java_extends("Validator");
+    java_imports(
+        modelPkg + "." + entityUpperFirst,
+        "com.jfinal.core.Controller",
+        "com.jfinal.validate.Validator"
+    );
+%>
+    protected void validate(Controller controller) {
+<% 
+    //All Columns
+    for (column : currtable.columns){
+        if(!column.ispk){
+            var col_stype = column.javaSimpleType;
+            var col_opti = column.optional;
+            var col_sqlname = column.sqlName;
+            var col_size = column.size;
+            if(!column.optional){
+                if(col_stype == "String" && col_size >0){
+%>
+        //${column.remarks}
+        validateString("${table_sqlname}.${col_sqlname}", 1, ${col_size},"${col_sqlname}Msg", "请输入内容!");<%
+                } else if(col_stype@in_arr(["Integer","Short"])){
+%>
+        //${column.remarks}
+        validateInteger("${table_sqlname}.${col_sqlname}", Integer.MIN_VALUE, Integer.MAX_VALUE,"${col_sqlname}Msg", "请输入内容!");<%
+                } else {
+%>
+        //${column.remarks}
+        validateRequired("${table_sqlname}.${col_sqlname}","${col_sqlname}Msg", "请输入内容!");<%
+}
+            }
+        }
+    }
+%>
+    }
+
+    protected void handleError(Controller controller) {
+        controller.keepModel(${entityUpperFirst}.class);
+
+        String actionKey = getActionKey();
+        if (actionKey.equals("/admin/${table_sqlname}/save")) {
+            controller.render("/admin/${table_sqlname}/add");
+        } else if (actionKey.equals("/admin/${table_sqlname}/update")) {
+            controller.render("/admin/${table_sqlname}/edit");
+        }
+    }
+<%
+});
+%>

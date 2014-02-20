@@ -1,0 +1,45 @@
+
+debug=false
+logger.level = info
+
+outroot=../webit-output
+
+modelPrefix=
+modelSuffix=
+
+basePkg=com.webit.gen
+modelPkg=${basePkg}.model
+
+tableBlackList=
+
+webit.script.props += /webit-script-generator.props
+
+[db]
+driver=com.mysql.jdbc.Driver
+tablePrefix=
+url=jdbc:mysql://localhost:3306/webit_test
+username=root
+password=
+
+
+[javaTypeMapping]
+java.sql.Timestamp=java.util.Date
+java.sql.Date=java.util.Date
+java.sql.Time=java.util.Date
+java.lang.Byte=java.lang.Short
+java.math.BigDecimal=java.lang.Long
+
+
+[typeConverter]
+java.lang.Long=webit.generator.core.typeconverter.impl.BooleanConverter
+java.lang.Short=webit.generator.core.typeconverter.impl.ShortConverter
+java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
+java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
+java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
+
+
+[extra]
+appname=Webit Gen
+appname_short=WGen
+COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
+author=Webit-Zqq
