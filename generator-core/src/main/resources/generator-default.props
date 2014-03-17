@@ -53,7 +53,7 @@ java.math.BigDecimal=java.lang.Long
 
 # 类型转换， 一般用于转换默认值从字符串转换到目标格式
 [typeConverter]
-java.lang.Long=webit.generator.core.typeconverter.impl.BooleanConverter
+java.lang.Long=webit.generator.core.typeconverter.impl.LongConverter
 java.lang.Short=webit.generator.core.typeconverter.impl.ShortConverter
 java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
 java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
