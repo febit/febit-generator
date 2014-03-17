@@ -36,6 +36,7 @@ CONST.tm_getFkColumnsByType = native TableModel.getFkColumnsByType(String);
 
 CONST.isModuleActived = native Config.isModuleActived(String);
 
+CONST.parseInt = native Integer.parseInt(String);
 
 //writeFile
 var writeFile = 
