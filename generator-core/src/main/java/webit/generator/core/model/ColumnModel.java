@@ -86,9 +86,9 @@ public class ColumnModel implements Comparable<ColumnModel> {
             final Object defaultValueObject
                     = this.defaultValue
                     = TypeConverterUtil.convert(javaType, defaultValueString);
-
-            if (defaultValueObject instanceof Boolean
-                    || defaultValueObject instanceof Number) {
+            if (defaultValueObject instanceof Boolean) {
+                defaultValueShow = defaultValueObject.toString();
+            } else if (defaultValueObject instanceof Number) {
                 defaultValueShow = defaultValueString;
             } else {
                 defaultValueShow = "\"" + defaultValueString + "\"";
