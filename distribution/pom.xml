@@ -50,7 +50,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tmpl-jfinal</artifactId>
-            <version>1.0.0-20140206</version>
+            <version>1.0.0-20140317</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>com.github.zqq90.webit-script</groupId>
             <artifactId>webit-script</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
         </dependency>
     </dependencies>
     <properties>

@@ -13,7 +13,7 @@ writeJavaClass(false, controllerPkg + "."+ entityUpperFirst +"Controller", #{
     );
 %>
     public void index() {
-        setAttr("${table_sqlname}Page", Blog.dao.paginate(getParaToInt(0, 1), 10, "SELECT *", "FROM ${table_sqlname} ORDER BY ${currtable.idColumn.sqlName} ASC"));
+        setAttr("${table_sqlname}Page", ${entityUpperFirst}.dao.paginate(getParaToInt(0, 1), 10, "SELECT *", "FROM ${table_sqlname} ORDER BY ${currtable.idColumn.sqlName} ASC"));
         render("/${table_sqlname}/index");
     }
 <%
