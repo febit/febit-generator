@@ -57,6 +57,7 @@ java.lang.Long=webit.generator.core.typeconverter.impl.LongConverter
 java.lang.Short=webit.generator.core.typeconverter.impl.ShortConverter
 java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
 java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
+java.lang.Double=webit.generator.core.typeconverter.impl.DoubleConverter
 java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
 
 

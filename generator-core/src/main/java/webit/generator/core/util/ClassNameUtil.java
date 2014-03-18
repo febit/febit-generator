@@ -82,12 +82,12 @@ public class ClassNameUtil {
         final String thisPkg = ClassNameUtil.getClassPackageName(thisClassName);
         for (Iterator it = list.iterator(); it.hasNext();) {
             String item = (String) it.next();
-            if (item.endsWith("[]")) {
+            while (item.endsWith("[]")) {
                 item = item.substring(0, item.length() - 2);
             }
             final String pkg;
             if (imports.contains(item)
-                    || (item.indexOf('.') <= 0 && ArraysUtil.contains(BASE_TYPES, item))
+                    || (item.indexOf('.') < 0 && ArraysUtil.contains(BASE_TYPES, item))
                     || (pkg = ClassNameUtil.getClassPackageName(item)).equals("java.lang")
                     || pkg.equals(thisPkg)
                     || imports.contains(pkg.concat(".*"))) {

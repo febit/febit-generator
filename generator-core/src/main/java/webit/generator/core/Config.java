@@ -111,7 +111,7 @@ public class Config {
         loadDefault();
         if (filename != null) {
             try {
-                Props moduleProps = new Props();
+                Props moduleProps = PropsUtil.createProps();
                 PropsUtil.loadFormFile(moduleProps, filename);
                 resolveModules(moduleProps.getValue(PROPS_MODULES));
                 props.merge(moduleProps);
@@ -121,6 +121,7 @@ public class Config {
         }
         initalize();
     }
+
 
     public static boolean isModuleActived(String name) {
         return MODULES.contains(name);
@@ -136,7 +137,7 @@ public class Config {
                 }
                 Props moduleProps;
                 if ((moduleProps = MODILES_PROPS.get(depend)) == null) {
-                    MODILES_PROPS.put(depend, moduleProps = new Props());
+                    MODILES_PROPS.put(depend, moduleProps = PropsUtil.createProps());
                     if (PropsUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
                         throw buildException("Not found module:" + depend);
                     }

@@ -23,9 +23,15 @@ public class PropsUtil {
         props.load(FileUtil.readChars(fileName));
     }
 
+    public static Props createProps() {
+        Props props = new Props();
+        props.setSkipEmptyProps(false);
+        return props;
+    }
+    
     public static Props createFromClasspath(String fileName) {
         final Props props;
-        loadFormClasspath(props = new Props(), fileName);
+        loadFormClasspath(props =createProps(), fileName);
         return props;
     }
 }

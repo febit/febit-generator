@@ -59,7 +59,7 @@ public class ResourceUtil {
     public static Map<String, String> loadResource(String filename) {
         final Props props;
         try {
-            PropsUtil.loadFormFile(props = new Props(), getResPath(filename));
+            PropsUtil.loadFormFile(props = PropsUtil.createProps(), getResPath(filename));
         } catch (IOException ex) {
             //Logger.error("IOException of file: " + getResPath(filename), ex);
             //throw new RuntimeException(ex);

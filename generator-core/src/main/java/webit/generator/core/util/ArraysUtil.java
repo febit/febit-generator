@@ -21,7 +21,11 @@ public class ArraysUtil {
 
     public static int indexOf(Object[] array, Object value, int startIndex) {
         for (int i = startIndex; i < array.length; i++) {
-            if (array[i] == value) {
+            if (value != null) {
+                if (value.equals(array[i])) {
+                    return i;
+                }
+            } else if (array[i] == null) {
                 return i;
             }
         }
