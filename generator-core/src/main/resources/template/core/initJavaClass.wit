@@ -53,11 +53,11 @@ CONST.java_extends = function(classname){
     cfg_extends = classname;
 };
 
-CONST.java_implements = function(){
+CONST.java_impl = CONST.java_implements = function(){
     cfg_implements@list_adds(arguments);
 };
 
-CONST.java_annotations = function(){
+CONST.java_annotations = CONST.java_anno = function(){
     cfg_annotations@list_adds(arguments);
 };
 
