@@ -20,9 +20,8 @@ public class ExtjsFileSaver extends AbstractFileSaver {
     }
 
     @Override
-    protected String getFilePath() {
-        String classname = TemplateContextUtil.getFileName();
-        return classname.replace('.', FileUtil.SYSTEM_SEPARATOR) + ".js";
+    protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
+        return fileEntry.fileName.replace('.', FileUtil.SYSTEM_SEPARATOR) + ".js";
     }
 
     public void init(String outroot) {

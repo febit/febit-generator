@@ -101,6 +101,9 @@ ${classContent}
 <%
 };//end writeClassBody
 
+CONST.createPkg = function(name){
+    createFolder(FT_JAVA, str_replace(name, ".", "/"));
+};
 
 CONST.writeJavaClass = function(cancel, classname, func_classContent){
     var content;

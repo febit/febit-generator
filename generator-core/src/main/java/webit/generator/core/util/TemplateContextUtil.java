@@ -1,8 +1,8 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.core.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -10,40 +10,45 @@ import java.util.Map;
  */
 public class TemplateContextUtil {
 
-    public final static Map<String, Object> backMap = new HashMap<String, Object>();
+    public static class FileEntry {
 
-    public final static String FILE_TYPE = "FILE_TYPE";
-    public final static String FILE_NAME = "FILE_NAME";
-    public final static String CANCEL = "CANCEL";
-    public final static String CONTENT = "CONTENT";
+        public final boolean cancel;
+        public final int type;
+        public final String fileName;
+        public final Object context;
 
-    public static void put(String key, Object value) {
-        backMap.put(key, value);
+        public FileEntry(boolean cancel, int type, String fileName, Object context) {
+            this.cancel = cancel;
+            this.type = type;
+            this.fileName = fileName;
+            this.context = context;
+        }
     }
 
-    public static Object get(String key) {
-        return backMap.get(key);
+    public static class FolderEntry extends FileEntry {
+
+        public FolderEntry(boolean cancel, int type, String fileName) {
+            super(cancel, type, fileName, null);
+        }
     }
+
+    public static void saveToFile(boolean cancel, int type, String fileName, Object context) {
+        files.add(new FileEntry(cancel, type, fileName, context));
+    }
+
+    public static void createFolder(int type, String fileName) {
+        folders.add(new FolderEntry(false, type, fileName));
+    }
+
+    public static void createFolder(boolean cancel, int type, String fileName) {
+        folders.add(new FolderEntry(cancel, type, fileName));
+    }
+
+    public final static List<FileEntry> files = new ArrayList<FileEntry>();
+    public final static List<FolderEntry> folders = new ArrayList<FolderEntry>();
 
     public static void reset() {
-        backMap.clear();
-    }
-
-    public static int getFileType() {
-        final Object value;
-        return (value = get(FILE_TYPE)) != null ? (Integer) value : 0;
-    }
-
-    public static boolean isCancel() {
-        final Object value;
-        return (value = get(CANCEL)) != null ? (Boolean) value : false;
-    }
-
-    public static String getFileName() {
-        return String.valueOf(get(FILE_NAME));
-    }
-
-    public static Object getContent() {
-        return get(CONTENT);
+        files.clear();
+        folders.clear();
     }
 }

@@ -20,11 +20,11 @@ public abstract class AbstractFileSaver implements FileSaver {
 
     private final static String COPY_ROOT = "copy/";
 
-    protected abstract String getFilePath();
+    protected abstract String getFilePath(TemplateContextUtil.FileEntry fileEntry);
     protected abstract String getBasePath();
 
-    protected byte[] getContentFromTmpl() {
-        Object object = TemplateContextUtil.getContent();
+    protected byte[] getContentFromTmpl(TemplateContextUtil.FileEntry fileEntry) {
+        final Object object = fileEntry.context;
         if (object instanceof byte[]) {
             return (byte[]) object;
         }
@@ -72,10 +72,10 @@ public abstract class AbstractFileSaver implements FileSaver {
         return true;
     }
 
-    public boolean saveFile(String tmpl) {
-        String path = getFilePath();
+    public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
+        String path = getFilePath(fileEntry);
         try {
-            writeFile(path, getContentFromTmpl());
+            writeFile(path, getContentFromTmpl(fileEntry));
         } catch (IOException ex) {
             return dealExceptions("Unable to saveFile: " + path, ex);
         }

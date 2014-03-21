@@ -20,8 +20,8 @@ public class BaseFileFileSaver extends AbstractFileSaver {
     }
 
     @Override
-    protected String getFilePath() {
-        return TemplateContextUtil.getFileName();
+    protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
+        return fileEntry.fileName;
     }
 
     public void init(String outroot) {

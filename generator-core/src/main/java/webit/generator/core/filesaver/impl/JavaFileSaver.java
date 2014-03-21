@@ -20,9 +20,8 @@ public class JavaFileSaver extends AbstractFileSaver {
     }
 
     @Override
-    protected String getFilePath() {
-        String classname =  TemplateContextUtil.getFileName();
-        return classname.replace('.', FileUtil.SYSTEM_SEPARATOR) + ".java";
+    protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
+        return fileEntry.fileName.replace('.', FileUtil.SYSTEM_SEPARATOR) + ".java";
     }
 
     public void init(String outroot) {

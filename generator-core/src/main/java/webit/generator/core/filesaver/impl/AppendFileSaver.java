@@ -23,8 +23,8 @@ public class AppendFileSaver extends AbstractAppendFileSaver {
         this.outroot = outroot;
     }
 
-    protected String getFilePath() {
-        final String realpath = FileUtil.concat(outroot, TemplateContextUtil.getFileName());
+    protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
+        final String realpath = FileUtil.concat(outroot, fileEntry.fileName);
         if (clearedFiles.contains(realpath) == false) {
             clearedFiles.add(realpath);
             try {

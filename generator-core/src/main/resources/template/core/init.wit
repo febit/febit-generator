@@ -9,12 +9,13 @@ var CONST;
 @import webit.generator.core.util.SQLUtil;
 @import webit.generator.core.model.TableModel;
 @import webit.generator.core.util.template.ContextUtil;
+@import webit.generator.core.util.TemplateContextUtil;
 @import webit.generator.core.util.ClassNameUtil;
 @import webit.generator.core.Config;
 
 
 //Global Functions
-
+CONST.str_replace = native StringUtil.replace(String, String, String);
 CONST.new_list = native new ArrayList();
 CONST.list_size = native List.size();
 CONST.list_clear = native List.clear();
@@ -25,6 +26,7 @@ CONST.list_adds = native CollectionUtil.adds(List, Object[]);
 CONST.list_join = native StringUtil.join(Iterable, String);
 
 CONST.upperFirst = native ClassNameUtil.upperFirst(String);
+CONST.lowerFirst = native ClassNameUtil.lowerFirst(String);
 CONST.getClassPackageName = native ClassNameUtil.getClassPackageName(String);
 CONST.getClassSimpleName = native ClassNameUtil.getClassSimpleName(String);
 
@@ -38,13 +40,16 @@ CONST.isModuleActived = native Config.isModuleActived(String);
 
 CONST.parseInt = native Integer.parseInt(String);
 
+var saveToFile =
+CONST.saveToFile = native TemplateContextUtil.saveToFile(boolean, int, String, Object);
+
+var createFolder =
+CONST.createFolder = native TemplateContextUtil.createFolder(int, String);
+
 //writeFile
 var writeFile = 
 CONST.writeFile = function(fileType, fileTypeName, cancel, filename, content) {
-    BACK[FILE_TYPE] = fileType;
-    BACK[CANCEL] = cancel;
-    BACK[FILE_NAME] = filename;
-
+    saveToFile(cancel, fileType, filename, content);
 %>
 =====================================
 type: ${fileTypeName}
@@ -54,7 +59,6 @@ file name: ${filename}<%
 Canceled !!
 <%
     }else{
-        BACK[CONTENT] = content;
         if(DEBUG){
 %>
 ===> Source: 

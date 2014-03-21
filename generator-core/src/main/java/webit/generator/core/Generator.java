@@ -51,11 +51,6 @@ public class Generator {
         this.templateEngine = engine = Engine.createEngine(Config.getString("webit.script.props"));
         final GlobalManager globalManager = engine.getGlobalManager();
         this.constMap = globalManager.getConstBag();
-        this.constMap.set("BACK", TemplateContextUtil.backMap);
-        this.constMap.set("CANCEL", TemplateContextUtil.CANCEL);
-        this.constMap.set("CONTENT", TemplateContextUtil.CONTENT);
-        this.constMap.set("FILE_TYPE", TemplateContextUtil.FILE_TYPE);
-        this.constMap.set("FILE_NAME", TemplateContextUtil.FILE_NAME);
 
         globalManager.getGlobalBag().set("currtable", null);
         globalManager.commit();
@@ -138,6 +133,7 @@ public class Generator {
                         }
                     }
                 }
+
             }
 
             margeTemplates();
@@ -186,17 +182,30 @@ public class Generator {
 
         TemplateContextUtil.reset();
         this.templateEngine.getTemplate(templateName).merge(params, Logger.out);
-        if (TemplateContextUtil.isCancel()) {
-            return;
+
+        for (TemplateContextUtil.FileEntry fileEntry : TemplateContextUtil.files) {
+            if (fileEntry.cancel) {
+                continue;
+            }
+            final FileSaver fileSaver = getFileSaver(fileEntry.type);
+            if (fileSaver != null) {
+                fileSaver.saveFile(templateName, fileEntry);
+            } else {
+                throw new Exception("TmplFileSaver not found with id: " + fileEntry.type);
+            }
         }
-        final int fileType = TemplateContextUtil.getFileType();
-        final FileSaver fileSaver = getFileSaver(fileType);
-        if (fileSaver != null) {
-            fileSaver.saveFile(templateName);
-            TemplateContextUtil.reset();
-        } else {
-            throw new Exception("TmplFileSaver not found with id: " + fileType);
+        for (TemplateContextUtil.FolderEntry folderEntry : TemplateContextUtil.folders) {
+            if (folderEntry.cancel) {
+                continue;
+            }
+            final FileSaver fileSaver = getFileSaver(folderEntry.type);
+            if (fileSaver != null) {
+                fileSaver.createFolder(folderEntry.fileName);
+            } else {
+                throw new Exception("TmplFileSaver not found with id: " + folderEntry.type);
+            }
         }
+        TemplateContextUtil.reset();
     }
 
     protected void initFileSaver() throws ClassNotFoundException, InstantiationException, IllegalAccessException {

@@ -12,10 +12,10 @@ import webit.generator.core.util.TemplateContextUtil;
  */
 public abstract class AbstractAppendFileSaver implements FileSaver {
 
-    protected abstract String getFilePath();
+    protected abstract String getFilePath(TemplateContextUtil.FileEntry fileEntry);
 
-    protected byte[] getContentFromTmpl() {
-        final Object object = TemplateContextUtil.getContent();
+    protected byte[] getContentFromTmpl(TemplateContextUtil.FileEntry fileEntry) {
+        final Object object = fileEntry.context;
         if (object instanceof byte[]) {
             return (byte[]) object;
         }
@@ -26,14 +26,14 @@ public abstract class AbstractAppendFileSaver implements FileSaver {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean createFolder(String string) {
+    public boolean createFolder(String folder) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean saveFile(String string) {
-        final String realpath = getFilePath();
+    public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
+        final String realpath = getFilePath(fileEntry);
         try {
-            FileUtil.appendBytes(realpath, getContentFromTmpl());
+            FileUtil.appendBytes(realpath, getContentFromTmpl(fileEntry));
         } catch (IOException ex) {
             Logger.error("Unable to saveFile: " + realpath, ex);
             return false;

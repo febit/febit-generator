@@ -82,6 +82,9 @@ public class ClassNameUtil {
         final String thisPkg = ClassNameUtil.getClassPackageName(thisClassName);
         for (Iterator it = list.iterator(); it.hasNext();) {
             String item = (String) it.next();
+            if (item == null) {
+                continue;
+            }
             while (item.endsWith("[]")) {
                 item = item.substring(0, item.length() - 2);
             }
