@@ -5,7 +5,7 @@ inits+=
 
 
 depends+='''
-    com.github.zqq90.webit-script:webit-script:1.4.0
+    com.github.zqq90.webit-script:webit-script:1.4.2
     mysql:mysql-connector-java:5.1.29
     c3p0:c3p0:0.9.1.2
     com.jfinal:jfinal:1.5

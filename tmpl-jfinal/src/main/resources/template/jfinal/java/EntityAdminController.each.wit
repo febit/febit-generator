@@ -17,8 +17,8 @@ writeJavaClass(false, controllerPkg + ".admin."+ entityUpperFirst +"AdminControl
     );
 %>
     public void index() {
-        setAttr("${table_sqlname}Page", ${entityUpperFirst}.dao.paginate(getParaToInt(0, 1), 10, "SELECT *", "FROM ${table_sqlname} ORDER BY ${currtable.idColumn.sqlName} ASC"));
-        render("/admin/${table_sqlname}/index");
+        setAttr("${entity}Page", ${entityUpperFirst}.dao.paginate(getParaToInt(0, 1), 10, "SELECT *", "FROM ${db.tablePrefix}${table_sqlname} ORDER BY ${currtable.idColumn.sqlName} ASC"));
+        render("/admin/${entity}/index");
     }
 
     public void add() {
@@ -27,22 +27,22 @@ writeJavaClass(false, controllerPkg + ".admin."+ entityUpperFirst +"AdminControl
     @Before({AdminInterceptor.class, ${entityUpperFirst}Validator.class})
     public void save() {
         getModel(${entityUpperFirst}.class).save();
-        redirect("/admin/${table_sqlname}");
+        redirect("/admin/${entity}");
     }
 
     public void edit() {
-        setAttr("${table_sqlname}", ${entityUpperFirst}.dao.findById(getParaToInt()));
+        setAttr("${entity}", ${entityUpperFirst}.dao.findById(getParaToInt()));
     }
 
     @Before({AdminInterceptor.class, ${entityUpperFirst}Validator.class})
     public void update() {
         getModel(${entityUpperFirst}.class).update();
-        redirect("/admin/${table_sqlname}");
+        redirect("/admin/${entity}");
     }
 
     public void delete() {
         ${entityUpperFirst}.dao.deleteById(getParaToInt());
-        redirect("/admin/${table_sqlname}");
+        redirect("/admin/${entity}");
     }
 <%
 });

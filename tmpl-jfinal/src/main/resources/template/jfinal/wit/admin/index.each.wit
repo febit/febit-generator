@@ -1,6 +1,6 @@
 <%
 
-var entity = currtable.sqlName;
+var entity = currtable.entity;
 writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/index.wit", #{
 %>\<%
 

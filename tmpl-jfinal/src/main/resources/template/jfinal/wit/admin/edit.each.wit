@@ -1,6 +1,6 @@
 <%
 
-var entity = currtable.sqlName;
+var entity = currtable.entity;
 writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/edit.wit", #{
 %>\<% layout(function(){ %>
 <h1>${currtable.remarks}管理 ---&gt; 修改${currtable.remarks}

@@ -25,15 +25,15 @@ writeJavaClass(false, validatorPkg + "."+ entityUpperFirst +"Validator", #{
                 if(col_stype == "String" && col_size >0){
 %>
         //${column.remarks}
-        validateString("${table_sqlname}.${col_sqlname}", 1, ${col_size},"${col_sqlname}Msg", "请输入内容!");<%
+        validateString("${entity}.${col_sqlname}", 1, ${col_size},"${col_sqlname}Msg", "请输入内容!");<%
                 } else if(col_stype@in_arr(["Integer","Short"])){
 %>
         //${column.remarks}
-        validateInteger("${table_sqlname}.${col_sqlname}", Integer.MIN_VALUE, Integer.MAX_VALUE,"${col_sqlname}Msg", "请输入内容!");<%
+        validateInteger("${entity}.${col_sqlname}", Integer.MIN_VALUE, Integer.MAX_VALUE,"${col_sqlname}Msg", "请输入内容!");<%
                 } else {
 %>
         //${column.remarks}
-        validateRequired("${table_sqlname}.${col_sqlname}","${col_sqlname}Msg", "请输入内容!");<%
+        validateRequired("${entity}.${col_sqlname}","${col_sqlname}Msg", "请输入内容!");<%
 }
             }
         }
@@ -45,10 +45,10 @@ writeJavaClass(false, validatorPkg + "."+ entityUpperFirst +"Validator", #{
         controller.keepModel(${entityUpperFirst}.class);
 
         String actionKey = getActionKey();
-        if (actionKey.equals("/admin/${table_sqlname}/save")) {
-            controller.render("/admin/${table_sqlname}/add");
-        } else if (actionKey.equals("/admin/${table_sqlname}/update")) {
-            controller.render("/admin/${table_sqlname}/edit");
+        if (actionKey.equals("/admin/${entity}/save")) {
+            controller.render("/admin/${entity}/add");
+        } else if (actionKey.equals("/admin/${entity}/update")) {
+            controller.render("/admin/${entity}/edit");
         }
     }
 <%

@@ -11,7 +11,7 @@ layout(function(){
     点击以下链接进行测试：
     <% 
     for(table : tables) {
-        var entity = table.sqlName;
+        var entity = table.entity;
     %>
     <h2>${table.remarks}</h2>
     <br>

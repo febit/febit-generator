@@ -48,8 +48,8 @@ writeJavaClass(false, basePkg + ".Config", #{
         var entity = table.entity;
         var entityUpperFirst = entity@upperFirst();
     %>
-        routes.add("/${sqlname}", ${entityUpperFirst}Controller.class);
-        routes.add("/admin/${sqlname}", ${entityUpperFirst}AdminController.class);
+        routes.add("/${entity}", ${entityUpperFirst}Controller.class);
+        routes.add("/admin/${entity}", ${entityUpperFirst}AdminController.class);
     <% } %>
     }
 
@@ -69,12 +69,13 @@ writeJavaClass(false, basePkg + ".Config", #{
         ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
         plugins.add(arp);
 <% 
+    var sql_pre = db.tablePrefix;
     for(table : tables) {
         var sqlname = table.sqlName;
         var entity = table.entity;
         var entityUpperFirst = entity@upperFirst();
 %>
-        arp.addMapping("${sqlname}", "${table.idColumn.sqlName}", ${entityUpperFirst}.class);  //table.remarks<%
+        arp.addMapping("${sql_pre}${sqlname}", "${table.idColumn.sqlName}", ${entityUpperFirst}.class);  //table.remarks<%
     } %>
     }
 
