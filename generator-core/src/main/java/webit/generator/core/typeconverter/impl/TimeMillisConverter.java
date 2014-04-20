@@ -2,6 +2,7 @@
 package webit.generator.core.typeconverter.impl;
 
 import webit.generator.core.typeconverter.Converter;
+import webit.generator.core.util.Logger;
 
 /**
  *
@@ -11,6 +12,15 @@ public class TimeMillisConverter implements Converter<Long> {
 
     public Long convert(String stringValue) {
         //TODO： 识别标准Date 格式
-        return Long.parseLong(stringValue);
+        if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
+            try {
+                return Long.valueOf(stringValue);
+            } catch (NumberFormatException e) {
+                Logger.error("默认值的格式错误：" + stringValue, e);
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }
