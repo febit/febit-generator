@@ -2,6 +2,7 @@
 package webit.generator.core.typeconverter.impl;
 
 import webit.generator.core.typeconverter.Converter;
+import webit.generator.core.util.Logger;
 
 /**
  *
@@ -10,6 +11,15 @@ import webit.generator.core.typeconverter.Converter;
 public class ShortConverter implements Converter<Short> {
 
     public Short convert(String stringValue) {
-        return Short.valueOf(stringValue);
+        if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
+            try {
+                return Short.valueOf(stringValue);
+            } catch (NumberFormatException e) {
+                Logger.error("默认值的格式错误：" + stringValue, e);
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }
