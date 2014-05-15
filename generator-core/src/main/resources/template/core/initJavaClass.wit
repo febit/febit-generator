@@ -5,6 +5,7 @@ var cfg_class_modifier;
 var cfg_abstract;
 var cfg_final;
 var cfg_extends;
+var cfg_class_interface = false;
 var cfg_implements = new_list();
 var cfg_annotations = new_list();
 var cfg_docs = new_list();
@@ -24,6 +25,9 @@ var initClassConfig = function(){
 // init at first
 initClassConfig();
 
+CONST.java_to_interface = function(){
+    cfg_class_interface = true;
+};
 
 CONST.java_to_public = function(){
     cfg_class_modifier = "public";
@@ -89,7 +93,7 @@ import ${aimport};<%
 %>
 @${anno}<%
     }%>
-${cfg_class_modifier} ${cfg_abstract?"abstract ":null}${cfg_final?"final ":null}class ${
+${cfg_class_modifier} ${cfg_abstract?"abstract ":null}${cfg_final?"final ":null}${cfg_class_interface?"interface":"class"} ${
     classname@getClassSimpleName()
 }${
     cfg_extends?(" extends "+ cfg_extends):null
