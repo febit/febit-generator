@@ -18,6 +18,8 @@ var CONST;
 CONST.str_replace = native StringUtil.replace(String, String, String);
 CONST.new_list = native new ArrayList();
 CONST.list_size = native List.size();
+CONST.list_contains = native List.contains(Object);
+CONST.list_merge = native List.addAll(java.util.Collection);
 CONST.list_clear = native List.clear();
 CONST.list_add = native List.add(Object);
 

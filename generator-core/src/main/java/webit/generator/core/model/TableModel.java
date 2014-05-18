@@ -37,7 +37,7 @@ public class TableModel implements Comparable<TableModel> {
         this.modelSimpleName = Config.getString("modelPrefix", "") + ClassNameUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
         this.modelFullName = Config.getString("modelPkg", Config.getRequiredString("basePkg")) + "." + modelSimpleName;
         this.idColumns = new ArrayList<ColumnModel>();
-        
+
         for (Column column : table.getColumns()) {
             ColumnModel cm = new ColumnModel(column, this, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
             if (cm.isIspk()) {
@@ -138,6 +138,19 @@ public class TableModel implements Comparable<TableModel> {
             if (columnModel.isIspk()) {
                 tableModels.add(columnModel.getParent());
             }
+        }
+        return tableModels.isEmpty() ? null : tableModels;
+    }
+
+    public List<TableModel> getLinkedTables() {
+        final ColumnModel idColumn = getIdColumn();
+        if (idColumn == null || idColumn.isIsLinkKey() == false) {
+            return null;
+        }
+
+        List<TableModel> tableModels = new ArrayList<TableModel>();
+        for (ColumnModel columnModel : idColumn.getLinkColumns()) {
+            tableModels.add(columnModel.getParent());
         }
         return tableModels.isEmpty() ? null : tableModels;
     }
