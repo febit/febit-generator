@@ -48,7 +48,7 @@ java.sql.Timestamp=java.util.Date
 java.sql.Date=java.util.Date
 java.sql.Time=java.util.Date
 java.lang.Byte=java.lang.Short
-java.math.BigDecimal=java.lang.Long
+#java.math.BigDecimal=java.lang.Long
 
 
 # 类型转换， 一般用于转换默认值从字符串转换到目标格式
@@ -59,6 +59,7 @@ java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
 java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
 java.lang.Double=webit.generator.core.typeconverter.impl.DoubleConverter
 java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
+java.math.BigDecimal=webit.generator.core.typeconverter.impl.BigDecimalConverter
 
 
 # 额外的参数， 这里的参数将自动设置成模版引擎的全局常量

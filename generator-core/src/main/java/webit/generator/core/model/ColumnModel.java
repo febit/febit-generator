@@ -1,6 +1,7 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.core.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,8 +89,11 @@ public class ColumnModel implements Comparable<ColumnModel> {
                     = TypeConverterUtil.convert(javaType, defaultValueString);
             if (defaultValueObject instanceof Boolean) {
                 defaultValueShow = defaultValueObject.toString();
-            } else if (defaultValueObject instanceof Number) {
-                defaultValueShow = defaultValueString;
+//            } else if (defaultValueObject instanceof BigDecimal) {
+//                defaultValueShow = defaultValueObject.toString();
+            } 
+            else if (defaultValueObject instanceof Number) {
+                defaultValueShow = defaultValueObject.toString();
             } else {
                 defaultValueShow = "\"" + defaultValueString + "\"";
             }
