@@ -117,7 +117,7 @@ public class DependLib implements Comparable<DependLib> {
 
         String group;
         String artifact = "";
-        String version = "0";
+        String version = null;
         String type = JAR;
 
         group = arr[0].trim();
@@ -129,6 +129,9 @@ public class DependLib implements Comparable<DependLib> {
                 type = arr[2].trim();
                 version = arr[3].trim();
             }
+        }
+        if(version != null && version.length() == 0){
+            version = null;
         }
         return new DependLib(group, artifact, version, type);
     }
