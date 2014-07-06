@@ -29,6 +29,7 @@ public class DBUtil {
         TYPES.put(Types.CHAR, "java.lang.String");
         TYPES.put(Types.VARCHAR, "java.lang.String");
         TYPES.put(Types.LONGVARCHAR, "java.lang.String");
+        TYPES.put(Types.NVARCHAR, "java.lang.String");
         TYPES.put(Types.BINARY, "byte[]");
         TYPES.put(Types.VARBINARY, "byte[]");
         TYPES.put(Types.LONGVARBINARY, "byte[]");
@@ -41,6 +42,14 @@ public class DBUtil {
         TYPES.put(Types.REF, "java.sql.Ref");
         TYPES.put(Types.STRUCT, "java.lang.Object");
         TYPES.put(Types.JAVA_OBJECT, "java.lang.Object");
+    }
+
+    public static boolean isStringType(final int sqlType) {
+        return sqlType == Types.CHAR
+                || sqlType == Types.VARCHAR
+                || sqlType == Types.LONGVARCHAR
+                || sqlType == Types.NCHAR
+                || sqlType == Types.NVARCHAR;
     }
 
     public static synchronized Connection getConnection() {

@@ -63,8 +63,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
         this.ispk = column.isPk; //主键？
         this.isGenerated = column.isPk && !column.getIsFk(); //XXX:是否主键自动生成
         this.size = column.size;
-
-        this.remarks = column.remarks != null ? column.remarks.trim() : null;
+        this.remarks = column.remarks;
         //
         this.varName = ClassNameUtil.modelColumnNamingStrategy(column.name);
         this.javaType = column.getJavaType();
@@ -92,7 +91,8 @@ public class ColumnModel implements Comparable<ColumnModel> {
                 defaultValueShow = defaultValueObject.toString();
 //            } else if (defaultValueObject instanceof BigDecimal) {
 //                defaultValueShow = defaultValueObject.toString();
-            } else if (defaultValueObject instanceof Number) {
+            } 
+            else if (defaultValueObject instanceof Number) {
                 defaultValueShow = defaultValueObject.toString();
             } else {
                 defaultValueShow = "\"" + defaultValueString + "\"";
@@ -103,14 +103,14 @@ public class ColumnModel implements Comparable<ColumnModel> {
 
     void resolveColumnEnums() {
         final String myRemarks;
-        final int enumStart;
-        final int enumEnd;
+        final int start;
+        final int end;
         if (this.javaType.equals("java.lang.Short")
                 && remarks != null
                 && (myRemarks = this.remarks.trim()).length() != 0
-                && (enumEnd = myRemarks.lastIndexOf(')')) >= 0
-                && (enumStart = myRemarks.lastIndexOf("E(", enumEnd)) >= 0) {
-            final String[] emumStr = StringUtil.splitc(myRemarks.substring(enumStart + 2, enumEnd), ',');
+                && (end = myRemarks.lastIndexOf(')')) >= 0
+                && (start = myRemarks.lastIndexOf("E(", end)) >= 0) {
+            final String[] emumStr = StringUtil.splitc(myRemarks.substring(start + 2, end), ',');
             enums = new ArrayList<ColumnEnumModel>();
             enumMap = new HashMap();
             for (int i = 0; i < emumStr.length; i++) {
@@ -119,7 +119,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
                 enumMap.put(columnEnumModel.value, columnEnumModel);
             }
             this.isenum = true;
-            this.remarks = this.remarks.substring(0, enumStart).trim(); //replaceAll(pattern_enum.pattern(), "");
+            this.remarks = this.remarks.substring(0, start); //replaceAll(pattern_enum.pattern(), "");
         } else {
             this.isenum = false;
         }

@@ -50,6 +50,10 @@ public class Column implements java.io.Serializable, Cloneable, Comparable<Colum
     public boolean getIsFk() {
         return isFk;
     }
+    
+    public boolean isStringType() {
+        return DBUtil.isStringType(type);
+    }
 
     public void setIsFk(boolean isFk) {
         this.isFk = isFk;

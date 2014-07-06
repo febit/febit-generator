@@ -60,7 +60,7 @@
         <dependency>
             <groupId>com.github.zqq90.webit-script</groupId>
             <artifactId>webit-script</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.2</version>
         </dependency>
     </dependencies>
     <properties>

@@ -8,7 +8,9 @@ import java.util.Map;
 import webit.generator.core.dbaccess.DatabaseAccesser;
 import webit.generator.core.dbaccess.model.Column;
 import webit.generator.core.dbaccess.model.Table;
+import webit.generator.core.util.Arrays;
 import webit.generator.core.util.Logger;
+import webit.generator.core.util.Maps;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 
@@ -18,44 +20,98 @@ import webit.generator.core.util.StringUtil;
  */
 public class ConfigInit {
 
-    protected void initColumnsConfig() {
-        final Map<String, Table> tables = DatabaseAccesser.getInstance().getAllTables();
-        Map<String, Map<String, Map<String, Object>>> tableColumn;
-        Map<String, Map<String, Map<String, Object>>> tableColumn_new = new HashMap<String, Map<String, Map<String, Object>>>();
+    private Map<String, Table> tables;
+    private Map<String, Map<String, Map<String, Object>>> tableColumn;
+    private Map<String, Map<String, Map<String, Object>>> tableColumnOld;
 
-        tableColumn = ResourceUtil.loadTableColumns();
-        for (Map.Entry<String, Table> entry : tables.entrySet()) {
-            Table table = entry.getValue();
+    public Map<String, Map<String, Object>> getOldColumnMaps(String tableName) {
+        return tableColumnOld != null ? tableColumnOld.get(tableName) : null;
+    }
 
-            Map<String, Map<String, Object>> columnMaps = tableColumn != null ? tableColumn.get(table.name) : null;
-            Map<String, Map<String, Object>> columnMaps_new = new HashMap<String, Map<String, Object>>();
-            tableColumn_new.put(table.name, columnMaps_new);
+    public Map<String, Map<String, Object>> getOldColumnMaps(Table table) {
+        return getOldColumnMaps(table.name);
+    }
 
-            List<Column> columns = table.getColumns();
-            for (Column column : columns) {
+    public Map<String, Object> getOldColumnMap(Column column) {
+        Map<String, Map<String, Object>> oldColumnMaps = getOldColumnMaps(column.table);
+        return oldColumnMaps != null ? oldColumnMaps.get(column.name) : null;
+    }
 
-                Map<String, Object> columnMap = columnMaps != null ? columnMaps.get(column.name) : null;
-
-                if (columnMap == null) {
-                    columnMap = new HashMap<String, Object>();
-                    columnMap.put("query", false);
-                }
-
-                columnMaps_new.put(column.name, columnMap);
-            }
+    public Map<String, Map<String, Object>> getColumnMaps(String tableName) {
+        Map<String, Map<String, Object>> columnMaps = tableColumn.get(tableName);
+        if (columnMaps == null) {
+            columnMaps = new HashMap<String, Map<String, Object>>();
+            tableColumn.put(tableName, columnMaps);
         }
-        ResourceUtil.saveTableColumns(tableColumn_new, tables);
+        return columnMaps;
+    }
+
+    public Map<String, Map<String, Object>> getColumnMaps(Table table) {
+        return ConfigInit.this.getColumnMaps(table.name);
+    }
+
+    public Map<String, Object> getColumnMap(Column column) {
+        Map<String, Map<String, Object>> newColumnMaps = getColumnMaps(column.table);
+        Map<String, Object> columnMap = newColumnMaps.get(column.name);
+        if (columnMap == null) {
+            columnMap = getOldColumnMap(column);
+            if (columnMap == null) {
+                columnMap = new HashMap<String, Object>();
+            }
+            newColumnMaps.put(column.name, columnMap);
+        }
+        return columnMap;
+    }
+
+    public void eachTable(Maps.Handler<String, Table> handler) {
+        Maps.each(tables, handler);
+    }
+
+    public void eachColumn(final Arrays.Handler<Column> handler) {
+        eachTable(new Maps.Handler<String, Table>() {
+            public boolean each(String tableName, Table table) {
+                return Arrays.each(table.getColumns(), handler);
+            }
+        });
+    }
+
+    public void eachColumnMaps(Maps.Handler<String, Map<String, Map<String, Object>>> handler) {
+        Maps.each(this.tableColumn, handler);
+    }
+
+    protected void init() {
+        this.tables = DatabaseAccesser.getInstance().getAllTables();
+        this.tableColumn = new HashMap<String, Map<String, Map<String, Object>>>();
+        this.tableColumnOld = ResourceUtil.loadTableColumns();
+    }
+
+    protected void beforeProcess() {
+        eachColumn(new Arrays.Handler<Column>() {
+            public boolean each(final int index, final Column column) {
+                Map<String, Object> columnMap = getColumnMap(column);
+                if (!columnMap.containsKey("query")) {
+                    columnMap.put("query", "");
+                }
+                return true;
+            }
+        });
+    }
+
+    public void afterProcess() {
+        //XXX: log
+        ResourceUtil.saveTableColumns(this.tableColumn, this.tables);
     }
 
     public void process() throws IOException {
-
-        initColumnsConfig();
+        init();
+        beforeProcess();
 
         //ConfigInitProcesser
-        List<String> processersClass = StringUtil.toUnBlankList(Config.getString("configInit"));
-        if (processersClass != null && processersClass.size() != 0) {
+        final List<String> processersClass = StringUtil.toUnBlankList(Config.getString("configInit"));
+        if (processersClass != null && !processersClass.isEmpty()) {
             try {
                 for (String item : processersClass) {
+                    //XXX: log
                     ((ConfigInitProcesser) ResourceUtil.loadClass(item).newInstance()).process(this);
                 }
             } catch (Exception ex) {
@@ -64,5 +120,18 @@ public class ConfigInit {
             }
         }
 
+        afterProcess();
+    }
+
+    public Map<String, Table> getTables() {
+        return tables;
+    }
+
+    public Map<String, Map<String, Map<String, Object>>> getTableColumnNew() {
+        return tableColumn;
+    }
+
+    public Map<String, Map<String, Map<String, Object>>> getTableColumnOld() {
+        return tableColumnOld;
     }
 }
