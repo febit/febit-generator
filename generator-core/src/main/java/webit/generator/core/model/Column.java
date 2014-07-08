@@ -1,13 +1,9 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.core.model;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import webit.generator.core.dbaccess.model.ColumnRaw;
-import webit.generator.core.typeconverter.TypeConverterUtil;
 import webit.generator.core.util.ClassNameUtil;
 import webit.generator.core.util.StringUtil;
 
@@ -82,8 +78,7 @@ public class Column implements Comparable<Column> {
         this.defaultValueShow = defaultValueShow;
     }
 
-    void resolveFK(Map<String, Table> alltables) {
-
+    protected void resolveFK(Map<String, Table> alltables) {
         if (isfk) {
             ColumnRaw pkColumn = raw.getHasOne().pk;
             Table pkTable = alltables.get(pkColumn.table.name);
@@ -95,9 +90,9 @@ public class Column implements Comparable<Column> {
             if (isfk) {
                 fk_varName = StringUtil.cutSuffix(varName, "Id");
                 fk_javaType = pkTable.getModelFullName();
-                this.fk_javaSimpleType = ClassNameUtil.getClassSimpleName(fk_javaType);
-                this.fk_getterName = ClassNameUtil.getGetterMethodName(fk_varName, fk_javaType);
-                this.fk_setterName = ClassNameUtil.getSetterMethodName(fk_varName);
+                fk_javaSimpleType = ClassNameUtil.getClassSimpleName(fk_javaType);
+                fk_getterName = ClassNameUtil.getGetterMethodName(fk_varName, fk_javaType);
+                fk_setterName = ClassNameUtil.getSetterMethodName(fk_varName);
                 fk.addLinkColumns(this);
             }
         }

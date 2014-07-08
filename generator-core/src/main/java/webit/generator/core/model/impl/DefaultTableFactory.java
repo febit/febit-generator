@@ -48,13 +48,18 @@ public class DefaultTableFactory extends TableFactory {
 
         //TODO: 正则匹配
         //TODO: 规则转换
+        final List<Table> tableList = new ArrayList<Table>();
         final Map<String, Table> tableMaps = new HashMap<String, Table>();
         final Map<String, Map<String, Map<String, Object>>> tableColumnMap = ResourceUtil.loadTableColumns();
         for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
-            //String string = entry.getKey();
-            TableRaw table = entry.getValue();
-            tableMaps.put(table.name,
-                    createTable(table, tableColumnMap.get(table.name)));
+            TableRaw raw = entry.getValue();
+            Table table = createTable(raw, tableColumnMap.get(raw.name));
+            if (table != null) {
+                tableMaps.put(raw.name, table);
+                if (!blackEntitys.contains(table.getEntity())) {
+                    tableList.add(table);
+                }
+            }
         }
 
         //tables init
@@ -62,14 +67,6 @@ public class DefaultTableFactory extends TableFactory {
             entry.getValue().init(tableMaps);
         }
 
-        //MAP_TO_LIST and without black tables
-        final List<Table> tableList = new ArrayList<Table>(tableMaps.size());
-        for (Map.Entry<String, Table> entry : tableMaps.entrySet()) {
-            Table table = entry.getValue();
-            if (!blackEntitys.contains(table.getEntity())) {
-                tableList.add(table);
-            }
-        }
         //table list sort
         Collections.sort(tableList);
         if (Logger.isInfoEnabled()) {

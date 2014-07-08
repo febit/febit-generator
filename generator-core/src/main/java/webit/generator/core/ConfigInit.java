@@ -79,7 +79,7 @@ public class ConfigInit {
         Maps.each(this.tableColumn, handler);
     }
 
-    protected void init() {
+    public void init() {
         this.tables = TableFactory.collectTablesIfAbsent();
         this.tableColumn = new HashMap<String, Map<String, Map<String, Object>>>();
         this.tableColumnOld = ResourceUtil.loadTableColumns();
@@ -127,7 +127,7 @@ public class ConfigInit {
         return tables;
     }
 
-    public Map<String, Map<String, Map<String, Object>>> getTableColumnNew() {
+    public Map<String, Map<String, Map<String, Object>>> getTableColumn() {
         return tableColumn;
     }
 
