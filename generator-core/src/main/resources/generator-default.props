@@ -30,8 +30,8 @@ tableBlackList=
 webit.script.props += /webit-script-generator.props
 
 
-# Component
-tableModelFactory = webit.generator.core.model.impl.DefaultTableModelFactory
+# Components
+tableFactory = webit.generator.core.model.impl.DefaultTableFactory
 
 
 # 数据源的相关设置

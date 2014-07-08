@@ -7,7 +7,7 @@ var CONST;
 @import webit.generator.core.util.StringUtil;
 @import webit.generator.core.util.ArraysUtil;
 @import webit.generator.core.util.SQLUtil;
-@import webit.generator.core.model.TableModel;
+@import webit.generator.core.model.Table;
 @import webit.generator.core.util.template.ContextUtil;
 @import webit.generator.core.util.TemplateContextUtil;
 @import webit.generator.core.util.ClassNameUtil;
@@ -35,8 +35,8 @@ CONST.getClassSimpleName = native ClassNameUtil.getClassSimpleName(String);
 CONST.javaImportsCheck = native ClassNameUtil.javaImportsCheck(List, String);
 CONST.varNameToUpper = native ClassNameUtil.varNameToUpper(String);
 
-CONST.tm_getColumnByName = native TableModel.getColumnByName(String);
-CONST.tm_getFkColumnsByType = native TableModel.getFkColumnsByType(String);
+CONST.tm_getColumnByName = native Table.getColumnByName(String);
+CONST.tm_getFkColumnsByType = native Table.getFkColumnsByType(String);
 
 CONST.isModuleActived = native Config.isModuleActived(String);
 

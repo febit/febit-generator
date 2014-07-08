@@ -2,7 +2,7 @@
 package webit.generator.core;
 
 import java.util.Map;
-import webit.generator.core.model.TableModel;
+import webit.generator.core.model.Table;
 
 /**
  *
@@ -18,5 +18,5 @@ public interface GeneratorProcesser {
 
     void beforeMargeCommonTemplate(String templateName, Map<String, Object> params);
 
-    void beforeMargeTableTemplate(String templateName, Map<String, Object> params, TableModel table);
+    void beforeMargeTableTemplate(String templateName, Map<String, Object> params, Table table);
 }

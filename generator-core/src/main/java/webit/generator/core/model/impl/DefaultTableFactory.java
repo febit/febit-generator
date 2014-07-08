@@ -11,9 +11,9 @@ import webit.generator.core.Config;
 import webit.generator.core.dbaccess.DatabaseAccesser;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.TableRaw;
-import webit.generator.core.model.ColumnModel;
-import webit.generator.core.model.TableModel;
-import webit.generator.core.model.TableModelFactory;
+import webit.generator.core.model.Column;
+import webit.generator.core.model.Table;
+import webit.generator.core.model.TableFactory;
 import webit.generator.core.util.ClassNameUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
@@ -23,7 +23,7 @@ import webit.generator.core.util.StringUtil;
  *
  * @author Zqq
  */
-public class DefaultTableModelFactory extends TableModelFactory {
+public class DefaultTableFactory extends TableFactory {
 
     private final Set<String> blackEntitys = new HashSet<String>();
 
@@ -43,11 +43,11 @@ public class DefaultTableModelFactory extends TableModelFactory {
 
     }
 
-    public List<TableModel> collectTables() {
+    public List<Table> collectTables() {
 
         //TODO: 正则匹配
         //TODO: 规则转换
-        final Map<String, TableModel> tableMaps = new HashMap<String, TableModel>();
+        final Map<String, Table> tableMaps = new HashMap<String, Table>();
         final Map<String, Map<String, Map<String, Object>>> tableColumnMap = ResourceUtil.loadTableColumns();
         for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
             //String string = entry.getKey();
@@ -57,59 +57,57 @@ public class DefaultTableModelFactory extends TableModelFactory {
         }
 
         //tables init
-        for (Map.Entry<String, TableModel> entry : tableMaps.entrySet()) {
+        for (Map.Entry<String, Table> entry : tableMaps.entrySet()) {
             entry.getValue().init(tableMaps);
         }
 
         //MAP_TO_LIST and without black tables
-        final List<TableModel> tableList = new ArrayList<TableModel>(tableMaps.size());
-        TableModel tableModel;
-        for (Map.Entry<String, TableModel> entry : tableMaps.entrySet()) {
-            tableModel = entry.getValue();
-            if (!blackEntitys.contains(tableModel.getEntity())) {
-                tableList.add(tableModel);
+        final List<Table> tableList = new ArrayList<Table>(tableMaps.size());
+        for (Map.Entry<String, Table> entry : tableMaps.entrySet()) {
+            Table table = entry.getValue();
+            if (!blackEntitys.contains(table.getEntity())) {
+                tableList.add(table);
             }
         }
-
         //table list sort
         Collections.sort(tableList);
         if (Logger.isInfoEnabled()) {
-            for (TableModel tableModel1 : tableList) {
-                Logger.info("Loaded table: " + tableModel1.getSqlName() + "  " + tableModel1.getRemark());
+            for (Table table : tableList) {
+                Logger.info("Loaded table: " + table.getSqlName() + "  " + table.getRemark());
             }
         }
 
         return tableList;
     }
 
-    protected TableModel createTable(final TableRaw table, final Map<String, Map<String, Object>> tableColumnSetting) {
+    protected Table createTable(final TableRaw tableRaw, final Map<String, Map<String, Object>> tableColumnSetting) {
 
         final String entity;
         final String sqlName;
         final String remarks;
-        final Map<String, ColumnModel> columnMap;
-        final ArrayList<ColumnModel> columns;
-        final ArrayList<ColumnModel> idColumns;
+        final Map<String, Column> columnMap;
+        final ArrayList<Column> columns;
+        final ArrayList<Column> idColumns;
         final String modelFullName;
         final String modelSimpleName;
         final boolean blackEntity;
 
-        remarks = table.remarks;
-        columns = new ArrayList<ColumnModel>();
-        idColumns = new ArrayList<ColumnModel>();
-        columnMap = new HashMap<String, ColumnModel>();
+        remarks = tableRaw.remarks;
+        columns = new ArrayList<Column>();
+        idColumns = new ArrayList<Column>();
+        columnMap = new HashMap<String, Column>();
 
-        sqlName = StringUtil.cutPrefix(table.name, Config.getString("db.tablePrefix", ""));
+        sqlName = StringUtil.cutPrefix(tableRaw.name, Config.getString("db.tablePrefix", ""));
         entity = ClassNameUtil.modelEntityNamingStrategy(sqlName);
-        
+
         blackEntity = blackEntitys.contains(entity);
         modelSimpleName = Config.getString("modelPrefix", "") + ClassNameUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
         modelFullName = Config.getString("modelPkg", Config.getRequiredString("basePkg")) + "." + modelSimpleName;
 
-        final TableModel tableModel = new TableModel(entity, sqlName, remarks, columnMap, columns, idColumns, modelFullName, modelSimpleName, blackEntity);
-        for (ColumnRaw column : table.getColumns()) {
+        final Table table = new Table(entity, sqlName, remarks, columnMap, columns, idColumns, modelFullName, modelSimpleName, blackEntity);
+        for (ColumnRaw column : tableRaw.getColumns()) {
             //TODO: ColumnFactory
-            ColumnModel cm = new ColumnModel(column, tableModel, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
+            Column cm = new Column(column, table, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
             if (cm.isIspk()) {
                 idColumns.add(cm);
             }
@@ -120,6 +118,6 @@ public class DefaultTableModelFactory extends TableModelFactory {
         idColumns.trimToSize();
         columns.trimToSize();
 
-        return tableModel;
+        return table;
     }
 }

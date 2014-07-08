@@ -15,9 +15,9 @@ import webit.generator.core.util.StringUtil;
  *
  * @author ZQQ
  */
-public class ColumnModel implements Comparable<ColumnModel> {
+public class Column implements Comparable<Column> {
 
-    private final TableModel table;
+    private final Table table;
     private final String varName;
     private final String javaType;
     private final String javaSimpleType;
@@ -28,7 +28,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
     private final boolean optional;
     private final boolean ispk;
     private final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
-    private final List<ColumnModel> linkColumns; //被外键
+    private final List<Column> linkColumns; //被外键
     private final ColumnRaw raw;
     private final int size;
     private final boolean query;
@@ -40,7 +40,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
     private Map enumMap;
     //
     private boolean isfk;
-    private ColumnModel fk;
+    private Column fk;
     private String fk_javaSimpleType;
     private String fk_varName;
     private String fk_javaType;
@@ -53,7 +53,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
     private String defaultValueShow = "null";
 
     //TODO: ColumnModelFactory
-    public ColumnModel(ColumnRaw column, TableModel parent, Map<String, Object> settings) {
+    public Column(ColumnRaw column, Table parent, Map<String, Object> settings) {
 
         this.table = parent;
         this.raw = column;
@@ -71,7 +71,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
         this.javaSimpleType = ClassNameUtil.getClassSimpleName(javaType);
         this.getterName = ClassNameUtil.getGetterMethodName(varName, javaType);
         this.setterName = ClassNameUtil.getSetterMethodName(varName);
-        this.linkColumns = new ArrayList<ColumnModel>();
+        this.linkColumns = new ArrayList<Column>();
         //XXX:column settings 可丰富功能
         if (settings != null) {
             this.query = "true".equals(settings.get("query"));
@@ -125,11 +125,11 @@ public class ColumnModel implements Comparable<ColumnModel> {
         }
     }
 
-    void resolveFK(Map<String, TableModel> alltables) {
+    void resolveFK(Map<String, Table> alltables) {
 
         if (isfk) {
             ColumnRaw pkColumn = raw.getHasOne().pk;
-            TableModel pkTable = alltables.get(pkColumn.table.name);
+            Table pkTable = alltables.get(pkColumn.table.name);
             if (pkTable != null) {
                 fk = pkTable.getColumnMap().get(pkColumn.name);
                 isfk = (fk != null);
@@ -207,7 +207,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
         return setterName;
     }
 
-    public ColumnModel getFk() {
+    public Column getFk() {
         return fk;
     }
 
@@ -219,12 +219,12 @@ public class ColumnModel implements Comparable<ColumnModel> {
         return size;
     }
 
-    public TableModel getTable() {
+    public Table getTable() {
         return table;
     }
 
     @Deprecated
-    public TableModel getParent() {
+    public Table getParent() {
         return table;
     }
 
@@ -252,11 +252,11 @@ public class ColumnModel implements Comparable<ColumnModel> {
         return isLinkKey;
     }
 
-    public List<ColumnModel> getLinkColumns() {
+    public List<Column> getLinkColumns() {
         return linkColumns;
     }
 
-    public void addLinkColumns(ColumnModel cm) {
+    public void addLinkColumns(Column cm) {
         linkColumns.add(cm);
         isLinkKey = true;
     }
@@ -282,7 +282,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
     }
 
     @Override
-    public int compareTo(ColumnModel o) {
+    public int compareTo(Column o) {
         if (this.ispk && !o.ispk) {
             return -1;
         }

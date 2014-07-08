@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import webit.generator.core.filesaver.FileSaver;
-import webit.generator.core.model.TableModel;
-import webit.generator.core.model.TableModelFactory;
+import webit.generator.core.model.Table;
+import webit.generator.core.model.TableFactory;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
@@ -36,8 +36,8 @@ public class Generator {
     private Map<Object, FileSaver> fileSaverMap;
     private SimpleBag constMap;
 
-    private List<TableModel> tableList;
-    private List<TableModel> whiteTables;
+    private List<Table> tableList;
+    private List<Table> whiteTables;
     private Engine templateEngine;
     private GeneratorProcesser[] processers;
 
@@ -161,7 +161,7 @@ public class Generator {
         // Table Templates
         final List<String> tableTemplates = Config.getTableTemplates();
 
-        for (TableModel table : whiteTables) {
+        for (Table table : whiteTables) {
             globalManager.setGlobal(currtableGlobalIndex, table);
             for (String item : tableTemplates) {
                 params.clear();
@@ -244,11 +244,11 @@ public class Generator {
             constMap.set(entry.getKey(), entry.getValue());
         }
 
-        this.tableList = TableModelFactory.collectTablesIfAbsent();
-        whiteTables = new ArrayList<TableModel>(this.tableList.size());
-        for (TableModel tableModel : tableList) {
-            if (!tableModel.isBlackEntity()) {
-                whiteTables.add(tableModel);
+        this.tableList = TableFactory.collectTablesIfAbsent();
+        whiteTables = new ArrayList<Table>(this.tableList.size());
+        for (Table table : tableList) {
+            if (!table.isBlackEntity()) {
+                whiteTables.add(table);
             }
         }
 
@@ -263,11 +263,11 @@ public class Generator {
         return fileSaverMap;
     }
 
-    public List<TableModel> getWhiteTables() {
+    public List<Table> getWhiteTables() {
         return whiteTables;
     }
 
-    public List<TableModel> getTableList() {
+    public List<Table> getTableList() {
         return tableList;
     }
 

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import webit.generator.core.Config;
-import webit.generator.core.model.ColumnModel;
-import webit.generator.core.model.TableModel;
+import webit.generator.core.model.Column;
+import webit.generator.core.model.Table;
 import webit.script.util.props.Props;
 
 /**
@@ -71,14 +71,14 @@ public class ResourceUtil {
         return data;
     }
 
-    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap, final List<TableModel> tables) {
+    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap, final List<Table> tables) {
         final File file = new File(getResPath(COLUMNS_PROPS));
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
-            for (TableModel table : tables) {
+            for (Table table : tables) {
                 final String tableSqlName = table.getSqlName();
-                final Map<String, ColumnModel> columnMap = table.getColumnMap();
+                final Map<String, Column> columnMap = table.getColumnMap();
                 final Map<String, Map<String, Object>> sortedColumns;
                 {
                     Map<String, Map<String, Object>> columns = tableColumnsMap.get(tableSqlName);

@@ -2,7 +2,7 @@
 package webit.generator.core;
 
 import java.util.Map;
-import webit.generator.core.model.TableModel;
+import webit.generator.core.model.Table;
 
 /**
  *
@@ -25,7 +25,7 @@ public class GeneratorProcesserAdapter implements GeneratorProcesser {
     public void beforeMargeCommonTemplate(String templateName, Map<String, Object> params) {
     }
 
-    public void beforeMargeTableTemplate(String templateName, Map<String, Object> params, TableModel table) {
+    public void beforeMargeTableTemplate(String templateName, Map<String, Object> params, Table table) {
     }
 
 }
