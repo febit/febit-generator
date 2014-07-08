@@ -2,15 +2,8 @@
 package webit.generator.core.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.Config;
-import webit.generator.core.dbaccess.model.Column;
-import webit.generator.core.dbaccess.model.Table;
-import webit.generator.core.util.ClassNameUtil;
-import webit.generator.core.util.StringUtil;
 
 /**
  *
@@ -24,28 +17,21 @@ public class TableModel implements Comparable<TableModel> {
     private final Map<String, ColumnModel> columnMap;
     private final List<ColumnModel> columns;
     private final List<ColumnModel> idColumns;
+    private final boolean blackEntity;
     //
     private final String modelFullName;
     private final String modelSimpleName;
 
-    public TableModel(Table table, Map<String, Map<String, Object>> tableColumnSetting) {
-
-        this.remarks = table.remarks;
-        this.columnMap = new HashMap<String, ColumnModel>();
-        this.sqlName = StringUtil.cutPrefix(table.name, Config.getString("db.tablePrefix", ""));
-        this.entity = ClassNameUtil.modelEntityNamingStrategy(this.sqlName);
-        this.modelSimpleName = Config.getString("modelPrefix", "") + ClassNameUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
-        this.modelFullName = Config.getString("modelPkg", Config.getRequiredString("basePkg")) + "." + modelSimpleName;
-        this.idColumns = new ArrayList<ColumnModel>();
-
-        for (Column column : table.getColumns()) {
-            ColumnModel cm = new ColumnModel(column, this, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
-            if (cm.isIspk()) {
-                this.idColumns.add(cm);
-            }
-            this.columnMap.put(cm.getVarName(), cm);
-        }
-        Collections.sort(this.columns = new ArrayList<ColumnModel>(this.columnMap.values()));
+    public TableModel(String entity, String sqlName, String remarks, Map<String, ColumnModel> columnMap, List<ColumnModel> columns, List<ColumnModel> idColumns, String modelFullName, String modelSimpleName, boolean blackEntity) {
+        this.entity = entity;
+        this.sqlName = sqlName;
+        this.remarks = remarks;
+        this.columnMap = columnMap;
+        this.columns = columns;
+        this.idColumns = idColumns;
+        this.modelFullName = modelFullName;
+        this.modelSimpleName = modelSimpleName;
+        this.blackEntity = blackEntity;
     }
 
     public void init(Map<String, TableModel> alltables) {
@@ -78,6 +64,10 @@ public class TableModel implements Comparable<TableModel> {
 
     public List<ColumnModel> getIdColumns() {
         return idColumns;
+    }
+
+    public boolean isBlackEntity() {
+        return blackEntity;
     }
 
     public Map<String, ColumnModel> getColumnMap() {

@@ -21,6 +21,7 @@ public class StringUtil {
         return null;
     }
 
+    //XXX: 可优化
     public static List<String> toUnBlankList(String string) {
         final String[] array;
         array = toTrimedArray(string);

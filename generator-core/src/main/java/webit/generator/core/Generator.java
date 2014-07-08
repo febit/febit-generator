@@ -3,16 +3,12 @@ package webit.generator.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import webit.generator.core.dbaccess.DatabaseAccesser;
-import webit.generator.core.dbaccess.model.Table;
 import webit.generator.core.filesaver.FileSaver;
 import webit.generator.core.model.TableModel;
+import webit.generator.core.model.TableModelFactory;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
@@ -39,10 +35,9 @@ public class Generator {
     private String outroot;
     private Map<Object, FileSaver> fileSaverMap;
     private SimpleBag constMap;
-    private final Map<String, TableModel> tableMaps = new HashMap<String, TableModel>();
-    private List<TableModel> whiteTables;
-    private final Set<String> blackEntitys = new HashSet<String>();
 
+    private List<TableModel> tableList;
+    private List<TableModel> whiteTables;
     private Engine templateEngine;
     private GeneratorProcesser[] processers;
 
@@ -234,14 +229,6 @@ public class Generator {
 
     protected void initRoot() throws IOException {
 
-        //加载表黑名单
-        {
-            final List<String> tableBlacks = StringUtil.toUnBlankList(Config.getString("blackEntitys"));
-            if (tableBlacks != null) {
-                blackEntitys.addAll(tableBlacks);
-            }
-        }
-
         constMap.set("DEBUG", Config.getBoolean("debug"));
         constMap.set("basePkg", Config.getRequiredString("basePkg"));
         constMap.set("modelPkg", Config.getRequiredString("modelPkg"));
@@ -257,36 +244,15 @@ public class Generator {
             constMap.set(entry.getKey(), entry.getValue());
         }
 
-        final Map<String, Map<String, Map<String, Object>>> tableColumnMap = ResourceUtil.loadTableColumns();
-        for (Map.Entry<String, Table> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
-            //String string = entry.getKey();
-            Table table = entry.getValue();
-            tableMaps.put(table.name, new TableModel(table, tableColumnMap.get(table.name)));
-        }
-
-        //tables init
-        for (Map.Entry<String, TableModel> entry : tableMaps.entrySet()) {
-            entry.getValue().init(tableMaps);
-        }
-
-        //MAP_TO_LIST and without black tables
-        final List<TableModel> tableList = this.whiteTables = new ArrayList<TableModel>(tableMaps.size());
-        TableModel tableModel;
-        for (Map.Entry<String, TableModel> entry : tableMaps.entrySet()) {
-            tableModel = entry.getValue();
-            if (!blackEntitys.contains(tableModel.getEntity())) {
-                tableList.add(tableModel);
+        this.tableList = TableModelFactory.collectTablesIfAbsent();
+        whiteTables = new ArrayList<TableModel>(this.tableList.size());
+        for (TableModel tableModel : tableList) {
+            if (!tableModel.isBlackEntity()) {
+                whiteTables.add(tableModel);
             }
         }
 
-        //table list sort
-        Collections.sort(tableList);
-        if (Logger.isInfoEnabled()) {
-            for (TableModel tableModel1 : tableList) {
-                Logger.info("Loaded table: " + tableModel1.getSqlName() + "  " + tableModel1.getRemarks());
-            }
-        }
-        constMap.set("tables", tableList);
+        constMap.set("tables", this.tableList);
     }
 
     public String getOutroot() {
@@ -297,16 +263,12 @@ public class Generator {
         return fileSaverMap;
     }
 
-    public Map<String, TableModel> getTableMaps() {
-        return tableMaps;
-    }
-
     public List<TableModel> getWhiteTables() {
         return whiteTables;
     }
 
-    public Set<String> getBlackEntitys() {
-        return blackEntitys;
+    public List<TableModel> getTableList() {
+        return tableList;
     }
 
     public Engine getTemplateEngine() {

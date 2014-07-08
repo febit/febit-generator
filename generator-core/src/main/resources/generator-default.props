@@ -29,6 +29,11 @@ tableBlackList=
 # 模版引擎使用的配置文件
 webit.script.props += /webit-script-generator.props
 
+
+# Component
+tableModelFactory = webit.generator.core.model.impl.DefaultTableModelFactory
+
+
 # 数据源的相关设置
 [db]
 # JDBC驱动

@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import webit.generator.core.Config;
 import webit.generator.core.dbaccess.model.Column;
 import webit.generator.core.dbaccess.model.Table;
@@ -123,6 +124,24 @@ public class ResourceUtil {
             }
         }
         return null;
+    }
+
+    public static Class loadComponentClass(String key) {
+        try {
+            return ResourceUtil.loadClass(Config.getRequiredString(key));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object loadComponent(String key) {
+        try {
+            return loadComponentClass(key).newInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Class loadClass(String className) throws ClassNotFoundException {
