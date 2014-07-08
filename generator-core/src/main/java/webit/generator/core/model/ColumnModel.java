@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.dbaccess.model.Column;
+import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.typeconverter.TypeConverterUtil;
 import webit.generator.core.util.ClassNameUtil;
 import webit.generator.core.util.StringUtil;
@@ -17,7 +17,7 @@ import webit.generator.core.util.StringUtil;
  */
 public class ColumnModel implements Comparable<ColumnModel> {
 
-    private final TableModel parent;
+    private final TableModel table;
     private final String varName;
     private final String javaType;
     private final String javaSimpleType;
@@ -29,11 +29,11 @@ public class ColumnModel implements Comparable<ColumnModel> {
     private final boolean ispk;
     private final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
     private final List<ColumnModel> linkColumns; //被外键
-    private final Column raw;
+    private final ColumnRaw raw;
     private final int size;
     private final boolean query;
     private boolean isLinkKey; //被外键
-    private String remarks;
+    private String remark;
     //
     private boolean isenum;
     private List<ColumnEnumModel> enums;
@@ -52,9 +52,10 @@ public class ColumnModel implements Comparable<ColumnModel> {
     private boolean hasDefaultValue = false;
     private String defaultValueShow = "null";
 
-    public ColumnModel(Column column, TableModel parent, Map<String, Object> settings) {
+    //TODO: ColumnModelFactory
+    public ColumnModel(ColumnRaw column, TableModel parent, Map<String, Object> settings) {
 
-        this.parent = parent;
+        this.table = parent;
         this.raw = column;
         this.sqlName = column.name;
         this.isUnique = column.isUnique;
@@ -63,7 +64,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
         this.ispk = column.isPk; //主键？
         this.isGenerated = column.isPk && !column.getIsFk(); //XXX:是否主键自动生成
         this.size = column.size;
-        this.remarks = column.remarks;
+        this.remark = column.remarks;
         //
         this.varName = ClassNameUtil.modelColumnNamingStrategy(column.name);
         this.javaType = column.getJavaType();
@@ -91,8 +92,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
                 defaultValueShow = defaultValueObject.toString();
 //            } else if (defaultValueObject instanceof BigDecimal) {
 //                defaultValueShow = defaultValueObject.toString();
-            } 
-            else if (defaultValueObject instanceof Number) {
+            } else if (defaultValueObject instanceof Number) {
                 defaultValueShow = defaultValueObject.toString();
             } else {
                 defaultValueShow = "\"" + defaultValueString + "\"";
@@ -106,8 +106,8 @@ public class ColumnModel implements Comparable<ColumnModel> {
         final int start;
         final int end;
         if (this.javaType.equals("java.lang.Short")
-                && remarks != null
-                && (myRemarks = this.remarks.trim()).length() != 0
+                && remark != null
+                && (myRemarks = this.remark.trim()).length() != 0
                 && (end = myRemarks.lastIndexOf(')')) >= 0
                 && (start = myRemarks.lastIndexOf("E(", end)) >= 0) {
             final String[] emumStr = StringUtil.splitc(myRemarks.substring(start + 2, end), ',');
@@ -119,7 +119,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
                 enumMap.put(columnEnumModel.value, columnEnumModel);
             }
             this.isenum = true;
-            this.remarks = this.remarks.substring(0, start); //replaceAll(pattern_enum.pattern(), "");
+            this.remark = this.remark.substring(0, start); //replaceAll(pattern_enum.pattern(), "");
         } else {
             this.isenum = false;
         }
@@ -128,7 +128,7 @@ public class ColumnModel implements Comparable<ColumnModel> {
     void resolveFK(Map<String, TableModel> alltables) {
 
         if (isfk) {
-            Column pkColumn = raw.getHasOne().pk;
+            ColumnRaw pkColumn = raw.getHasOne().pk;
             TableModel pkTable = alltables.get(pkColumn.table.name);
             if (pkTable != null) {
                 fk = pkTable.getColumnMap().get(pkColumn.name);
@@ -178,8 +178,13 @@ public class ColumnModel implements Comparable<ColumnModel> {
         return isfk;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    @Deprecated
     public String getRemarks() {
-        return remarks;
+        return remark;
     }
 
     public String getJavaSimpleType() {
@@ -214,8 +219,13 @@ public class ColumnModel implements Comparable<ColumnModel> {
         return size;
     }
 
+    public TableModel getTable() {
+        return table;
+    }
+
+    @Deprecated
     public TableModel getParent() {
-        return parent;
+        return table;
     }
 
     public String getFk_varName() {

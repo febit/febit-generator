@@ -13,7 +13,7 @@ public class TableModel implements Comparable<TableModel> {
 
     private final String entity;
     private final String sqlName;
-    private final String remarks;
+    private final String remark;
     private final Map<String, ColumnModel> columnMap;
     private final List<ColumnModel> columns;
     private final List<ColumnModel> idColumns;
@@ -22,10 +22,10 @@ public class TableModel implements Comparable<TableModel> {
     private final String modelFullName;
     private final String modelSimpleName;
 
-    public TableModel(String entity, String sqlName, String remarks, Map<String, ColumnModel> columnMap, List<ColumnModel> columns, List<ColumnModel> idColumns, String modelFullName, String modelSimpleName, boolean blackEntity) {
+    public TableModel(String entity, String sqlName, String remark, Map<String, ColumnModel> columnMap, List<ColumnModel> columns, List<ColumnModel> idColumns, String modelFullName, String modelSimpleName, boolean blackEntity) {
         this.entity = entity;
         this.sqlName = sqlName;
-        this.remarks = remarks;
+        this.remark = remark;
         this.columnMap = columnMap;
         this.columns = columns;
         this.idColumns = idColumns;
@@ -48,8 +48,13 @@ public class TableModel implements Comparable<TableModel> {
         return sqlName;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+    
+    @Deprecated
     public String getRemarks() {
-        return remarks;
+        return remark;
     }
 
     /**
@@ -126,7 +131,7 @@ public class TableModel implements Comparable<TableModel> {
         List<TableModel> tableModels = new ArrayList<TableModel>();
         for (ColumnModel columnModel : idColumn.getLinkColumns()) {
             if (columnModel.isIspk()) {
-                tableModels.add(columnModel.getParent());
+                tableModels.add(columnModel.getTable());
             }
         }
         return tableModels.isEmpty() ? null : tableModels;
@@ -140,7 +145,7 @@ public class TableModel implements Comparable<TableModel> {
 
         List<TableModel> tableModels = new ArrayList<TableModel>();
         for (ColumnModel columnModel : idColumn.getLinkColumns()) {
-            tableModels.add(columnModel.getParent());
+            tableModels.add(columnModel.getTable());
         }
         return tableModels.isEmpty() ? null : tableModels;
     }

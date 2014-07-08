@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.dbaccess.model.Column;
+import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.ForeignKey;
-import webit.generator.core.dbaccess.model.Table;
+import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.util.DBUtil;
 import webit.generator.core.util.Logger;
 
@@ -35,7 +35,7 @@ public class DatabaseAccesser {
         return instance;
     }
 
-    public synchronized Map<String, Table> getAllTables() {
+    public synchronized Map<String, TableRaw> getAllTables() {
         if (this.tableCache != null) {
             return tableCache.getTables();
         }
@@ -57,17 +57,17 @@ public class DatabaseAccesser {
             }
             try {
                 while (rs.next()) {
-                    tableCache.put(new Table(rs.getString("TABLE_NAME"), rs.getString("REMARKS")));
+                    tableCache.put(new TableRaw(rs.getString("TABLE_NAME"), rs.getString("REMARKS")));
                 }
             } finally {
                 rs.close();
             }
 
-            final Map<String, Table> tables = tableCache.getTables();
-            for (Map.Entry<String, Table> entry : tables.entrySet()) {
+            final Map<String, TableRaw> tables = tableCache.getTables();
+            for (Map.Entry<String, TableRaw> entry : tables.entrySet()) {
                 resolveTableColumns(entry.getValue());
             }
-            for (Map.Entry<String, Table> entry : tables.entrySet()) {
+            for (Map.Entry<String, TableRaw> entry : tables.entrySet()) {
                 resolveFKS(entry.getValue());
             }
             return tables;
@@ -81,7 +81,7 @@ public class DatabaseAccesser {
         return DBUtil.getConnection().getMetaData();
     }
 
-    private void resolveTableColumns(Table table) throws SQLException {
+    private void resolveTableColumns(TableRaw table) throws SQLException {
         Logger.trace("-------SCANF_TABLE(" + table.name + ")");
 
         List<String> primaryKeys = getTablePrimaryKeys(table);
@@ -122,14 +122,14 @@ public class DatabaseAccesser {
             indexRs.close();
         }
 
-        final List<Column> columns = getTableColumns(table, primaryKeys, indices, uniqueIndices, uniqueColumns);
+        final List<ColumnRaw> columns = getTableColumns(table, primaryKeys, indices, uniqueIndices, uniqueColumns);
         table.addColumns(columns);
         columnCache.addColums(columns);
     }
 
-    private List<Column> getTableColumns(Table table, List<String> primaryKeys, List<String> indices, Map<String, String> uniqueIndices, Map<String, List<String>> uniqueColumns) throws SQLException {
+    private List<ColumnRaw> getTableColumns(TableRaw table, List<String> primaryKeys, List<String> indices, Map<String, String> uniqueIndices, Map<String, List<String>> uniqueColumns) throws SQLException {
 
-        final List<Column> columns = new ArrayList<Column>();
+        final List<ColumnRaw> columns = new ArrayList<ColumnRaw>();
         final ResultSet columnRs = getMetaData().getColumns(null, null, table.name, null);
 
         try {
@@ -154,7 +154,7 @@ public class DatabaseAccesser {
                 }
                 boolean isUnique = columnsInUniqueIndex != null && columnsInUniqueIndex.size() == 1;
 
-                Column column = new Column(
+                ColumnRaw column = new ColumnRaw(
                         table,
                         sqlType,
                         sqlTypeName,
@@ -175,7 +175,7 @@ public class DatabaseAccesser {
         return columns;
     }
 
-    private void resolveFKS(Table table) throws SQLException {
+    private void resolveFKS(TableRaw table) throws SQLException {
         final ResultSet fkeys = getMetaData().getImportedKeys(null, null, table.name);
         try {
             while (fkeys.next()) {
@@ -185,8 +185,8 @@ public class DatabaseAccesser {
                 String fkcol = fkeys.getString(FKCOLUMN_NAME);
                 Integer iseq = Integer.valueOf(fkeys.getString(KEY_SEQ));
 
-                Column pkColumn = columnCache.get(pktable, pkcol);
-                Column fkColumn = columnCache.get(fktable, fkcol);
+                ColumnRaw pkColumn = columnCache.get(pktable, pkcol);
+                ColumnRaw fkColumn = columnCache.get(fktable, fkcol);
                 if (pkColumn == null) {
                     Logger.warn("PKColumn CAN'T FOUND:" + pktable + "." + pkcol);
                     continue;
@@ -206,7 +206,7 @@ public class DatabaseAccesser {
         }
     }
 
-    private List<String> getTablePrimaryKeys(Table table) throws SQLException {
+    private List<String> getTablePrimaryKeys(TableRaw table) throws SQLException {
         final List<String> primaryKeys = new ArrayList<String>();
         final ResultSet primaryKeyRs = getMetaData().getPrimaryKeys(null, null, table.name);
         try {
@@ -221,31 +221,31 @@ public class DatabaseAccesser {
 
     protected static class ColumnCache {
 
-        private final Map<String, Column> columns = new HashMap<String, Column>();
+        private final Map<String, ColumnRaw> columns = new HashMap<String, ColumnRaw>();
 
         private String getHashKey(String tableName, String columName) {
             return new StringBuilder(tableName).append('.').append(columName).toString();
         }
 
-        private String getHashKey(Column column) {
+        private String getHashKey(ColumnRaw column) {
             return getHashKey(column.table.name, column.name);
         }
 
-        public void addColums(Iterable<Column> columns) {
-            for (Column column : columns) {
+        public void addColums(Iterable<ColumnRaw> columns) {
+            for (ColumnRaw column : columns) {
                 put(column);
             }
         }
 
-        public Map<String, Column> getColumns() {
+        public Map<String, ColumnRaw> getColumns() {
             return columns;
         }
 
-        public void put(Column column) {
+        public void put(ColumnRaw column) {
             columns.put(getHashKey(column), column);
         }
 
-        public Column get(String tableName, String columName) {
+        public ColumnRaw get(String tableName, String columName) {
             return columns.get(getHashKey(tableName, columName));
         }
 
@@ -256,9 +256,9 @@ public class DatabaseAccesser {
 
     protected static class TableCache {
 
-        private final Map<String, Table> tables = new HashMap<String, Table>();
+        private final Map<String, TableRaw> tables = new HashMap<String, TableRaw>();
 
-        public void put(Table table) {
+        public void put(TableRaw table) {
             tables.put(table.name, table);
         }
 
@@ -266,7 +266,7 @@ public class DatabaseAccesser {
             return tableName.toLowerCase();
         }
 
-        public Table get(String tableName) {
+        public TableRaw get(String tableName) {
 
             return tables.get(getHashKey(tableName));
         }
@@ -275,7 +275,7 @@ public class DatabaseAccesser {
             return tables.containsKey(getHashKey(tableName));
         }
 
-        public Map<String, Table> getTables() {
+        public Map<String, TableRaw> getTables() {
             return tables;
         }
     }

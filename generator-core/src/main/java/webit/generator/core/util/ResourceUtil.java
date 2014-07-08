@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import webit.generator.core.Config;
-import webit.generator.core.dbaccess.model.Column;
-import webit.generator.core.dbaccess.model.Table;
+import webit.generator.core.model.ColumnModel;
+import webit.generator.core.model.TableModel;
 import webit.script.util.props.Props;
 
 /**
@@ -71,27 +71,29 @@ public class ResourceUtil {
         return data;
     }
 
-    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap, final Map<String, Table> tables) {
+    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap, final List<TableModel> tables) {
         final File file = new File(getResPath(COLUMNS_PROPS));
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
-            final TreeMap<String, Map<String, Map<String, Object>>> sortedTableColumnsMap = new TreeMap(tableColumnsMap);
-            for (Map.Entry<String, Map<String, Map<String, Object>>> entry : sortedTableColumnsMap.entrySet()) {
-                final String tableName = entry.getKey();
-                final Table table = tables.get(tableName);
-                Map<String, Map<String, Object>> sortedColumns = new TreeMap(entry.getValue());
-                Map<String, Column> columnMap = new HashMap<String, Column>();
-                for (Column column : table.getColumns()) {
-                    columnMap.put(column.name, column);
+            for (TableModel table : tables) {
+                final String tableSqlName = table.getSqlName();
+                final Map<String, ColumnModel> columnMap = table.getColumnMap();
+                final Map<String, Map<String, Object>> sortedColumns;
+                {
+                    Map<String, Map<String, Object>> columns = tableColumnsMap.get(tableSqlName);
+                    if (columns == null) {
+                        continue;
+                    }
+                    sortedColumns = new TreeMap(tableColumnsMap.get(tableSqlName));
                 }
                 //
-                writer.append("\n\n### ").append(table.remarks).append('\n');
-                writer.append('[').append(tableName).append(']').append("\n\n");
+                writer.append("\n\n### ").append(table.getRemark()).append('\n');
+                writer.append('[').append(tableSqlName).append(']').append("\n\n");
                 for (Map.Entry<String, Map<String, Object>> entry1 : sortedColumns.entrySet()) {
                     final String columnName = entry1.getKey();
                     final Map<String, Object> sortedPropertys = new TreeMap<String, Object>(entry1.getValue());
-                    writer.append("# ").append(columnMap.get(columnName).remarks).append('\n');
+                    writer.append("# ").append(columnMap.get(columnName).getRemark()).append('\n');
                     for (Map.Entry<String, Object> entry2 : sortedPropertys.entrySet()) {
                         writer.append(columnName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
                     }

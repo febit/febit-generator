@@ -3,11 +3,11 @@ package webit.generator.core.dbaccess.model;
 
 public class ForeignKey {
 
-    public final Column pk;
-    public final Column fk;
+    public final ColumnRaw pk;
+    public final ColumnRaw fk;
     public final int seq;
 
-    public ForeignKey(Column pk, Column fk, int seq) {
+    public ForeignKey(ColumnRaw pk, ColumnRaw fk, int seq) {
         this.pk = pk;
         this.fk = fk;
         this.seq = seq;

@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import webit.generator.core.Config;
 import webit.generator.core.dbaccess.DatabaseAccesser;
-import webit.generator.core.dbaccess.model.Column;
-import webit.generator.core.dbaccess.model.Table;
+import webit.generator.core.dbaccess.model.ColumnRaw;
+import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.ColumnModel;
 import webit.generator.core.model.TableModel;
 import webit.generator.core.model.TableModelFactory;
@@ -49,9 +49,9 @@ public class DefaultTableModelFactory extends TableModelFactory {
         //TODO: 规则转换
         final Map<String, TableModel> tableMaps = new HashMap<String, TableModel>();
         final Map<String, Map<String, Map<String, Object>>> tableColumnMap = ResourceUtil.loadTableColumns();
-        for (Map.Entry<String, Table> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
+        for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
             //String string = entry.getKey();
-            Table table = entry.getValue();
+            TableRaw table = entry.getValue();
             tableMaps.put(table.name,
                     createTable(table, tableColumnMap.get(table.name)));
         }
@@ -75,14 +75,14 @@ public class DefaultTableModelFactory extends TableModelFactory {
         Collections.sort(tableList);
         if (Logger.isInfoEnabled()) {
             for (TableModel tableModel1 : tableList) {
-                Logger.info("Loaded table: " + tableModel1.getSqlName() + "  " + tableModel1.getRemarks());
+                Logger.info("Loaded table: " + tableModel1.getSqlName() + "  " + tableModel1.getRemark());
             }
         }
 
         return tableList;
     }
 
-    protected TableModel createTable(final Table table, final Map<String, Map<String, Object>> tableColumnSetting) {
+    protected TableModel createTable(final TableRaw table, final Map<String, Map<String, Object>> tableColumnSetting) {
 
         final String entity;
         final String sqlName;
@@ -107,7 +107,7 @@ public class DefaultTableModelFactory extends TableModelFactory {
         modelFullName = Config.getString("modelPkg", Config.getRequiredString("basePkg")) + "." + modelSimpleName;
 
         final TableModel tableModel = new TableModel(entity, sqlName, remarks, columnMap, columns, idColumns, modelFullName, modelSimpleName, blackEntity);
-        for (Column column : table.getColumns()) {
+        for (ColumnRaw column : table.getColumns()) {
             //TODO: ColumnFactory
             ColumnModel cm = new ColumnModel(column, tableModel, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
             if (cm.isIspk()) {

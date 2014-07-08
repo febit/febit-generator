@@ -4,9 +4,9 @@ package webit.generator.core.dbaccess.model;
 import webit.generator.core.Config;
 import webit.generator.core.util.DBUtil;
 
-public class Column implements java.io.Serializable, Cloneable, Comparable<Column> {
+public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<ColumnRaw> {
 
-    public final Table table;
+    public final TableRaw table;
     public final int type;
     public final String typeName;
     public final String name;
@@ -23,7 +23,7 @@ public class Column implements java.io.Serializable, Cloneable, Comparable<Colum
     private boolean isFk;
     private ForeignKey hasOne = null;
 
-    public Column(Table table, int type, String typeName,
+    public ColumnRaw(TableRaw table, int type, String typeName,
             String name, int size, int decimalDigits, boolean isPk,
             boolean isNullable, boolean isIndexed, boolean isUnique,
             String defaultValue, String remarks) {
@@ -83,7 +83,7 @@ public class Column implements java.io.Serializable, Cloneable, Comparable<Colum
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Column other = (Column) obj;
+        final ColumnRaw other = (ColumnRaw) obj;
         if (this.table != other.table && (this.table == null || !this.table.equals(other.table))) {
             return false;
         }
@@ -94,7 +94,7 @@ public class Column implements java.io.Serializable, Cloneable, Comparable<Colum
     }
 
     @Override
-    public int compareTo(Column o) {
+    public int compareTo(ColumnRaw o) {
 
         if (this.isPk && !o.isPk) {
             return -1;

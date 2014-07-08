@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.dbaccess.DatabaseAccesser;
-import webit.generator.core.dbaccess.model.Column;
-import webit.generator.core.dbaccess.model.Table;
+import webit.generator.core.model.ColumnModel;
+import webit.generator.core.model.TableModel;
+import webit.generator.core.model.TableModelFactory;
 import webit.generator.core.util.Arrays;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.Maps;
@@ -20,7 +20,7 @@ import webit.generator.core.util.StringUtil;
  */
 public class ConfigInit {
 
-    private Map<String, Table> tables;
+    private List<TableModel>  tables;
     private Map<String, Map<String, Map<String, Object>>> tableColumn;
     private Map<String, Map<String, Map<String, Object>>> tableColumnOld;
 
@@ -28,13 +28,13 @@ public class ConfigInit {
         return tableColumnOld != null ? tableColumnOld.get(tableName) : null;
     }
 
-    public Map<String, Map<String, Object>> getOldColumnMaps(Table table) {
-        return getOldColumnMaps(table.name);
+    public Map<String, Map<String, Object>> getOldColumnMaps(TableModel table) {
+        return getOldColumnMaps(table.getSqlName());
     }
 
-    public Map<String, Object> getOldColumnMap(Column column) {
-        Map<String, Map<String, Object>> oldColumnMaps = getOldColumnMaps(column.table);
-        return oldColumnMaps != null ? oldColumnMaps.get(column.name) : null;
+    public Map<String, Object> getOldColumnMap(ColumnModel column) {
+        Map<String, Map<String, Object>> oldColumnMaps = getOldColumnMaps(column.getTable());
+        return oldColumnMaps != null ? oldColumnMaps.get(column.getSqlName()) : null;
     }
 
     public Map<String, Map<String, Object>> getColumnMaps(String tableName) {
@@ -46,30 +46,30 @@ public class ConfigInit {
         return columnMaps;
     }
 
-    public Map<String, Map<String, Object>> getColumnMaps(Table table) {
-        return ConfigInit.this.getColumnMaps(table.name);
+    public Map<String, Map<String, Object>> getColumnMaps(TableModel table) {
+        return ConfigInit.this.getColumnMaps(table.getSqlName());
     }
 
-    public Map<String, Object> getColumnMap(Column column) {
-        Map<String, Map<String, Object>> newColumnMaps = getColumnMaps(column.table);
-        Map<String, Object> columnMap = newColumnMaps.get(column.name);
+    public Map<String, Object> getColumnMap(ColumnModel column) {
+        Map<String, Map<String, Object>> newColumnMaps = getColumnMaps(column.getTable());
+        Map<String, Object> columnMap = newColumnMaps.get(column.getSqlName());
         if (columnMap == null) {
             columnMap = getOldColumnMap(column);
             if (columnMap == null) {
                 columnMap = new HashMap<String, Object>();
             }
-            newColumnMaps.put(column.name, columnMap);
+            newColumnMaps.put(column.getSqlName(), columnMap);
         }
         return columnMap;
     }
 
-    public void eachTable(Maps.Handler<String, Table> handler) {
-        Maps.each(tables, handler);
+    public void eachTable(Arrays.Handler<TableModel>  handler) {
+        Arrays.each(tables, handler);
     }
 
-    public void eachColumn(final Arrays.Handler<Column> handler) {
-        eachTable(new Maps.Handler<String, Table>() {
-            public boolean each(String tableName, Table table) {
+    public void eachColumn(final Arrays.Handler<ColumnModel> handler) {
+        eachTable(new Arrays.Handler<TableModel>() {
+            public boolean each(int index, TableModel table) {
                 return Arrays.each(table.getColumns(), handler);
             }
         });
@@ -80,14 +80,14 @@ public class ConfigInit {
     }
 
     protected void init() {
-        this.tables = DatabaseAccesser.getInstance().getAllTables();
+        this.tables = TableModelFactory.collectTablesIfAbsent();
         this.tableColumn = new HashMap<String, Map<String, Map<String, Object>>>();
         this.tableColumnOld = ResourceUtil.loadTableColumns();
     }
 
     protected void beforeProcess() {
-        eachColumn(new Arrays.Handler<Column>() {
-            public boolean each(final int index, final Column column) {
+        eachColumn(new Arrays.Handler<ColumnModel>() {
+            public boolean each(final int index, final ColumnModel column) {
                 Map<String, Object> columnMap = getColumnMap(column);
                 if (!columnMap.containsKey("query")) {
                     columnMap.put("query", "");
@@ -123,7 +123,7 @@ public class ConfigInit {
         afterProcess();
     }
 
-    public Map<String, Table> getTables() {
+    public List<TableModel> getTables() {
         return tables;
     }
 
