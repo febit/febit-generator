@@ -18,26 +18,28 @@ import webit.generator.core.util.StringUtil;
 public class Column implements Comparable<Column> {
 
     private final Table table;
+    private final Map<String, Object> attrs;
+    private final ColumnRaw raw;
+    private final int size;
+    private final boolean isUnique;
+    private final boolean optional;
+    private final boolean ispk;
+    private final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
+    private final String remark;
     private final String varName;
     private final String javaType;
     private final String javaSimpleType;
     private final String sqlName;
     private final String getterName;
     private final String setterName;
-    private final boolean isUnique;
-    private final boolean optional;
-    private final boolean ispk;
-    private final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
     private final List<Column> linkColumns; //被外键
-    private final ColumnRaw raw;
-    private final int size;
     private final boolean query;
-    private boolean isLinkKey; //被外键
-    private String remark;
     //
-    private boolean isenum;
-    private List<ColumnEnumModel> enums;
-    private Map enumMap;
+    private boolean isLinkKey; //被外键
+    //
+    private final boolean isenum;
+    private final List<ColumnEnumModel> enums;
+    private final Map enumMap;
     //
     private boolean isfk;
     private Column fk;
@@ -49,80 +51,35 @@ public class Column implements Comparable<Column> {
     //
     private String defaultValueRaw;
     private Object defaultValue;
-    private boolean hasDefaultValue = false;
-    private String defaultValueShow = "null";
+    private boolean hasDefaultValue;
+    private String defaultValueShow;
 
-    //TODO: ColumnModelFactory
-    public Column(ColumnRaw column, Table parent, Map<String, Object> settings) {
-
-        this.table = parent;
-        this.raw = column;
-        this.sqlName = column.name;
-        this.isUnique = column.isUnique;
-        this.optional = column.isNullable;
-        this.isfk = column.getIsFk();//&& !column.isPk();
-        this.ispk = column.isPk; //主键？
-        this.isGenerated = column.isPk && !column.getIsFk(); //XXX:是否主键自动生成
-        this.size = column.size;
-        this.remark = column.remarks;
-        //
-        this.varName = ClassNameUtil.modelColumnNamingStrategy(column.name);
-        this.javaType = column.getJavaType();
-        this.javaSimpleType = ClassNameUtil.getClassSimpleName(javaType);
-        this.getterName = ClassNameUtil.getGetterMethodName(varName, javaType);
-        this.setterName = ClassNameUtil.getSetterMethodName(varName);
-        this.linkColumns = new ArrayList<Column>();
-        //XXX:column settings 可丰富功能
-        if (settings != null) {
-            this.query = "true".equals(settings.get("query"));
-        } else {
-            this.query = false;
-        }
-
-        //parser default
-        String defaultValueString = column.defaultValue;
-        if (defaultValueString != null) {
-            hasDefaultValue = true;
-            defaultValueRaw = defaultValueString;
-            defaultValueString = defaultValueString.trim();
-            final Object defaultValueObject
-                    = this.defaultValue
-                    = TypeConverterUtil.convert(javaType, defaultValueString);
-            if (defaultValueObject instanceof Boolean) {
-                defaultValueShow = defaultValueObject.toString();
-//            } else if (defaultValueObject instanceof BigDecimal) {
-//                defaultValueShow = defaultValueObject.toString();
-            } else if (defaultValueObject instanceof Number) {
-                defaultValueShow = defaultValueObject.toString();
-            } else {
-                defaultValueShow = "\"" + defaultValueString + "\"";
-            }
-        }
-        resolveColumnEnums();
-    }
-
-    void resolveColumnEnums() {
-        final String myRemarks;
-        final int start;
-        final int end;
-        if (this.javaType.equals("java.lang.Short")
-                && remark != null
-                && (myRemarks = this.remark.trim()).length() != 0
-                && (end = myRemarks.lastIndexOf(')')) >= 0
-                && (start = myRemarks.lastIndexOf("E(", end)) >= 0) {
-            final String[] emumStr = StringUtil.splitc(myRemarks.substring(start + 2, end), ',');
-            enums = new ArrayList<ColumnEnumModel>();
-            enumMap = new HashMap();
-            for (int i = 0; i < emumStr.length; i++) {
-                ColumnEnumModel columnEnumModel = ColumnEnumModel.valueOf(emumStr[i]);
-                enums.add(columnEnumModel);
-                enumMap.put(columnEnumModel.value, columnEnumModel);
-            }
-            this.isenum = true;
-            this.remark = this.remark.substring(0, start); //replaceAll(pattern_enum.pattern(), "");
-        } else {
-            this.isenum = false;
-        }
+    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size, boolean isUnique, boolean optional, boolean ispk, boolean isfk, boolean isGenerated, String remark, String varName, String javaType, String javaSimpleType, String sqlName, String getterName, String setterName, List<Column> linkColumns, boolean query, boolean isenum, List<ColumnEnumModel> enums, Map enumMap, String defaultValueRaw, Object defaultValue, boolean hasDefaultValue, String defaultValueShow) {
+        this.table = table;
+        this.attrs = attrs;
+        this.raw = raw;
+        this.size = size;
+        this.isUnique = isUnique;
+        this.optional = optional;
+        this.ispk = ispk;
+        this.isfk = isfk;
+        this.isGenerated = isGenerated;
+        this.remark = remark;
+        this.varName = varName;
+        this.javaType = javaType;
+        this.javaSimpleType = javaSimpleType;
+        this.sqlName = sqlName;
+        this.getterName = getterName;
+        this.setterName = setterName;
+        this.linkColumns = linkColumns;
+        this.query = query;
+        this.isenum = isenum;
+        this.enums = enums;
+        this.enumMap = enumMap;
+        this.defaultValueRaw = defaultValueRaw;
+        this.defaultValue = defaultValue;
+        this.hasDefaultValue = hasDefaultValue;
+        this.defaultValueShow = defaultValueShow;
     }
 
     void resolveFK(Map<String, Table> alltables) {

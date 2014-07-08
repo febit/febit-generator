@@ -12,6 +12,7 @@ import webit.generator.core.dbaccess.DatabaseAccesser;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
+import webit.generator.core.model.ColumnFactory;
 import webit.generator.core.model.Table;
 import webit.generator.core.model.TableFactory;
 import webit.generator.core.util.ClassNameUtil;
@@ -106,8 +107,7 @@ public class DefaultTableFactory extends TableFactory {
 
         final Table table = new Table(entity, sqlName, remarks, columnMap, columns, idColumns, modelFullName, modelSimpleName, blackEntity);
         for (ColumnRaw column : tableRaw.getColumns()) {
-            //TODO: ColumnFactory
-            Column cm = new Column(column, table, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
+            Column cm = ColumnFactory.create(column, table, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
             if (cm.isIspk()) {
                 idColumns.add(cm);
             }

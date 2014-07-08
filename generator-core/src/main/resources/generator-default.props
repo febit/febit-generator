@@ -32,7 +32,7 @@ webit.script.props += /webit-script-generator.props
 
 # Components
 tableFactory = webit.generator.core.model.impl.DefaultTableFactory
-
+columnFactory= webit.generator.core.model.impl.DefaultColumnFactory
 
 # 数据源的相关设置
 [db]
