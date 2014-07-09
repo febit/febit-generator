@@ -58,10 +58,11 @@ writeJavaClass(false, basePkg + ".Config", #{
      */
     public void configPlugin(Plugins plugins) {
         // 配置C3p0数据库连接池插件
-        C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("db.jdbcUrl").trim(),
-                getProperty("db.user").trim(), 
-                getProperty("db.password").trim(),
-                getProperty("db.driver").trim()
+        C3p0Plugin c3p0Plugin = new C3p0Plugin(
+            getProperty("db.jdbcUrl").trim(),
+            getProperty("db.user").trim(), 
+            getProperty("db.password").trim(),
+            getProperty("db.driver").trim()
         );
         plugins.add(c3p0Plugin);
 
