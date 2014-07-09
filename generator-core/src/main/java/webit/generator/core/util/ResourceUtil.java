@@ -95,7 +95,12 @@ public class ResourceUtil {
                 for (Map.Entry<String, Map<String, Object>> entry1 : sortedColumns.entrySet()) {
                     final String columnName = entry1.getKey();
                     final Map<String, Object> sortedPropertys = new TreeMap<String, Object>(entry1.getValue());
-                    writer.append("# ").append(columnMap.get(columnName).getRemark()).append('\n');
+                    Column column = columnMap.get(columnName);
+                    if (column == null) {
+                        Logger.warn("Column not found: " + table.sqlName + '.' + columnName);
+                    } else {
+                        writer.append("# ").append(columnMap.get(columnName).getRemark()).append('\n');
+                    }
                     for (Map.Entry<String, Object> entry2 : sortedPropertys.entrySet()) {
                         writer.append(columnName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
                     }

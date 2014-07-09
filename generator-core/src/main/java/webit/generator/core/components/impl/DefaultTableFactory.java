@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.TableFactory;
@@ -16,7 +17,6 @@ import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
-import webit.generator.core.util.ClassNameUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
@@ -28,6 +28,8 @@ import webit.generator.core.util.StringUtil;
 public class DefaultTableFactory extends TableFactory {
 
     private final Set<String> blackEntitys = new HashSet<String>();
+    private Pattern includes;
+    private Pattern excludes;
 
     private boolean inited = false;
 
@@ -43,10 +45,20 @@ public class DefaultTableFactory extends TableFactory {
             blackEntitys.addAll(tableBlacks);
         }
 
+        {
+            String includesString = Config.getString("includeTables");
+            if (StringUtil.notEmpty(includesString)) {
+                includes = Pattern.compile(includesString);
+            }
+            String excludesString = Config.getString("excludeTables");
+            if (StringUtil.notEmpty(excludesString)) {
+                excludes = Pattern.compile(excludesString);
+            }
+        }
     }
 
     public List<Table> collectTables() {
-
+        init();
         //TODO: 规则转换
         final List<Table> tableList;
         {
@@ -55,10 +67,12 @@ public class DefaultTableFactory extends TableFactory {
             for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
                 TableRaw raw = entry.getValue();
                 if (!isInclude(raw)) {
+                    //XXX: DEBUG LOG
                     continue;
                 }
                 Table table = createTable(raw, tableColumnMap.get(raw.name));
                 if (table != null) {
+                    //XXX: DEBUG LOG
                     tableMaps.put(raw.name, table);
                 }
             }
@@ -87,8 +101,8 @@ public class DefaultTableFactory extends TableFactory {
      * @return
      */
     protected boolean isInclude(final TableRaw tableRaw) {
-        //TODO: 正则匹配
-        return true;
+        return (includes == null || includes.matcher(tableRaw.name).matches())
+                && (excludes == null || !excludes.matcher(tableRaw.name).matches());
     }
 
     protected Table createTable(final TableRaw tableRaw, final Map<String, Map<String, Object>> tableColumnSetting) {
@@ -102,7 +116,7 @@ public class DefaultTableFactory extends TableFactory {
         final String modelType;
         final String modelSimpleType;
         final boolean blackEntity;
-        
+
         final TableNaming tableNaming = TableNaming.instance();
 
         remark = tableNaming.remark(tableRaw.remarks);
@@ -118,10 +132,14 @@ public class DefaultTableFactory extends TableFactory {
         modelType = tableNaming.modelType(modelSimpleType);
 
         final Table table = new Table(entity, sqlName, remark, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
-        
+
         {
             for (ColumnRaw column : tableRaw.getColumns()) {
                 Column cm = ColumnFactory.create(column, table, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
+                if (cm == null) {
+                    //XXX: DEBUG LOG
+                    continue;
+                }
                 if (cm.getIspk()) {
                     idColumns.add(cm);
                 }

@@ -12,6 +12,7 @@ public abstract class TableNaming {
     private static TableNaming _instance;
 
     public abstract String remark(String remark);
+    
     public abstract String sqlName(String sqlNameRaw);
     
     public abstract String entity(String sqlName);

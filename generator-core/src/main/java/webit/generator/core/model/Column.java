@@ -79,12 +79,16 @@ public class Column implements Comparable<Column> {
     }
 
     protected void resolveFK(Map<String, Table> alltables) {
+        //TODO: 支持配置fk
         if (isfk) {
             ColumnRaw pkColumn = raw.getHasOne().pk;
             Table pkTable = alltables.get(pkColumn.table.name);
             if (pkTable != null) {
                 fk = pkTable.getColumnMap().get(pkColumn.name);
                 isfk = (fk != null);
+            } else {
+                isfk = false;
+                fk = null;
             }
 
             if (isfk) {

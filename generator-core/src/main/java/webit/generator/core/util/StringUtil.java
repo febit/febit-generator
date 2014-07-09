@@ -208,4 +208,12 @@ public class StringUtil {
         }
         return sb.toString();
     }
+
+    public static boolean isEmpty(String src) {
+        return src == null || src.length() == 0;
+    }
+
+    public static boolean notEmpty(String src) {
+        return src != null && src.length() != 0;
+    }
 }

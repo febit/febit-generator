@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.dbaccess.model.ColumnRaw;
+import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.ColumnEnumModel;
 import webit.generator.core.model.Table;
@@ -21,8 +24,46 @@ import webit.generator.core.util.StringUtil;
  */
 public class DefaultColumnFactory extends ColumnFactory {
 
+    private Pattern includes;
+    private Pattern excludes;
+
+    private boolean inited = false;
+
+    public void init() {
+        if (inited == true) {
+            return;
+        }
+        inited = true;
+
+        {
+            String includesString = Config.getString("includeColumns");
+            if (StringUtil.notEmpty(includesString)) {
+                includes = Pattern.compile(includesString);
+            }
+            String excludesString = Config.getString("excludeColumns");
+            if (StringUtil.notEmpty(excludesString)) {
+                excludes = Pattern.compile(excludesString);
+            }
+        }
+    }
+
+    /**
+     * include this column or not.
+     *
+     * @param raw
+     * @return
+     */
+    protected boolean isInclude(final ColumnRaw raw) {
+        return (includes == null || includes.matcher(raw.name).matches())
+                && (excludes == null || !excludes.matcher(raw.name).matches());
+    }
+
     @Override
     public Column createColumn(final ColumnRaw raw, final Table table, final Map<String, Object> attrs) {
+        init();
+        if (!isInclude(raw)) {
+            return null;
+        }
         ColumnNaming columnNaming = ColumnNaming.instance();
         //
         final String varName = columnNaming.varName(raw.name);
