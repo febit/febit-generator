@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import webit.generator.core.components.ConfigInitProcesser;
 import webit.generator.core.components.TableFactory;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;

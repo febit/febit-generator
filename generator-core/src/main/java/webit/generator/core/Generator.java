@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import webit.generator.core.components.GeneratorProcesser;
 import webit.generator.core.components.TableFactory;
 import webit.generator.core.filesaver.FileSaver;
 import webit.generator.core.model.Table;

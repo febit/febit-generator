@@ -1,7 +1,8 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core;
+package webit.generator.core.components;
 
 import java.util.Map;
+import webit.generator.core.Generator;
 import webit.generator.core.model.Table;
 
 /**

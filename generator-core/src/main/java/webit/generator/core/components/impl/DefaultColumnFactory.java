@@ -10,7 +10,6 @@ import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.dbaccess.model.ColumnRaw;
-import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.ColumnEnumModel;
 import webit.generator.core.model.Table;
