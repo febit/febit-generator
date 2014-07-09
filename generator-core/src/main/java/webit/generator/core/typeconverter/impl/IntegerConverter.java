@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class IntegerConverter implements Converter<Integer> {
 
+    @Override
     public Integer convert(String stringValue) {
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
             try {

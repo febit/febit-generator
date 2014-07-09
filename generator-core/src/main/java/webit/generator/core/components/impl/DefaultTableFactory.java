@@ -57,6 +57,7 @@ public class DefaultTableFactory extends TableFactory {
         }
     }
 
+    @Override
     public List<Table> collectTables() {
         init();
         //TODO: 规则转换

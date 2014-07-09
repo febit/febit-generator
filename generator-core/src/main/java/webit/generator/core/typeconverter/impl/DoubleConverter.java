@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class DoubleConverter implements Converter<Double> {
 
+    @Override
     public Double convert(String stringValue) {
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
             try {

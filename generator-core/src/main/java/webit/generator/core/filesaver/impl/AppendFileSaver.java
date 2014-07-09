@@ -19,10 +19,12 @@ public class AppendFileSaver extends AbstractAppendFileSaver {
     protected String outroot;
     protected final Set<String> clearedFiles = new HashSet<String>();
 
+    @Override
     public void init(String outroot) {
         this.outroot = outroot;
     }
 
+    @Override
     protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
         final String realpath = FileUtil.concat(outroot, fileEntry.fileName);
         if (clearedFiles.contains(realpath) == false) {

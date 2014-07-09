@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class TimeMillisConverter implements Converter<Long> {
 
+    @Override
     public Long convert(String stringValue) {
         //TODO： 识别标准Date 格式
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {

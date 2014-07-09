@@ -9,6 +9,7 @@ import webit.generator.core.typeconverter.Converter;
  */
 public class BooleanConverter implements Converter<Boolean> {
 
+    @Override
     public Boolean convert(String stringValue) {
         stringValue = stringValue.toLowerCase();
         return stringValue.equals("true")

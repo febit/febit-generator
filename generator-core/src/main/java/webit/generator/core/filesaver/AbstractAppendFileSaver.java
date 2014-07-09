@@ -22,14 +22,17 @@ public abstract class AbstractAppendFileSaver implements FileSaver {
         return String.valueOf(object).getBytes();
     }
 
+    @Override
     public boolean copyFile(String string, String string1) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean createFolder(String folder) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
         final String realpath = getFilePath(fileEntry);
         try {

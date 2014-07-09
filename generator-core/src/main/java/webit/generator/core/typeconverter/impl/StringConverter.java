@@ -9,6 +9,7 @@ import webit.generator.core.typeconverter.Converter;
  */
 public class StringConverter implements Converter<String> {
 
+    @Override
     public String convert(String stringValue) {
         return stringValue;
     }

@@ -136,6 +136,7 @@ public class DependLib implements Comparable<DependLib> {
         return new DependLib(group, artifact, version, type);
     }
 
+    @Override
     public int compareTo(DependLib dep) {
 
         //

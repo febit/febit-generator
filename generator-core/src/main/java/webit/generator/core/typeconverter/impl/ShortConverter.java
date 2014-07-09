@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class ShortConverter implements Converter<Short> {
 
+    @Override
     public Short convert(String stringValue) {
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
             try {

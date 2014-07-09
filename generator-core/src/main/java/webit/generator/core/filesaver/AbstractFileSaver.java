@@ -31,6 +31,7 @@ public abstract class AbstractFileSaver implements FileSaver {
         return String.valueOf(object).getBytes();
     }
 
+    @Override
     public boolean copyFile(String file, String src) {
 
         String from = FileUtil.concatWithUnixStyle(COPY_ROOT, src);
@@ -62,6 +63,7 @@ public abstract class AbstractFileSaver implements FileSaver {
         return true;
     }
 
+    @Override
     public boolean createFolder(String folder) {
         String dir = FileUtil.concat(getBasePath(), folder);
         try {
@@ -72,6 +74,7 @@ public abstract class AbstractFileSaver implements FileSaver {
         return true;
     }
 
+    @Override
     public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
         String path = getFilePath(fileEntry);
         try {

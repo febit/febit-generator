@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class LongConverter implements Converter<Long> {
 
+    @Override
     public Long convert(String stringValue) {
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
             try {

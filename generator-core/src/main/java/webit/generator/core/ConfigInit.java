@@ -71,15 +71,35 @@ public class ConfigInit {
     }
 
     public void eachTable(Arrays.Handler<Table> handler) {
-        Arrays.each(tables, handler);
+        eachTable(handler, false);
+    }
+
+    public void eachTable(final Arrays.Handler<Table> handler, boolean includeBlankEntitys) {
+        if (includeBlankEntitys) {
+            Arrays.each(tables, handler);
+        } else {
+            Arrays.each(tables, new Arrays.Handler<Table>() {
+
+                @Override
+                public boolean each(int index, Table value) {
+                    return handler.each(index, value);
+                }
+            });
+        }
     }
 
     public void eachColumn(final Arrays.Handler<Column> handler) {
+        eachColumn(handler, false);
+    }
+
+    public void eachColumn(final Arrays.Handler<Column> handler, boolean withBlankEntitys) {
         eachTable(new Arrays.Handler<Table>() {
+
+            @Override
             public boolean each(int index, Table table) {
                 return Arrays.each(table.getColumns(), handler);
             }
-        });
+        }, withBlankEntitys);
     }
 
     public void eachColumnMaps(Maps.Handler<Table, Map<Column, Map<String, Object>>> handler) {
@@ -94,6 +114,8 @@ public class ConfigInit {
 
     protected void beforeProcess() {
         eachColumn(new Arrays.Handler<Column>() {
+            
+            @Override
             public boolean each(final int index, final Column column) {
                 Map<String, Object> columnMap = getColumnMap(column);
                 if (!columnMap.containsKey("query")) {

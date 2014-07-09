@@ -10,6 +10,7 @@ import webit.generator.core.util.Logger;
  */
 public class BigDecimalConverter implements Converter<BigDecimal> {
 
+    @Override
     public BigDecimal convert(String stringValue) {
         if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
             try {
