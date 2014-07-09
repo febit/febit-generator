@@ -22,7 +22,7 @@ public abstract class TableFactory {
         }
         return instance;
     }
-    
+
     public static List<Table> getTables() {
         List<Table> tables = _tables;
         if (tables == null) {

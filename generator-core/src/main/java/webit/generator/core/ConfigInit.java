@@ -20,7 +20,7 @@ import webit.generator.core.util.StringUtil;
  */
 public class ConfigInit {
 
-    private List<Table>  tables;
+    private List<Table> tables;
     private Map<String, Map<String, Map<String, Object>>> tableColumn;
     private Map<String, Map<String, Map<String, Object>>> tableColumnOld;
 
@@ -63,7 +63,7 @@ public class ConfigInit {
         return columnMap;
     }
 
-    public void eachTable(Arrays.Handler<Table>  handler) {
+    public void eachTable(Arrays.Handler<Table> handler) {
         Arrays.each(tables, handler);
     }
 
@@ -99,7 +99,7 @@ public class ConfigInit {
 
     public void afterProcess() {
         //XXX: log
-        ResourceUtil.saveTableColumns(this.tableColumn, this.tables);
+        ResourceUtil.saveTableColumns(this.tableColumn);
     }
 
     public void process() throws IOException {

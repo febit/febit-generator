@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import webit.generator.core.Config;
+import webit.generator.core.components.TableFactory;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
 import webit.script.util.props.Props;
@@ -71,7 +72,8 @@ public class ResourceUtil {
         return data;
     }
 
-    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap, final List<Table> tables) {
+    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap) {
+        final List<Table> tables = TableFactory.getTables();
         final File file = new File(getResPath(COLUMNS_PROPS));
         BufferedWriter writer = null;
         try {
