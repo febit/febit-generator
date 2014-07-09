@@ -14,7 +14,7 @@ public abstract class ColumnFactory {
 
     private static ColumnFactory _instance;
 
-    public abstract Column createColumn(ColumnRaw raw, Table table, Map<String, Object> settings);
+    public abstract Column createColumn(ColumnRaw raw, Table table);
 
     public static ColumnFactory instance() {
         ColumnFactory instance = _instance;
@@ -24,7 +24,7 @@ public abstract class ColumnFactory {
         return instance;
     }
 
-    public static Column create(ColumnRaw raw, Table table, Map<String, Object> settings) {
-        return instance().createColumn(raw, table, settings);
+    public static Column create(ColumnRaw raw, Table table) {
+        return instance().createColumn(raw, table);
     }
 }

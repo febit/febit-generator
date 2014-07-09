@@ -122,6 +122,11 @@ public class ConfigInit {
                 if (!columnMap.containsKey("query")) {
                     columnMap.put("query", "");
                 }
+                
+                if (ResourceUtil.notValidValue(columnMap.get("fk")) && column.varName.endsWith("Id")) {
+                    columnMap.put("fk", "");
+                }
+                
                 return true;
             }
         });

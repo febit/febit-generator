@@ -28,6 +28,7 @@ import webit.generator.core.util.StringUtil;
 public class DefaultTableFactory extends TableFactory {
 
     private final Set<String> blackEntitys = new HashSet<String>();
+
     private Pattern includes;
     private Pattern excludes;
 
@@ -64,14 +65,13 @@ public class DefaultTableFactory extends TableFactory {
         final List<Table> tableList;
         {
             final Map<String, Table> tableMaps = new HashMap<String, Table>();
-            final Map<String, Map<String, Map<String, Object>>> tableColumnMap = ResourceUtil.loadTableColumns();
             for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
                 TableRaw raw = entry.getValue();
                 if (!isInclude(raw)) {
                     //XXX: DEBUG LOG
                     continue;
                 }
-                Table table = createTable(raw, tableColumnMap.get(raw.name));
+                Table table = createTable(raw);
                 if (table != null) {
                     //XXX: DEBUG LOG
                     tableMaps.put(raw.name, table);
@@ -106,7 +106,7 @@ public class DefaultTableFactory extends TableFactory {
                 && (excludes == null || !excludes.matcher(tableRaw.name).matches());
     }
 
-    protected Table createTable(final TableRaw tableRaw, final Map<String, Map<String, Object>> tableColumnSetting) {
+    protected Table createTable(final TableRaw tableRaw) {
 
         final String entity;
         final String sqlName;
@@ -117,6 +117,7 @@ public class DefaultTableFactory extends TableFactory {
         final String modelType;
         final String modelSimpleType;
         final boolean blackEntity;
+        final Map<String, Map<String, Object>> tableColumnSetting;
 
         final TableNaming tableNaming = TableNaming.instance();
 
@@ -131,12 +132,11 @@ public class DefaultTableFactory extends TableFactory {
         blackEntity = blackEntitys.contains(entity);
         modelSimpleType = tableNaming.modelSimpleType(entity);
         modelType = tableNaming.modelType(modelSimpleType);
-
+        
         final Table table = new Table(entity, sqlName, remark, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
-
         {
             for (ColumnRaw column : tableRaw.getColumns()) {
-                Column cm = ColumnFactory.create(column, table, tableColumnSetting != null ? tableColumnSetting.get(column.name) : null);
+                Column cm = ColumnFactory.create(column, table);
                 if (cm == null) {
                     //XXX: DEBUG LOG
                     continue;

@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import webit.generator.core.model.DependLib;
+import webit.generator.core.model.Table;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.PropsUtil;
+import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
+import webit.script.core.Tokens;
 import webit.script.util.props.Props;
 
 public class Config {
@@ -122,6 +125,31 @@ public class Config {
         initalize();
     }
 
+    private static Map<String, Map<String, Map<String, Object>>> tablesSettings;
+
+    public static Map<String, Map<String, Map<String, Object>>> getTablesSettings() {
+        Map<String, Map<String, Map<String, Object>>> settings = tablesSettings;
+        if (settings == null) {
+            settings = tablesSettings = ResourceUtil.loadTableColumns();
+        }
+        return settings;
+    }
+
+    public static Map<String, Map<String, Object>> getTableSettings(String entity) {
+        return getTablesSettings().get(entity);
+    }
+
+    public static Map<String, Object> getColumnSettings(Table table, String varName) {
+        return getColumnSettings(table.entity, varName);
+    }
+
+    public static Map<String, Object> getColumnSettings(String entity, String varName) {
+        Map<String, Map<String, Object>> tableSettings = getTableSettings(entity);
+        if (tableSettings != null) {
+            return tableSettings.get(varName);
+        }
+        return null;
+    }
 
     public static boolean isModuleActived(String name) {
         return MODULES.contains(name);
