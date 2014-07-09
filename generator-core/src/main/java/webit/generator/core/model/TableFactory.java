@@ -14,17 +14,19 @@ public abstract class TableFactory {
 
     public abstract List<Table> collectTables();
 
-    //XXX: 线程安全
-    public static List<Table> collectTablesIfAbsent() {
+    public static TableFactory instance() {
+        TableFactory instance = _instance;
+        if (instance == null) {
+            instance = _instance = (TableFactory) ResourceUtil.loadComponent("tableFactory");
+        }
+        return instance;
+    }
+    
+    public static List<Table> getTables() {
         List<Table> tables = _tables;
         if (tables == null) {
-            TableFactory instance = _instance;
-            if (instance == null) {
-                instance = _instance = (TableFactory) ResourceUtil.loadComponent("tableFactory");
-            }
-            tables = _tables = instance.collectTables();
+            tables = _tables = instance().collectTables();
         }
-
         return tables;
     }
 }

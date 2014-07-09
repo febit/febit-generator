@@ -14,11 +14,15 @@ public abstract class ColumnFactory {
 
     public abstract Column createColumn(ColumnRaw raw, Table table, Map<String, Object> settings);
 
-    public static Column create(ColumnRaw raw, Table table, Map<String, Object> settings) {
+    public static ColumnFactory instance() {
         ColumnFactory instance = _instance;
         if (instance == null) {
             instance = _instance = (ColumnFactory) ResourceUtil.loadComponent("columnFactory");
         }
-        return instance.createColumn(raw, table, settings);
+        return instance;
+    }
+
+    public static Column create(ColumnRaw raw, Table table, Map<String, Object> settings) {
+        return instance().createColumn(raw, table, settings);
     }
 }

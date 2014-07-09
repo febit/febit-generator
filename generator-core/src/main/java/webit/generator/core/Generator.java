@@ -244,7 +244,7 @@ public class Generator {
             constMap.set(entry.getKey(), entry.getValue());
         }
 
-        this.tableList = TableFactory.collectTablesIfAbsent();
+        this.tableList = TableFactory.getTables();
         whiteTables = new ArrayList<Table>(this.tableList.size());
         for (Table table : tableList) {
             if (!table.isBlackEntity()) {

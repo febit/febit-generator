@@ -80,7 +80,7 @@ public class ConfigInit {
     }
 
     public void init() {
-        this.tables = TableFactory.collectTablesIfAbsent();
+        this.tables = TableFactory.getTables();
         this.tableColumn = new HashMap<String, Map<String, Map<String, Object>>>();
         this.tableColumnOld = ResourceUtil.loadTableColumns();
     }
