@@ -13,42 +13,42 @@ import webit.generator.core.util.StringUtil;
  */
 public class Column implements Comparable<Column> {
 
-    private final Table table;
-    private final Map<String, Object> attrs;
-    private final ColumnRaw raw;
-    private final int size;
-    private final boolean isUnique;
-    private final boolean optional;
-    private final boolean ispk;
-    private final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
-    private final String remark;
-    private final String varName;
-    private final String javaType;
-    private final String javaSimpleType;
-    private final String sqlName;
-    private final String getterName;
-    private final String setterName;
-    private final List<Column> linkColumns; //被外键
-    private final boolean query;
+    public final Table table;
+    public final Map<String, Object> attrs;
+    public final ColumnRaw raw;
+    public final int size;
+    public final boolean isUnique;
+    public final boolean optional;
+    public final boolean ispk;
+    public final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
+    public final String remark;
+    public final String varName;
+    public final String javaType;
+    public final String javaSimpleType;
+    public final String sqlName;
+    public final String getterName;
+    public final String setterName;
+    public final List<Column> linkColumns; //被外键
+    public final boolean query;
     //
-    private boolean isLinkKey; //被外键
+    public boolean isLinkKey; //被外键
     //
-    private final boolean isenum;
-    private final List<ColumnEnumModel> enums;
-    private final Map enumMap;
+    public final boolean isenum;
+    public final List<ColumnEnumModel> enums;
+    public final Map enumMap;
     //
-    private boolean isfk;
-    private Column fk;
-    private String fk_javaSimpleType;
-    private String fk_varName;
-    private String fk_javaType;
-    private String fk_getterName;
-    private String fk_setterName;
+    protected boolean isfk;
+    protected Column fk;
+    protected String fk_javaSimpleType;
+    protected String fk_varName;
+    protected String fk_javaType;
+    protected String fk_getterName;
+    protected String fk_setterName;
     //
-    private String defaultValueRaw;
-    private Object defaultValue;
-    private boolean hasDefaultValue;
-    private String defaultValueShow;
+    protected String defaultValueRaw;
+    protected Object defaultValue;
+    protected boolean hasDefaultValue;
+    protected String defaultValueShow;
 
     public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size, boolean isUnique, boolean optional, boolean ispk, boolean isfk, boolean isGenerated, String remark, String varName, String javaType, String javaSimpleType, String sqlName, String getterName, String setterName, List<Column> linkColumns, boolean query, boolean isenum, List<ColumnEnumModel> enums, Map enumMap, String defaultValueRaw, Object defaultValue, boolean hasDefaultValue, String defaultValueShow) {
         this.table = table;
@@ -89,13 +89,21 @@ public class Column implements Comparable<Column> {
 
             if (isfk) {
                 fk_varName = StringUtil.cutSuffix(varName, "Id");
-                fk_javaType = pkTable.getModelFullName();
+                fk_javaType = pkTable.getModelType();
                 fk_javaSimpleType = ClassNameUtil.getClassSimpleName(fk_javaType);
                 fk_getterName = ClassNameUtil.getGetterMethodName(fk_varName, fk_javaType);
                 fk_setterName = ClassNameUtil.getSetterMethodName(fk_varName);
                 fk.addLinkColumns(this);
             }
         }
+    }
+
+    public Map<String, Object> getAttrs() {
+        return attrs;
+    }
+
+    public ColumnRaw getRaw() {
+        return raw;
     }
 
     public List<ColumnEnumModel> getEnums() {
@@ -114,19 +122,19 @@ public class Column implements Comparable<Column> {
         return sqlName;
     }
 
-    public boolean isIsUnique() {
+    public boolean getIsUnique() {
         return isUnique;
     }
 
-    public boolean isOptional() {
+    public boolean getOptional() {
         return optional;
     }
 
-    public boolean isIsenum() {
+    public boolean getIsenum() {
         return isenum;
     }
 
-    public boolean isIsfk() {
+    public boolean getIsfk() {
         return isfk;
     }
 
@@ -143,7 +151,7 @@ public class Column implements Comparable<Column> {
         return javaSimpleType;
     }
 
-    public boolean isIspk() {
+    public boolean getIspk() {
         return ispk;
     }
 
@@ -163,7 +171,7 @@ public class Column implements Comparable<Column> {
         return fk;
     }
 
-    public boolean isQuery() {
+    public boolean getQuery() {
         return query;
     }
 
@@ -200,7 +208,7 @@ public class Column implements Comparable<Column> {
         return fk_setterName;
     }
 
-    public boolean isIsLinkKey() {
+    public boolean getIsLinkKey() {
         return isLinkKey;
     }
 

@@ -13,7 +13,7 @@ layout(function(){
     for(table : tables) {
         var entity = table.entity;
     %>
-    <h2>${table.remarks}</h2>
+    <h2>${table.remark}</h2>
     <br>
     <br>
     <a href="\${BASE_PATH}/${entity}">/${entity}</a>

@@ -74,8 +74,9 @@ writeJavaClass(false, basePkg + ".Config", #{
         var sqlname = table.sqlName;
         var entity = table.entity;
         var entityUpperFirst = entity@upperFirst();
+        var idSqlName = table.idColumn.sqlName;
 %>
-        arp.addMapping("${sql_pre}${sqlname}", "${table.idColumn.sqlName}", ${entityUpperFirst}.class);  //table.remarks<%
+        arp.addMapping("${sql_pre}${sqlname}", ${idSqlName? "\"" + idSqlName +"\"" : null}, ${entityUpperFirst}.class);  //${table.remark}<%
     } %>
     }
 
@@ -98,6 +99,7 @@ writeJavaClass(false, basePkg + ".Config", #{
      * 方法可以启动项目，此main方法可以放置在任意的Class类定义中，不一定要放于此
      */
     public static void main(String[] args) {
+        //TODO: fix path
         JFinal.start("${appname_short}", 80, "/", 5);
     }
 <%

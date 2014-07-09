@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import webit.generator.core.components.TableFactory;
 import webit.generator.core.filesaver.FileSaver;
 import webit.generator.core.model.Table;
-import webit.generator.core.model.TableFactory;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
@@ -247,7 +247,7 @@ public class Generator {
         this.tableList = TableFactory.getTables();
         whiteTables = new ArrayList<Table>(this.tableList.size());
         for (Table table : tableList) {
-            if (!table.isBlackEntity()) {
+            if (!table.getIsBlackEntity()) {
                 whiteTables.add(table);
             }
         }

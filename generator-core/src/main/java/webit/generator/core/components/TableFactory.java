@@ -1,6 +1,7 @@
-package webit.generator.core.model;
+package webit.generator.core.components;
 
 import java.util.List;
+import webit.generator.core.model.Table;
 import webit.generator.core.util.ResourceUtil;
 
 /**

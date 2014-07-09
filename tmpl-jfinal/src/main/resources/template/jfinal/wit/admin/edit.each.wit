@@ -3,7 +3,7 @@
 var entity = currtable.entity;
 writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/edit.wit", #{
 %>\<% layout(function(){ %>
-<h1>${currtable.remarks}管理 ---&gt; 修改${currtable.remarks}
+<h1>${currtable.remark}管理 ---&gt; 修改${currtable.remark}
 </h1>
 <div class="form_box">
     <form action="\${BASE_PATH}/admin/${entity}/update" method="post">

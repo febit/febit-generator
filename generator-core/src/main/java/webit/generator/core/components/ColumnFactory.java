@@ -1,7 +1,9 @@
-package webit.generator.core.model;
+package webit.generator.core.components;
 
 import java.util.Map;
 import webit.generator.core.dbaccess.model.ColumnRaw;
+import webit.generator.core.model.Column;
+import webit.generator.core.model.Table;
 import webit.generator.core.util.ResourceUtil;
 
 /**

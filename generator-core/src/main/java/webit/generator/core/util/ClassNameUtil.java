@@ -117,4 +117,18 @@ public class ClassNameUtil {
         }
         return sb.toString();
     }
+    
+    
+    public static String fixRemark(String remark){
+        if (remark == null) {
+            return null;
+        }
+        int splitIndex = remark.lastIndexOf("//");
+        if (splitIndex>=0) {
+            return remark.substring(0, splitIndex).trim();
+        }else{
+            return remark.trim();
+        }
+    }
+    
 }

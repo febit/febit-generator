@@ -11,27 +11,27 @@ import java.util.Map;
  */
 public class Table implements Comparable<Table> {
 
-    private final String entity;
-    private final String sqlName;
-    private final String remark;
-    private final Map<String, Column> columnMap;
-    private final List<Column> columns;
-    private final List<Column> idColumns;
-    private final boolean blackEntity;
+    public final String entity;
+    public final String sqlName;
+    public final String remark;
+    public final Map<String, Column> columnMap;
+    public final List<Column> columns;
+    public final List<Column> idColumns;
+    public final boolean isBlackEntity;
     //
-    private final String modelFullName;
-    private final String modelSimpleName;
+    public final String modelType;
+    public final String modelSimpleType;
 
-    public Table(String entity, String sqlName, String remark, Map<String, Column> columnMap, List<Column> columns, List<Column> idColumns, String modelFullName, String modelSimpleName, boolean blackEntity) {
+    public Table(String entity, String sqlName, String remark, Map<String, Column> columnMap, List<Column> columns, List<Column> idColumns, String modelType, String modelSimpleType, boolean blackEntity) {
         this.entity = entity;
         this.sqlName = sqlName;
         this.remark = remark;
         this.columnMap = columnMap;
         this.columns = columns;
         this.idColumns = idColumns;
-        this.modelFullName = modelFullName;
-        this.modelSimpleName = modelSimpleName;
-        this.blackEntity = blackEntity;
+        this.modelType = modelType;
+        this.modelSimpleType = modelSimpleType;
+        this.isBlackEntity = blackEntity;
     }
 
     public void init(Map<String, Table> alltables) {
@@ -71,8 +71,8 @@ public class Table implements Comparable<Table> {
         return idColumns;
     }
 
-    public boolean isBlackEntity() {
-        return blackEntity;
+    public boolean getIsBlackEntity() {
+        return isBlackEntity;
     }
 
     public Map<String, Column> getColumnMap() {
@@ -87,19 +87,29 @@ public class Table implements Comparable<Table> {
         return columns;
     }
 
-    public String getModelFullName() {
-        return modelFullName;
+    public String getModelType() {
+        return modelType;
     }
 
+    public String getModelSimpleType() {
+        return modelSimpleType;
+    }
+    
+    @Deprecated
+    public String getModelFullName() {
+        return modelType;
+    }
+
+    @Deprecated
     public String getModelSimpleName() {
-        return modelSimpleName;
+        return modelSimpleType;
     }
 
     public List<Column> getFkColumns() {
 
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.isIsfk()) {
+            if (columnModel.getIsfk()) {
                 columnModels.add(columnModel);
             }
         }
@@ -110,7 +120,7 @@ public class Table implements Comparable<Table> {
 
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.isIsfk() && columnModel.getFk_javaType().equals(type)) {
+            if (columnModel.getIsfk() && columnModel.getFk_javaType().equals(type)) {
                 columnModels.add(columnModel);
             }
         }
@@ -124,13 +134,13 @@ public class Table implements Comparable<Table> {
      */
     public List<Table> getExtTables() {
         final Column idColumn = getIdColumn();
-        if (idColumn == null || idColumn.isIsLinkKey() == false) {
+        if (idColumn == null || idColumn.getIsLinkKey() == false) {
             return null;
         }
 
         List<Table> tables = new ArrayList<Table>();
         for (Column columnModel : idColumn.getLinkColumns()) {
-            if (columnModel.isIspk()) {
+            if (columnModel.getIspk()) {
                 tables.add(columnModel.getTable());
             }
         }
@@ -139,7 +149,7 @@ public class Table implements Comparable<Table> {
 
     public List<Table> getLinkedTables() {
         final Column idColumn = getIdColumn();
-        if (idColumn == null || idColumn.isIsLinkKey() == false) {
+        if (idColumn == null || idColumn.getIsLinkKey() == false) {
             return null;
         }
 
@@ -153,7 +163,7 @@ public class Table implements Comparable<Table> {
     public List<Column> getEnumColumns() {
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.isIsenum()) {
+            if (columnModel.getIsenum()) {
                 columnModels.add(columnModel);
             }
         }
@@ -163,7 +173,7 @@ public class Table implements Comparable<Table> {
     public List<Column> getQueryColumns() {
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.isQuery() && !columnModel.isIspk()) {
+            if (columnModel.getQuery() && !columnModel.getIspk()) {
                 columnModels.add(columnModel);
             }
         }
@@ -173,7 +183,7 @@ public class Table implements Comparable<Table> {
     public List<Column> getUniqueColumns() {
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.isIsUnique() && !columnModel.isIspk()) {
+            if (columnModel.getIsUnique() && !columnModel.getIspk()) {
                 columnModels.add(columnModel);
             }
         }

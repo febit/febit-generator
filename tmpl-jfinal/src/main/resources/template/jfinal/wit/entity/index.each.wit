@@ -14,7 +14,7 @@ layout(function(){
         <tbody>
             <tr>
         <% for(column : currtable.columns) {%>
-                <th width="10%">${column.remarks}</th>
+                <th width="10%">${column.remark}</th>
         <% } %>
             </tr>
             \<% for(${entity} : ${entity}Page.list){ %>

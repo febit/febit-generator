@@ -7,15 +7,15 @@ writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/index.wit", #{
 var ${entity}Page;
 layout(function(){
 %>
-<h1>${currtable.remarks}管理&nbsp;&nbsp;
-    <a href="\${BASE_PATH}/admin/${entity}/add">创建${currtable.remarks}</a>
+<h1>${currtable.remark}管理&nbsp;&nbsp;
+    <a href="\${BASE_PATH}/admin/${entity}/add">创建${currtable.remark}</a>
 </h1>
 <div class="table_box">
     <table class="list">
         <tbody>
             <tr>
         <% for(column : currtable.columns) { %>
-                <th width="10%">${column.remarks}</th>
+                <th width="10%">${column.remark}</th>
         <% } %>
                 <th width="12%">操作</th>
             </tr>

@@ -8,14 +8,14 @@ writeWebFile(false, "WEB-INF/templates/admin/"+entity+"/_form.wit", #{
         for(column : currtable.columns){
             if(!column.ispk){
 %>
-var ${column.sqlName}Msg; //${column.remarks}<%      
+var ${column.sqlName}Msg; //${column.remark}<%      
             }
         } 
 %>
 var ${entity};
 %>
 <fieldset class="solid">
-    <legend>创建${currtable.remarks}</legend>
+    <legend>创建${currtable.remark}</legend>
     <input type="hidden" name="${entity}.${currtable.idColumn.sqlName}" value="\${${entity}.${currtable.idColumn.sqlName}}" />
 <% 
 
@@ -23,7 +23,7 @@ var ${entity};
             if(!column.ispk){
 %>
     <div>
-        <label>${column.remarks}</label><%
+        <label>${column.remark}</label><%
                 if(column.size<260){
 %>
         <input type="text" name="${entity}.${column.sqlName}" value="\${${entity}.${column.sqlName}}" />\${${column.sqlName}Msg}<%
