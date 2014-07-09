@@ -21,7 +21,7 @@ import webit.generator.core.util.StringUtil;
 public class ConfigInit {
 
     private List<Table> tables;
-    private Map<String, Map<String, Map<String, Object>>> tableColumn;
+    private Map<Table, Map<Column, Map<String, Object>>> tableColumn;
     private Map<String, Map<String, Map<String, Object>>> tableColumnOld;
 
     public Map<String, Map<String, Object>> getOldColumnMaps(String tableName) {
@@ -29,36 +29,43 @@ public class ConfigInit {
     }
 
     public Map<String, Map<String, Object>> getOldColumnMaps(Table table) {
-        return getOldColumnMaps(table.getSqlName());
+        Map<String, Map<String, Object>> result = getOldColumnMaps(table.entity);
+        if (result == null) {
+            result = getOldColumnMaps(table.sqlName);
+        }
+        return result;
     }
 
     public Map<String, Object> getOldColumnMap(Column column) {
         Map<String, Map<String, Object>> oldColumnMaps = getOldColumnMaps(column.getTable());
-        return oldColumnMaps != null ? oldColumnMaps.get(column.getSqlName()) : null;
+        if (oldColumnMaps == null) {
+            return null;
+        }
+        Map<String, Object> result = oldColumnMaps.get(column.varName);
+        if (result == null) {
+            result = oldColumnMaps.get(column.sqlName);
+        }
+        return result;
     }
 
-    public Map<String, Map<String, Object>> getColumnMaps(String tableName) {
-        Map<String, Map<String, Object>> columnMaps = tableColumn.get(tableName);
+    public Map<Column, Map<String, Object>> getColumnMaps(Table table) {
+        Map<Column, Map<String, Object>> columnMaps = tableColumn.get(table);
         if (columnMaps == null) {
-            columnMaps = new HashMap<String, Map<String, Object>>();
-            tableColumn.put(tableName, columnMaps);
+            columnMaps = new HashMap<Column, Map<String, Object>>();
+            tableColumn.put(table, columnMaps);
         }
         return columnMaps;
     }
 
-    public Map<String, Map<String, Object>> getColumnMaps(Table table) {
-        return ConfigInit.this.getColumnMaps(table.getSqlName());
-    }
-
     public Map<String, Object> getColumnMap(Column column) {
-        Map<String, Map<String, Object>> newColumnMaps = getColumnMaps(column.getTable());
-        Map<String, Object> columnMap = newColumnMaps.get(column.getSqlName());
+        final Map<Column, Map<String, Object>> newColumnMaps = getColumnMaps(column.getTable());
+        Map<String, Object> columnMap = newColumnMaps.get(column);
         if (columnMap == null) {
             columnMap = getOldColumnMap(column);
             if (columnMap == null) {
                 columnMap = new HashMap<String, Object>();
             }
-            newColumnMaps.put(column.getSqlName(), columnMap);
+            newColumnMaps.put(column, columnMap);
         }
         return columnMap;
     }
@@ -75,13 +82,13 @@ public class ConfigInit {
         });
     }
 
-    public void eachColumnMaps(Maps.Handler<String, Map<String, Map<String, Object>>> handler) {
+    public void eachColumnMaps(Maps.Handler<Table, Map<Column, Map<String, Object>>> handler) {
         Maps.each(this.tableColumn, handler);
     }
 
     public void init() {
         this.tables = TableFactory.getTables();
-        this.tableColumn = new HashMap<String, Map<String, Map<String, Object>>>();
+        this.tableColumn = new HashMap<Table, Map<Column, Map<String, Object>>>();
         this.tableColumnOld = ResourceUtil.loadTableColumns();
     }
 
@@ -127,11 +134,7 @@ public class ConfigInit {
         return tables;
     }
 
-    public Map<String, Map<String, Map<String, Object>>> getTableColumn() {
+    public Map<Table, Map<Column, Map<String, Object>>> getTableColumn() {
         return tableColumn;
-    }
-
-    public Map<String, Map<String, Map<String, Object>>> getTableColumnOld() {
-        return tableColumnOld;
     }
 }

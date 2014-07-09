@@ -8,11 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import webit.generator.core.Config;
-import webit.generator.core.components.TableFactory;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
 import webit.script.util.props.Props;
@@ -72,41 +70,25 @@ public class ResourceUtil {
         return data;
     }
 
-    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap) {
-        final List<Table> tables = TableFactory.getTables();
+    public static void saveTableColumns(final Map<Table, Map<Column, Map<String, Object>>> tableColumnsMap) {
         final File file = new File(getResPath(COLUMNS_PROPS));
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
-            for (Table table : tables) {
-                final String tableSqlName = table.getSqlName();
-                final Map<String, Column> columnMap = table.getColumnMap();
-                final Map<String, Map<String, Object>> sortedColumns;
-                {
-                    Map<String, Map<String, Object>> columns = tableColumnsMap.get(tableSqlName);
-                    if (columns == null) {
-                        continue;
-                    }
-                    sortedColumns = new TreeMap(tableColumnsMap.get(tableSqlName));
-                }
-                //
+            for (Map.Entry<Table, Map<Column, Map<String, Object>>> entry : new TreeMap<Table, Map<Column, Map<String, Object>>>(tableColumnsMap).entrySet()) {
+                final Table table = entry.getKey();
                 writer.append("\n\n### ").append(table.getRemark()).append('\n');
-                writer.append('[').append(tableSqlName).append(']').append("\n\n");
-                for (Map.Entry<String, Map<String, Object>> entry1 : sortedColumns.entrySet()) {
-                    final String columnName = entry1.getKey();
+                writer.append('[').append(table.entity).append(']').append("\n\n");
+                for (Map.Entry<Column, Map<String, Object>> entry1 : new TreeMap<Column, Map<String, Object>>(entry.getValue()).entrySet()) {
+                    final Column column = entry1.getKey();
                     final Map<String, Object> sortedPropertys = new TreeMap<String, Object>(entry1.getValue());
-                    Column column = columnMap.get(columnName);
-                    if (column == null) {
-                        Logger.warn("Column not found: " + table.sqlName + '.' + columnName);
-                    } else {
-                        writer.append("# ").append(columnMap.get(columnName).getRemark()).append('\n');
-                    }
+                    writer.append("# ").append(column.getRemark()).append('\n');
                     for (Map.Entry<String, Object> entry2 : sortedPropertys.entrySet()) {
-                        writer.append(columnName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                        writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             StreamUtil.close(writer);
@@ -155,5 +137,13 @@ public class ResourceUtil {
 
     public static Class loadClass(String className) throws ClassNotFoundException {
         return getDefaultClassLoader().loadClass(className);
+    }
+
+    public static boolean validValue(Object value) {
+        return value != null && !value.equals("");
+    }
+
+    public static boolean notValidValue(Object value) {
+        return !validValue(value);
     }
 }
