@@ -14,11 +14,11 @@ import webit.generator.core.util.Logger;
 import webit.generator.core.util.PropsUtil;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
-import webit.script.core.Tokens;
 import webit.script.util.props.Props;
 
 public class Config {
 
+    public final static String COLUMN_OF_TABLE_ATTRS = "$";
     private static Props props;
     private static final Map<String, String> configs = new HashMap<String, String>();
     private static String workPath;
@@ -135,8 +135,21 @@ public class Config {
         return settings;
     }
 
-    public static Map<String, Map<String, Object>> getTableSettings(String entity) {
-        return getTablesSettings().get(entity);
+    public static Map<String, Map<String, Object>> getTableColumnSettings(String entity) {
+        Map<String, Map<String, Object>> settings = getTablesSettings().get(entity);
+        if (settings == null) {
+            settings = new HashMap<String, Map<String, Object>>();
+            getTablesSettings().put(entity, settings);
+        }
+        return settings;
+    }
+
+    public static Map<String, Object> getTableSettings(String entity) {
+        return getColumnSettings(entity, COLUMN_OF_TABLE_ATTRS);
+    }
+
+    public static Map<String, Object> getTableSettings(Table table) {
+        return getTableSettings(table.entity);
     }
 
     public static Map<String, Object> getColumnSettings(Table table, String varName) {
@@ -144,11 +157,12 @@ public class Config {
     }
 
     public static Map<String, Object> getColumnSettings(String entity, String varName) {
-        Map<String, Map<String, Object>> tableSettings = getTableSettings(entity);
-        if (tableSettings != null) {
-            return tableSettings.get(varName);
+        Map<String, Object> settings = getTableColumnSettings(entity).get(varName);
+        if (settings == null) {
+            settings = new HashMap<String, Object>();
+            getTableColumnSettings(entity).put(varName, settings);
         }
-        return null;
+        return settings;
     }
 
     public static boolean isModuleActived(String name) {

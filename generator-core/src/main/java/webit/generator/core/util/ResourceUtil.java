@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import webit.generator.core.Config;
+import webit.generator.core.components.TableFactory;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
 import webit.script.util.props.Props;
@@ -34,12 +35,17 @@ public class ResourceUtil {
                     continue;
                 }
                 int index2 = key.indexOf('.', index + 1);
-                if (index2 <= 0) {
-                    continue;
+                final String table = key.substring(0, index);
+                final String column;
+                final String property;
+                if (index2 < 0) {
+                    column = "$";
+                    property = key.substring(index + 1);
+                } else {
+                    column = key.substring(index + 1, index2);
+                    property = key.substring(index2 + 1);
                 }
-                String table = key.substring(0, index);
-                String column = key.substring(index + 1, index2);
-                String property = key.substring(index2 + 1);
+                
                 Map<String, Map<String, Object>> tableColumns = result.get(table);
                 if (tableColumns == null) {
                     result.put(table, tableColumns = new HashMap<String, Map<String, Object>>());
@@ -70,21 +76,28 @@ public class ResourceUtil {
         return data;
     }
 
-    public static void saveTableColumns(final Map<Table, Map<Column, Map<String, Object>>> tableColumnsMap) {
+    public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap) {
         final File file = new File(getResPath(COLUMNS_PROPS));
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
-            for (Map.Entry<Table, Map<Column, Map<String, Object>>> entry : new TreeMap<Table, Map<Column, Map<String, Object>>>(tableColumnsMap).entrySet()) {
-                final Table table = entry.getKey();
+            for (Map.Entry<String, Map<String, Map<String, Object>>> entry : new TreeMap<String, Map<String, Map<String, Object>>>(tableColumnsMap).entrySet()) {
+                final String entity = entry.getKey();
+                final Table table = TableFactory.getTable(entity);
                 writer.append("\n\n### ").append(table.getRemark()).append('\n');
                 writer.append('[').append(table.entity).append(']').append("\n\n");
-                for (Map.Entry<Column, Map<String, Object>> entry1 : new TreeMap<Column, Map<String, Object>>(entry.getValue()).entrySet()) {
-                    final Column column = entry1.getKey();
-                    final Map<String, Object> sortedPropertys = new TreeMap<String, Object>(entry1.getValue());
-                    writer.append("# ").append(column.getRemark()).append('\n');
-                    for (Map.Entry<String, Object> entry2 : sortedPropertys.entrySet()) {
-                        writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                for (Map.Entry<String, Map<String, Object>> entry1 : new TreeMap<String, Map<String, Object>>(entry.getValue()).entrySet()) {
+                    final String varName = entry1.getKey();
+                    if (Config.COLUMN_OF_TABLE_ATTRS.equals(varName)) {
+                        for (Map.Entry<String, Object> entry2 : new TreeMap<String, Object>(entry1.getValue()).entrySet()) {
+                            writer.append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                        }
+                    } else {
+                        final Column column = table.getColumnByName(varName);
+                        writer.append("# ").append(column.getRemark()).append('\n');
+                        for (Map.Entry<String, Object> entry2 : new TreeMap<String, Object>(entry1.getValue()).entrySet()) {
+                            writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                        }
                     }
                 }
             }

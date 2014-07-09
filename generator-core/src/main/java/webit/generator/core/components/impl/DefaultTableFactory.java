@@ -18,7 +18,6 @@ import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
 import webit.generator.core.util.Logger;
-import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 
 /**
@@ -117,7 +116,7 @@ public class DefaultTableFactory extends TableFactory {
         final String modelType;
         final String modelSimpleType;
         final boolean blackEntity;
-        final Map<String, Map<String, Object>> tableColumnSetting;
+        final Map<String, Object> tableSettings;
 
         final TableNaming tableNaming = TableNaming.instance();
 
@@ -132,7 +131,7 @@ public class DefaultTableFactory extends TableFactory {
         blackEntity = blackEntitys.contains(entity);
         modelSimpleType = tableNaming.modelSimpleType(entity);
         modelType = tableNaming.modelType(modelSimpleType);
-        
+        tableSettings = Config.getTableSettings(entity); //TODO: tableSettings
         final Table table = new Table(entity, sqlName, remark, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
         {
             for (ColumnRaw column : tableRaw.getColumns()) {

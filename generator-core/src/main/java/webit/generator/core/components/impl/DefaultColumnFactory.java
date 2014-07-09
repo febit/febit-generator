@@ -71,16 +71,12 @@ public class DefaultColumnFactory extends ColumnFactory {
         final String getterName = columnNaming.getterName(varName, javaType);
         final String setterName = columnNaming.setterName(varName, javaType);
         final ArrayList linkColumns = new ArrayList<Column>();
-        
+
         final Map<String, Object> attrs = Config.getColumnSettings(table, varName);
         final boolean query;
         {
             //XXX:column settings 可丰富功能
-            if (attrs != null) {
-                query = "true".equals(attrs.get("query"));
-            } else {
-                query = false;
-            }
+            query = "true".equals(attrs.get("query"));
         }
 
         //parser default

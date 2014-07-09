@@ -22,53 +22,73 @@ import webit.generator.core.util.StringUtil;
 public class ConfigInit {
 
     private List<Table> tables;
-    private Map<Table, Map<Column, Map<String, Object>>> tableColumn;
-    private Map<String, Map<String, Map<String, Object>>> tableColumnOld;
+    private Map<String, Map<String, Map<String, Object>>> tablesColumns;
+    private Map<String, Map<String, Map<String, Object>>> tablesColumnsOld;
 
-    public Map<String, Map<String, Object>> getOldColumnMaps(String tableName) {
-        return tableColumnOld != null ? tableColumnOld.get(tableName) : null;
+    public Map<String, Map<String, Object>> getOldColumnMap(String tableName) {
+        return tablesColumnsOld != null ? tablesColumnsOld.get(tableName) : null;
     }
 
-    public Map<String, Map<String, Object>> getOldColumnMaps(Table table) {
-        Map<String, Map<String, Object>> result = getOldColumnMaps(table.entity);
+    public Map<String, Map<String, Object>> getOldColumnMap(Table table) {
+        Map<String, Map<String, Object>> result = getOldColumnMap(table.entity);
         if (result == null) {
-            result = getOldColumnMaps(table.sqlName);
+            result = getOldColumnMap(table.sqlName);
         }
         return result;
     }
 
-    public Map<String, Object> getOldColumnMap(Column column) {
-        Map<String, Map<String, Object>> oldColumnMaps = getOldColumnMaps(column.getTable());
+    public Map<String, Object> getOldColumnSettings(Column column) {
+        return getOldColumnSettings(column.table, column.varName, column.sqlName);
+    }
+
+    public Map<String, Object> getOldColumnSettings(Table table, String varName) {
+        return getOldColumnSettings(table, varName, null);
+    }
+
+    public Map<String, Object> getOldColumnSettings(Table table, String varName, String sqlName) {
+        Map<String, Map<String, Object>> oldColumnMaps = this.getOldColumnMap(table);
         if (oldColumnMaps == null) {
             return null;
         }
-        Map<String, Object> result = oldColumnMaps.get(column.varName);
-        if (result == null) {
-            result = oldColumnMaps.get(column.sqlName);
+        Map<String, Object> result = oldColumnMaps.get(varName);
+        if (result == null && sqlName != null) {
+            result = oldColumnMaps.get(sqlName);
         }
         return result;
     }
 
-    public Map<Column, Map<String, Object>> getColumnMaps(Table table) {
-        Map<Column, Map<String, Object>> columnMaps = tableColumn.get(table);
+    public Map<String, Map<String, Object>> getTableColumns(Table table) {
+        Map<String, Map<String, Object>> columnMaps = tablesColumns.get(table.entity);
         if (columnMaps == null) {
-            columnMaps = new HashMap<Column, Map<String, Object>>();
-            tableColumn.put(table, columnMaps);
+            columnMaps = new HashMap<String, Map<String, Object>>();
+            tablesColumns.put(table.entity, columnMaps);
         }
         return columnMaps;
     }
 
-    public Map<String, Object> getColumnMap(Column column) {
-        final Map<Column, Map<String, Object>> newColumnMaps = getColumnMaps(column.getTable());
-        Map<String, Object> columnMap = newColumnMaps.get(column);
-        if (columnMap == null) {
-            columnMap = getOldColumnMap(column);
-            if (columnMap == null) {
-                columnMap = new HashMap<String, Object>();
+    public Map<String, Object> getTableSettings(Table table) {
+        return getColumnSettings(table, Config.COLUMN_OF_TABLE_ATTRS);
+    }
+
+    public Map<String, Object> getColumnSettings(Column column) {
+        return getColumnSettings(column.table, column.varName, column.sqlName);
+    }
+
+    public Map<String, Object> getColumnSettings(Table table, String varName) {
+        return getColumnSettings(table, varName, null);
+    }
+
+    public Map<String, Object> getColumnSettings(Table table, String varName, String sqlName) {
+        final Map<String, Map<String, Object>> columnMap = getTableColumns(table);
+        Map<String, Object> settings = columnMap.get(varName);
+        if (settings == null) {
+            settings = getOldColumnSettings(table, varName, sqlName);
+            if (settings == null) {
+                settings = new HashMap<String, Object>();
             }
-            newColumnMaps.put(column, columnMap);
+            columnMap.put(varName, settings);
         }
-        return columnMap;
+        return settings;
     }
 
     public void eachTable(Arrays.Handler<Table> handler) {
@@ -103,30 +123,39 @@ public class ConfigInit {
         }, withBlankEntitys);
     }
 
-    public void eachColumnMaps(Maps.Handler<Table, Map<Column, Map<String, Object>>> handler) {
-        Maps.each(this.tableColumn, handler);
+    public void eachTableColumnSettings(Maps.Handler<String, Map<String, Map<String, Object>>> handler) {
+        Maps.each(this.tablesColumns, handler);
     }
 
     public void init() {
         this.tables = TableFactory.getTables();
-        this.tableColumn = new HashMap<Table, Map<Column, Map<String, Object>>>();
-        this.tableColumnOld = ResourceUtil.loadTableColumns();
+        this.tablesColumns = new HashMap<String, Map<String, Map<String, Object>>>();
+        this.tablesColumnsOld = ResourceUtil.loadTableColumns();
     }
 
     protected void beforeProcess() {
         eachColumn(new Arrays.Handler<Column>() {
-            
+
             @Override
             public boolean each(final int index, final Column column) {
-                Map<String, Object> columnMap = getColumnMap(column);
+                Map<String, Object> columnMap = getColumnSettings(column);
                 if (!columnMap.containsKey("query")) {
                     columnMap.put("query", "");
                 }
-                
+
                 if (ResourceUtil.notValidValue(columnMap.get("fk")) && column.varName.endsWith("Id")) {
                     columnMap.put("fk", "");
                 }
-                
+
+                return true;
+            }
+        });
+        eachTable(new Arrays.Handler<Table>() {
+
+            @Override
+            public boolean each(int index, Table table) {
+                //resure copy table settings
+                getTableSettings(table);
                 return true;
             }
         });
@@ -134,7 +163,7 @@ public class ConfigInit {
 
     public void afterProcess() {
         //XXX: log
-        ResourceUtil.saveTableColumns(this.tableColumn);
+        ResourceUtil.saveTableColumns(this.tablesColumns);
     }
 
     public void process() throws IOException {
@@ -158,11 +187,7 @@ public class ConfigInit {
         afterProcess();
     }
 
-    public List<Table> getTables() {
-        return tables;
-    }
-
-    public Map<Table, Map<Column, Map<String, Object>>> getTableColumn() {
-        return tableColumn;
+    public Map<String, Map<String, Map<String, Object>>> getTablesColumns() {
+        return tablesColumns;
     }
 }
