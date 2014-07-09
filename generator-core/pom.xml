@@ -5,15 +5,15 @@
     <parent>
         <groupId>com.github.zqq90.webit.generator</groupId>
         <artifactId>webit-generator-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     
     <artifactId>generator-core</artifactId>
     <name>generator-core</name>
     
     <properties>
-        <java.source.version>1.6</java.source.version>
-        <java.target.version>1.6</java.target.version>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
     
     <build>
