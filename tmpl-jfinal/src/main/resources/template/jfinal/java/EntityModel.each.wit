@@ -18,7 +18,7 @@ writeJavaClass(false, modelPkg + "."+ entityUpperFirst, #{
     //All Columns
     for (column : currtable.columns){
 %>
-    //${column.javaSimpleType} ${column.sqlName}; //${column.remark}<%
+    //${column.simpleType} ${column.sqlName}; //${column.remark}<%
     }
 %>
 <%

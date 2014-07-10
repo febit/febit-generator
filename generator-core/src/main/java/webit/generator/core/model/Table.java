@@ -57,11 +57,6 @@ public class Table implements Comparable<Table> {
     public Map<String, Object> getAttrs() {
         return attrs;
     }
-    
-    @Deprecated
-    public String getRemarks() {
-        return remark;
-    }
 
     /**
      * Only if has single one id column, returns this single id column, or
@@ -100,16 +95,6 @@ public class Table implements Comparable<Table> {
     public String getModelSimpleType() {
         return modelSimpleType;
     }
-    
-    @Deprecated
-    public String getModelFullName() {
-        return modelType;
-    }
-
-    @Deprecated
-    public String getModelSimpleName() {
-        return modelSimpleType;
-    }
 
     public List<Column> getFkColumns() {
 
@@ -126,7 +111,7 @@ public class Table implements Comparable<Table> {
 
         List<Column> columnModels = new ArrayList<Column>();
         for (Column columnModel : columns) {
-            if (columnModel.getIsfk() && columnModel.getFk_javaType().equals(type)) {
+            if (columnModel.getIsfk() && columnModel.getFkType().equals(type)) {
                 columnModels.add(columnModel);
             }
         }

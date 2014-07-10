@@ -143,17 +143,7 @@ public class Column implements Comparable<Column> {
     public String getSimpleType() {
         return simpleType;
     }
-    
-    @Deprecated
-    public String getJavaType() {
-        return type;
-    }
-
-    @Deprecated
-    public String getJavaSimpleType() {
-        return simpleType;
-    }
-    
+   
     public String getSqlName() {
         return sqlName;
     }
@@ -175,11 +165,6 @@ public class Column implements Comparable<Column> {
     }
 
     public String getRemark() {
-        return remark;
-    }
-
-    @Deprecated
-    public String getRemarks() {
         return remark;
     }
 
@@ -237,31 +222,6 @@ public class Column implements Comparable<Column> {
     }
 
     public String getFkSetterName() {
-        return fkSetterName;
-    }
-
-    @Deprecated
-    public String getFk_varName() {
-        return fkVarName;
-    }
-
-    @Deprecated
-    public String getFk_javaType() {
-        return fkType;
-    }
-
-    @Deprecated
-    public String getFk_javaSimpleType() {
-        return fkSimpleType;
-    }
-
-    @Deprecated
-    public String getFk_getterName() {
-        return fkGetterName;
-    }
-
-    @Deprecated
-    public String getFk_setterName() {
         return fkSetterName;
     }
 

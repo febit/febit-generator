@@ -17,7 +17,7 @@ writeJavaClass(false, validatorPkg + "."+ entityUpperFirst +"Validator", #{
     //All Columns
     for (column : currtable.columns){
         if(!column.ispk){
-            var col_stype = column.javaSimpleType;
+            var col_stype = column.simpleType;
             var col_opti = column.optional;
             var col_sqlname = column.sqlName;
             var col_size = column.size;
