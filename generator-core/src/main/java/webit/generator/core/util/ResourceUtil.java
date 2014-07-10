@@ -56,7 +56,7 @@ public class ResourceUtil {
                 if (columnPropertys == null) {
                     tableColumns.put(column, columnPropertys = new HashMap<String, Object>());
                 }
-                columnPropertys.put(property, entry.getValue());
+                columnPropertys.put(property, toValidValue(entry.getValue()));
             }
         }
         return result;
@@ -90,13 +90,15 @@ public class ResourceUtil {
                     final String varName = entry1.getKey();
                     if (Config.COLUMN_OF_TABLE_ATTRS.equals(varName)) {
                         for (Map.Entry<String, Object> entry2 : new TreeMap<String, Object>(entry1.getValue()).entrySet()) {
-                            writer.append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                            Object value = entry2.getValue();
+                            writer.append(entry2.getKey()).append('=').append(value != null ? String.valueOf(value) : "").append('\n');
                         }
                     } else {
                         final Column column = table.getColumnByName(varName);
                         writer.append("# ").append(column.getRemark()).append('\n');
                         for (Map.Entry<String, Object> entry2 : new TreeMap<String, Object>(entry1.getValue()).entrySet()) {
-                            writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(entry2.getValue().toString()).append('\n');
+                            Object value = entry2.getValue();
+                            writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(value != null ? String.valueOf(value) : "").append('\n');
                         }
                     }
                 }
@@ -150,14 +152,6 @@ public class ResourceUtil {
 
     public static Class loadClass(String className) throws ClassNotFoundException {
         return getDefaultClassLoader().loadClass(className);
-    }
-
-    public static boolean validValue(Object value) {
-        return value != null && !value.equals("");
-    }
-
-    public static boolean notValidValue(Object value) {
-        return !validValue(value);
     }
 
     public static Object toValidValue(Object value) {

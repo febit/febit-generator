@@ -140,11 +140,11 @@ public class ConfigInit {
             public boolean each(final int index, final Column column) {
                 Map<String, Object> columnMap = getColumnSettings(column);
                 if (!columnMap.containsKey("query")) {
-                    columnMap.put("query", "");
+                    columnMap.put("query", null);
                 }
 
-                if (ResourceUtil.notValidValue(columnMap.get("fk")) && column.varName.endsWith("Id")) {
-                    columnMap.put("fk", "");
+                if (!columnMap.containsKey("fk") && column.varName.endsWith("Id")) {
+                    columnMap.put("fk", null); //XXX: 可推断
                 }
 
                 return true;
