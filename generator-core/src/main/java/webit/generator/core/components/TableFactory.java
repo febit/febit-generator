@@ -1,9 +1,14 @@
 package webit.generator.core.components;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import webit.generator.core.dbaccess.DatabaseAccesser;
+import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Table;
+import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
 
 /**
@@ -16,7 +21,39 @@ public abstract class TableFactory {
     private static List<Table> _tables;
     private static Map<String, Table> _tableMap;
 
-    public abstract List<Table> collectTables();
+    protected abstract Table createTable(TableRaw tableRaw);
+    
+    public List<Table> collectTables() {
+        
+        final List<Table> tableList;
+        {
+            final Map<String, Table> tableMaps = _tableMap = new HashMap<String, Table>();
+            for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
+                TableRaw raw = entry.getValue();
+                
+                Table table = createTable(raw);
+                if (table != null) {
+                    //XXX: DEBUG LOG
+                    tableMaps.put(table.entity, table);
+                }
+            }
+
+            tableList = new ArrayList<Table>(tableMaps.values());
+            //tables init
+            for (Table table : tableList) {
+                table.init();
+            }
+        }
+        //table list sort
+        Collections.sort(tableList);
+        if (Logger.isInfoEnabled()) {
+            for (Table table : tableList) {
+                Logger.info("Loaded table: " + table.getSqlName() + "  " + table.getRemark());
+            }
+        }
+
+        return tableList;
+    }
 
     public static TableFactory instance() {
         TableFactory instance = _instance;
@@ -37,12 +74,8 @@ public abstract class TableFactory {
     public static Map<String, Table> getTableMap() {
         Map<String, Table> tableMap = _tableMap;
         if (tableMap == null) {
-            List<Table> tables = getTables();
-            tableMap = _tableMap = new HashMap<String, Table>();
-            for (Table table : tables) {
-                tableMap.put(table.entity, table);
-            }
-            _tableMap = tableMap;
+            getTables();
+            return getTableMap();
         }
         return tableMap;
     }

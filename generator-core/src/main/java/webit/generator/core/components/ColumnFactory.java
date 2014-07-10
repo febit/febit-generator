@@ -1,5 +1,7 @@
 package webit.generator.core.components;
 
+import java.util.HashMap;
+import java.util.Map;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
@@ -12,8 +14,9 @@ import webit.generator.core.util.ResourceUtil;
 public abstract class ColumnFactory {
 
     private static ColumnFactory _instance;
+    private static final Map<ColumnRaw, Column> columnLinkRawMap = new HashMap<ColumnRaw, Column>();
 
-    public abstract Column createColumn(ColumnRaw raw, Table table);
+    protected abstract Column createColumn(ColumnRaw raw, Table table);
 
     public static ColumnFactory instance() {
         ColumnFactory instance = _instance;
@@ -23,7 +26,13 @@ public abstract class ColumnFactory {
         return instance;
     }
 
+    public static Column getColumn(ColumnRaw raw) {
+        return columnLinkRawMap.get(raw);
+    }
+
     public static Column create(ColumnRaw raw, Table table) {
-        return instance().createColumn(raw, table);
+        Column column = instance().createColumn(raw, table);
+        columnLinkRawMap.put(raw, column);
+        return column;
     }
 }

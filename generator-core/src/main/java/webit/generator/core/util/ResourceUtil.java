@@ -45,7 +45,7 @@ public class ResourceUtil {
                     column = key.substring(index + 1, index2);
                     property = key.substring(index2 + 1);
                 }
-                
+
                 Map<String, Map<String, Object>> tableColumns = result.get(table);
                 if (tableColumns == null) {
                     result.put(table, tableColumns = new HashMap<String, Map<String, Object>>());
@@ -159,4 +159,9 @@ public class ResourceUtil {
     public static boolean notValidValue(Object value) {
         return !validValue(value);
     }
+
+    public static Object toValidValue(Object value) {
+        return "".equals(value) ? null : value;
+    }
+
 }

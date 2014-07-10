@@ -57,43 +57,6 @@ public class DefaultTableFactory extends TableFactory {
         }
     }
 
-    @Override
-    public List<Table> collectTables() {
-        init();
-        //TODO: 规则转换
-        final List<Table> tableList;
-        {
-            final Map<String, Table> tableMaps = new HashMap<String, Table>();
-            for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
-                TableRaw raw = entry.getValue();
-                if (!isInclude(raw)) {
-                    //XXX: DEBUG LOG
-                    continue;
-                }
-                Table table = createTable(raw);
-                if (table != null) {
-                    //XXX: DEBUG LOG
-                    tableMaps.put(raw.name, table);
-                }
-            }
-
-            tableList = new ArrayList<Table>(tableMaps.values());
-            //tables init
-            for (Table table : tableList) {
-                table.init(tableMaps);
-            }
-        }
-        //table list sort
-        Collections.sort(tableList);
-        if (Logger.isInfoEnabled()) {
-            for (Table table : tableList) {
-                Logger.info("Loaded table: " + table.getSqlName() + "  " + table.getRemark());
-            }
-        }
-
-        return tableList;
-    }
-
     /**
      * include this table or not.
      *
@@ -105,8 +68,13 @@ public class DefaultTableFactory extends TableFactory {
                 && (excludes == null || !excludes.matcher(tableRaw.name).matches());
     }
 
+    @Override
     protected Table createTable(final TableRaw tableRaw) {
-
+        init();
+        if (!isInclude(tableRaw)) {
+            //XXX: DEBUG LOG
+            return null;
+        }
         final String entity;
         final String sqlName;
         final String remark;
@@ -131,9 +99,10 @@ public class DefaultTableFactory extends TableFactory {
         blackEntity = blackEntitys.contains(entity);
         modelSimpleType = tableNaming.modelSimpleType(entity);
         modelType = tableNaming.modelType(modelSimpleType);
-        tableSettings = Config.getTableSettings(entity); //TODO: tableSettings
-        final Table table = new Table(entity, sqlName, remark, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
+        tableSettings = Config.getTableSettings(entity);
+        final Table table = new Table(entity, sqlName, remark, tableSettings, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
         {
+            //TODO: tableSettings.get("id")
             for (ColumnRaw column : tableRaw.getColumns()) {
                 Column cm = ColumnFactory.create(column, table);
                 if (cm == null) {

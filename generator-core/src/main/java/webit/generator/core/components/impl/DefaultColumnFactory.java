@@ -15,6 +15,7 @@ import webit.generator.core.model.ColumnEnumModel;
 import webit.generator.core.model.Table;
 import webit.generator.core.typeconverter.TypeConverterUtil;
 import webit.generator.core.util.ClassNameUtil;
+import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 
 /**
@@ -58,7 +59,7 @@ public class DefaultColumnFactory extends ColumnFactory {
     }
 
     @Override
-    public Column createColumn(final ColumnRaw raw, final Table table) {
+    protected Column createColumn(final ColumnRaw raw, final Table table) {
         init();
         if (!isInclude(raw)) {
             return null;
@@ -73,11 +74,14 @@ public class DefaultColumnFactory extends ColumnFactory {
         final ArrayList linkColumns = new ArrayList<Column>();
 
         final Map<String, Object> attrs = Config.getColumnSettings(table, varName);
+
         final boolean query;
-        {
-            //XXX:column settings 可丰富功能
-            query = "true".equals(attrs.get("query"));
-        }
+        final String fkHint;
+        final boolean isfk;
+        //XXX:column settings 可丰富功能
+        query = "true".equals(attrs.get("query"));
+        fkHint = String.valueOf(ResourceUtil.toValidValue(attrs.get("fk")));
+        isfk = raw.getIsFk() || fkHint != null;
 
         //parser default
         String defaultValueRaw = null;
@@ -104,7 +108,7 @@ public class DefaultColumnFactory extends ColumnFactory {
                 }
             }
         }
-
+        
         //resolveColumnEnums
         String remark = columnNaming.remark(raw.remarks);
         final boolean isenum;
@@ -139,7 +143,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         }
 
         Column column = new Column(table, attrs, raw,
-                raw.size, raw.isUnique, raw.isNullable, raw.isPk, raw.getIsFk(),
+                raw.size, raw.isUnique, raw.isNullable, raw.isPk, isfk, fkHint,
                 raw.isPk && !raw.getIsFk(), //Note:是否主键自动生成
                 remark,
                 varName, javaType, javaSimpleType,

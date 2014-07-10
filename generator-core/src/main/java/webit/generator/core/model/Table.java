@@ -21,11 +21,13 @@ public class Table implements Comparable<Table> {
     //
     public final String modelType;
     public final String modelSimpleType;
+    public final Map<String, Object> attrs;
 
-    public Table(String entity, String sqlName, String remark, Map<String, Column> columnMap, List<Column> columns, List<Column> idColumns, String modelType, String modelSimpleType, boolean blackEntity) {
+    public Table(String entity, String sqlName, String remark, Map<String, Object> attrs, Map<String, Column> columnMap, List<Column> columns, List<Column> idColumns, String modelType, String modelSimpleType, boolean blackEntity) {
         this.entity = entity;
         this.sqlName = sqlName;
         this.remark = remark;
+        this.attrs = attrs;
         this.columnMap = columnMap;
         this.columns = columns;
         this.idColumns = idColumns;
@@ -34,9 +36,9 @@ public class Table implements Comparable<Table> {
         this.isBlackEntity = blackEntity;
     }
 
-    public void init(Map<String, Table> alltables) {
+    public void init() {
         for (Map.Entry<String, Column> entry : columnMap.entrySet()) {
-            entry.getValue().resolveFK(alltables);
+            entry.getValue().resolveFK();
         }
     }
 
@@ -50,6 +52,10 @@ public class Table implements Comparable<Table> {
 
     public String getRemark() {
         return remark;
+    }
+
+    public Map<String, Object> getAttrs() {
+        return attrs;
     }
     
     @Deprecated
