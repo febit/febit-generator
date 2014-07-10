@@ -13,6 +13,7 @@ import webit.generator.core.util.Arrays;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.Maps;
 import webit.generator.core.util.ResourceUtil;
+import static webit.generator.core.util.ResourceUtil.getResPath;
 import webit.generator.core.util.StringUtil;
 
 /**
@@ -38,7 +39,7 @@ public class ConfigInit {
     }
 
     public Map<String, Object> getOldColumnSettings(Column column) {
-        return getOldColumnSettings(column.table, column.varName, column.sqlName);
+        return getOldColumnSettings(column.table, column.name, column.sqlName);
     }
 
     public Map<String, Object> getOldColumnSettings(Table table, String varName) {
@@ -71,7 +72,7 @@ public class ConfigInit {
     }
 
     public Map<String, Object> getColumnSettings(Column column) {
-        return getColumnSettings(column.table, column.varName, column.sqlName);
+        return getColumnSettings(column.table, column.name, column.sqlName);
     }
 
     public Map<String, Object> getColumnSettings(Table table, String varName) {
@@ -143,7 +144,7 @@ public class ConfigInit {
                     columnMap.put("query", null);
                 }
 
-                if (!columnMap.containsKey("fk") && column.varName.endsWith("Id")) {
+                if (!columnMap.containsKey("fk") && column.name.endsWith("Id")) {
                     columnMap.put("fk", null); //XXX: 可推断
                 }
 
@@ -162,20 +163,20 @@ public class ConfigInit {
     }
 
     public void afterProcess() {
-        //XXX: log
         ResourceUtil.saveTableColumns(this.tablesColumns);
+        Logger.info("Saved " + ResourceUtil.getResPath(ResourceUtil.COLUMNS_PROPS));
     }
 
     public void process() throws IOException {
         init();
         beforeProcess();
 
-        //ConfigInitProcesser
+        //ConfigInitProcessers
         final List<String> processersClass = StringUtil.toUnBlankList(Config.getString("configInit"));
         if (processersClass != null && !processersClass.isEmpty()) {
             try {
                 for (String item : processersClass) {
-                    //XXX: log
+                    Logger.info("Running processer: " + item);
                     ((ConfigInitProcesser) ResourceUtil.loadClass(item).newInstance()).process(this);
                 }
             } catch (Exception ex) {

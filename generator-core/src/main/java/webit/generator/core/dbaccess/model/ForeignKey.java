@@ -12,4 +12,9 @@ public class ForeignKey {
         this.fk = fk;
         this.seq = seq;
     }
+
+    @Override
+    public String toString() {
+        return "ForeignKey{" + "pk=" + pk + ", fk=" + fk + '}';
+    }
 }

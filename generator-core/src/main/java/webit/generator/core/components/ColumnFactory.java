@@ -32,7 +32,9 @@ public abstract class ColumnFactory {
 
     public static Column create(ColumnRaw raw, Table table) {
         Column column = instance().createColumn(raw, table);
-        columnLinkRawMap.put(raw, column);
+        if (column != null) {
+            columnLinkRawMap.put(raw, column);
+        }
         return column;
     }
 }

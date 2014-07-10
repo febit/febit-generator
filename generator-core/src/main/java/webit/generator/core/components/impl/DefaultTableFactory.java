@@ -7,12 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.TableFactory;
 import webit.generator.core.components.TableNaming;
-import webit.generator.core.dbaccess.DatabaseAccesser;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
@@ -28,11 +26,8 @@ public class DefaultTableFactory extends TableFactory {
 
     private final Set<String> blackEntitys = new HashSet<String>();
 
-    private Pattern includes;
-    private Pattern excludes;
-
     private boolean inited = false;
-
+    
     public void init() {
         if (inited == true) {
             return;
@@ -44,37 +39,11 @@ public class DefaultTableFactory extends TableFactory {
         if (tableBlacks != null) {
             blackEntitys.addAll(tableBlacks);
         }
-
-        {
-            String includesString = Config.getString("includeTables");
-            if (StringUtil.notEmpty(includesString)) {
-                includes = Pattern.compile(includesString);
-            }
-            String excludesString = Config.getString("excludeTables");
-            if (StringUtil.notEmpty(excludesString)) {
-                excludes = Pattern.compile(excludesString);
-            }
-        }
-    }
-
-    /**
-     * include this table or not.
-     *
-     * @param tableRaw
-     * @return
-     */
-    protected boolean isInclude(final TableRaw tableRaw) {
-        return (includes == null || includes.matcher(tableRaw.name).matches())
-                && (excludes == null || !excludes.matcher(tableRaw.name).matches());
     }
 
     @Override
     protected Table createTable(final TableRaw tableRaw) {
         init();
-        if (!isInclude(tableRaw)) {
-            //XXX: DEBUG LOG
-            return null;
-        }
         final String entity;
         final String sqlName;
         final String remark;
@@ -103,10 +72,12 @@ public class DefaultTableFactory extends TableFactory {
         final Table table = new Table(entity, sqlName, remark, tableSettings, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
         {
             //TODO: tableSettings.get("id")
-            for (ColumnRaw column : tableRaw.getColumns()) {
-                Column cm = ColumnFactory.create(column, table);
+            for (ColumnRaw columnRaw : tableRaw.getColumns()) {
+                Column cm = ColumnFactory.create(columnRaw, table);
                 if (cm == null) {
-                    //XXX: DEBUG LOG
+                    if (Logger.isDebugEnabled()) {
+                        Logger.debug("Skip column (by ColumnFactory): " + columnRaw);
+                    }
                     continue;
                 }
                 if (cm.getIspk()) {

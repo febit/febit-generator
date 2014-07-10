@@ -73,4 +73,9 @@ public class TableRaw implements java.io.Serializable, Cloneable {
         }
         return getPkColumns().get(0);
     }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

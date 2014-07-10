@@ -41,7 +41,7 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
         this.defaultValue = defaultValue;
         this.remarks = remarks;
     }
-    
+
     public String getJavaType() {
         final String normalJdbcJavaType = DBUtil.getJavaType(this.type, this.size, this.decimalDigits);
         return Config.getString("javaTypeMapping.".concat(normalJdbcJavaType), normalJdbcJavaType);
@@ -50,7 +50,7 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
     public boolean getIsFk() {
         return isFk;
     }
-    
+
     public boolean isStringType() {
         return DBUtil.isStringType(type);
     }
@@ -104,5 +104,10 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
         }
 
         return this.name.compareToIgnoreCase(o.name);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(table) + '.' + name;
     }
 }

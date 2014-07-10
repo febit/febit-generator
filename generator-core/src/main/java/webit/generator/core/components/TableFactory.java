@@ -22,19 +22,21 @@ public abstract class TableFactory {
     private static Map<String, Table> _tableMap;
 
     protected abstract Table createTable(TableRaw tableRaw);
-    
+
     public List<Table> collectTables() {
-        
+
         final List<Table> tableList;
         {
             final Map<String, Table> tableMaps = _tableMap = new HashMap<String, Table>();
             for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
                 TableRaw raw = entry.getValue();
-                
                 Table table = createTable(raw);
                 if (table != null) {
-                    //XXX: DEBUG LOG
                     tableMaps.put(table.entity, table);
+                } else {
+                    if (Logger.isDebugEnabled()) {
+                        Logger.debug("Skip table (by TableFactory): " + raw);
+                    }
                 }
             }
 

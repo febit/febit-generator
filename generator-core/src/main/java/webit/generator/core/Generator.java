@@ -59,10 +59,11 @@ public class Generator {
             Logger.info("outroot: " + outroot);
 
             List<String> processersClass = StringUtil.toUnBlankList(Config.getString("processers"));
-            if (processersClass != null && processersClass.size() != 0) {
+            if (processersClass != null && !processersClass.isEmpty()) {
                 processers = new GeneratorProcesser[processersClass.size()];
                 int i = 0;
                 for (String string : processersClass) {
+                    Logger.info("Running processer: " + string);
                     GeneratorProcesser processer = processers[i++] = (GeneratorProcesser) ResourceUtil.loadClass(string).newInstance();
                     processer.init(this);
                 }

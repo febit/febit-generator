@@ -22,7 +22,7 @@ import webit.script.util.props.Props;
  */
 public class ResourceUtil {
 
-    private final static String COLUMNS_PROPS = "columns.props";
+    public final static String COLUMNS_PROPS = "columns.props";
 
     public static Map<String, Map<String, Map<String, Object>>> loadTableColumns() {
         final Map<String, String> data = loadResource(COLUMNS_PROPS);
@@ -98,7 +98,7 @@ public class ResourceUtil {
                         writer.append("# ").append(column.getRemark()).append('\n');
                         for (Map.Entry<String, Object> entry2 : new TreeMap<String, Object>(entry1.getValue()).entrySet()) {
                             Object value = entry2.getValue();
-                            writer.append(column.varName).append('.').append(entry2.getKey()).append('=').append(value != null ? String.valueOf(value) : "").append('\n');
+                            writer.append(column.name).append('.').append(entry2.getKey()).append('=').append(value != null ? String.valueOf(value) : "").append('\n');
                         }
                     }
                 }

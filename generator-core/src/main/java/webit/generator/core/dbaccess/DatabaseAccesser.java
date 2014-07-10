@@ -3,6 +3,7 @@ package webit.generator.core.dbaccess;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,11 +11,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import webit.generator.core.Config;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.dbaccess.model.ForeignKey;
 import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.util.DBUtil;
 import webit.generator.core.util.Logger;
+import webit.generator.core.util.StringUtil;
 
 public class DatabaseAccesser {
 
@@ -24,15 +28,54 @@ public class DatabaseAccesser {
     private static final String FKCOLUMN_NAME = "FKCOLUMN_NAME";
     private static final String KEY_SEQ = "KEY_SEQ";
 
+    private static Connection connection;
+
+    public static synchronized Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                final String driver = Config.getRequiredString("db.driver");
+                try {
+                    Class.forName(driver);
+                    connection = DriverManager.getConnection(Config.getRequiredString("db.url"), Config.getRequiredString("db.username"), Config.getString("db.password"));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("not found jdbc driver class:[" + driver + "]", e);
+                }
+            }
+            return connection;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static DatabaseAccesser instance;
     private TableCache tableCache;
     private ColumnCache columnCache;
 
+    private Pattern includes;
+    private Pattern excludes;
+
     public synchronized static DatabaseAccesser getInstance() {
         if (instance == null) {
             instance = new DatabaseAccesser();
+            instance.init();
         }
         return instance;
+    }
+
+    private void init() {
+        String includesString = Config.getString("includeTables");
+        if (StringUtil.notEmpty(includesString)) {
+            includes = Pattern.compile(includesString);
+        }
+        String excludesString = Config.getString("excludeTables");
+        if (StringUtil.notEmpty(excludesString)) {
+            excludes = Pattern.compile(excludesString);
+        }
+    }
+
+    private boolean isInclude(final String tableName) {
+        return (includes == null || includes.matcher(tableName).matches())
+                && (excludes == null || !excludes.matcher(tableName).matches());
     }
 
     public synchronized Map<String, TableRaw> getAllTables() {
@@ -44,7 +87,7 @@ public class DatabaseAccesser {
         try {
             final ResultSet rs;
             if (DBUtil.getDBType().equals("mysql")) { //FIXED: allways REMARKS==null in mysql
-                final Connection conn = DBUtil.getConnection();
+                final Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
                         + "NULL AS TABLE_SCHEM, TABLE_NAME, "
                         + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
@@ -57,7 +100,14 @@ public class DatabaseAccesser {
             }
             try {
                 while (rs.next()) {
-                    tableCache.put(new TableRaw(rs.getString("TABLE_NAME"), rs.getString("REMARKS")));
+                    String tableName = rs.getString("TABLE_NAME");
+                    if (!isInclude(tableName)) {
+                        if (Logger.isDebugEnabled()) {
+                            Logger.debug("Skip table (by DatabaseAccesser): " + tableName);
+                        }
+                        continue;
+                    }
+                    tableCache.put(new TableRaw(tableName, rs.getString("REMARKS")));
                 }
             } finally {
                 rs.close();
@@ -78,7 +128,7 @@ public class DatabaseAccesser {
     }
 
     private DatabaseMetaData getMetaData() throws SQLException {
-        return DBUtil.getConnection().getMetaData();
+        return getConnection().getMetaData();
     }
 
     private void resolveTableColumns(TableRaw table) throws SQLException {
@@ -116,7 +166,7 @@ public class DatabaseAccesser {
                 }
             }
         } catch (SQLException ex) {
-            Logger.error("MetaData.getIndexInfo() failed", ex);
+            Logger.error("MetaData.getIndexInfo() failed.", ex);
             throw ex;
         } finally {
             indexRs.close();
@@ -188,11 +238,11 @@ public class DatabaseAccesser {
                 ColumnRaw pkColumn = columnCache.get(pktable, pkcol);
                 ColumnRaw fkColumn = columnCache.get(fktable, fkcol);
                 if (pkColumn == null) {
-                    Logger.warn("PKColumn CAN'T FOUND:" + pktable + "." + pkcol);
+                    Logger.warn("Foreign linked column not found: " + pktable + "." + pkcol);
                     continue;
                 }
                 if (fkColumn == null) {
-                    Logger.warn("FKColumn CAN'T FOUND:" + fktable + "." + fkcol);
+                    Logger.warn("Foreign column not found: " + fktable + "." + fkcol);
                     continue;
                 }
                 ForeignKey fk = new ForeignKey(pkColumn, fkColumn, iseq);
