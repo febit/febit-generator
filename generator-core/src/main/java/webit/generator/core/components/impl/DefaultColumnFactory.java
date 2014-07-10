@@ -15,6 +15,7 @@ import webit.generator.core.model.ColumnEnumModel;
 import webit.generator.core.model.Table;
 import webit.generator.core.typeconverter.TypeConverterUtil;
 import webit.generator.core.util.ClassNameUtil;
+import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 
@@ -108,7 +109,7 @@ public class DefaultColumnFactory extends ColumnFactory {
                 }
             }
         }
-        
+
         //resolveColumnEnums
         String remark = columnNaming.remark(raw.remarks);
         final boolean isenum;
@@ -129,7 +130,13 @@ public class DefaultColumnFactory extends ColumnFactory {
                 enums = new ArrayList<ColumnEnumModel>();
                 enumMap = new HashMap();
                 for (int i = 0; i < emumStr.length; i++) {
-                    ColumnEnumModel columnEnumModel = ColumnEnumModel.valueOf(emumStr[i]);
+                    ColumnEnumModel columnEnumModel;
+                    try {
+                        columnEnumModel = ColumnEnumModel.valueOf(emumStr[i]);
+                    } catch (Exception e) {
+                        Logger.error("Faild to parse column enum: "+ raw +" | "+ remark);
+                        throw new RuntimeException(e);
+                    }
                     enums.add(columnEnumModel);
                     enumMap.put(columnEnumModel.value, columnEnumModel);
                 }

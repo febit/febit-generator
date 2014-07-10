@@ -22,7 +22,8 @@ public class ColumnEnumModel {
         Short id;
         String name = "UNKOWN";
         String remark = "unkown";
-        id = Short.valueOf(arr[0].trim());
+        String value = arr[0].trim();
+        id = Short.valueOf(value);
         if (arr.length >= 2) {
             name = arr[1].trim();
             if (arr.length == 3) {
