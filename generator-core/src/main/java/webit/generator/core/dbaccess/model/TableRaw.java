@@ -8,13 +8,15 @@ public class TableRaw implements java.io.Serializable, Cloneable {
 
     public final String name;
     public final String remarks;
+    public final boolean isView;
     private final List<ColumnRaw> columns = new ArrayList<ColumnRaw>();
     private final List<ForeignKey> importedKeys = new ArrayList<ForeignKey>();
     private final List<ForeignKey> exportedKeys = new ArrayList<ForeignKey>();
 
-    public TableRaw(String name, String remarks) {
+    public TableRaw(String name, String remarks, boolean isView) {
         this.name = name;
         this.remarks = remarks;
+        this.isView = isView;
     }
 
     public List<ColumnRaw> getColumns() {

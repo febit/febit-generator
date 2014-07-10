@@ -101,13 +101,15 @@ public class DatabaseAccesser {
             try {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
+                    String remark = rs.getString("REMARKS");
+                    boolean isView = "VIEW".equals(rs.getString("TABLE_TYPE"));
                     if (!isInclude(tableName)) {
                         if (Logger.isDebugEnabled()) {
                             Logger.debug("Skip table (by DatabaseAccesser): " + tableName);
                         }
                         continue;
                     }
-                    tableCache.put(new TableRaw(tableName, rs.getString("REMARKS")));
+                    tableCache.put(new TableRaw(tableName, remark, isView));
                 }
             } finally {
                 rs.close();
