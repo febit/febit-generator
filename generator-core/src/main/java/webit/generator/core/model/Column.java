@@ -113,7 +113,7 @@ public class Column implements Comparable<Column> {
                 fkType = linkTable.getModelType();
                 fkSimpleType = ClassNameUtil.getClassSimpleName(fkType);
                 fkGetterName = ColumnNaming.instance().getterName(fkVarName, fkType);
-                fkSetterName = ColumnNaming.instance().getterName(fkVarName, fkType);
+                fkSetterName = ColumnNaming.instance().setterName(fkVarName, fkType);
                 fk.addLinkColumns(this);
             } else {
                 isfk = false;
