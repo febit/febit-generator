@@ -14,6 +14,7 @@ public class BooleanConverter implements Converter<Boolean> {
         stringValue = stringValue.toLowerCase();
         return stringValue.equals("true")
                 || stringValue.equals("1")
+                || stringValue.equals("b'1'") //bit(1) false: b'0', true: b'1'
                 || stringValue.equals("on");
     }
 }
