@@ -11,7 +11,7 @@ import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.dbaccess.model.ColumnRaw;
 import webit.generator.core.model.Column;
-import webit.generator.core.model.ColumnEnumModel;
+import webit.generator.core.model.ColumnEnum;
 import webit.generator.core.model.Table;
 import webit.generator.core.typeconverter.TypeConverterUtil;
 import webit.generator.core.util.ClassNameUtil;
@@ -81,7 +81,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         final boolean isfk;
         //XXX:column settings 可丰富功能
         query = "true".equals(attrs.get("query"));
-        fkHint = String.valueOf(ResourceUtil.toValidValue(attrs.get("fk")));
+        fkHint = (String) ResourceUtil.toValidValue(attrs.get("fk"));
         isfk = raw.getIsFk() || fkHint != null;
 
         //parser default
@@ -113,7 +113,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         //resolveColumnEnums
         String remark = columnNaming.remark(raw.remarks);
         final boolean isenum;
-        final List<ColumnEnumModel> enums;
+        final List<ColumnEnum> enums;
         final Map enumMap;
         if (remark != null) {
             remark = remark.trim();
@@ -127,13 +127,13 @@ public class DefaultColumnFactory extends ColumnFactory {
                     && (end = remark.lastIndexOf(')')) >= 0
                     && (start = remark.lastIndexOf("E(", end)) >= 0) {
                 final String[] emumStr = StringUtil.splitc(remark.substring(start + 2, end), ',');
-                enums = new ArrayList<ColumnEnumModel>();
+                enums = new ArrayList<ColumnEnum>();
                 enumMap = new HashMap();
-                for (int i = 0; i < emumStr.length; i++) {
-                    ColumnEnumModel columnEnumModel;
+                for (String emumRaw : emumStr) {
+                    ColumnEnum columnEnumModel;
                     try {
-                        columnEnumModel = ColumnEnumModel.valueOf(emumStr[i]);
-                    } catch (Exception e) {
+                        columnEnumModel = ColumnEnum.valueOf(emumRaw);
+                    }catch (Exception e) {
                         Logger.error("Faild to parse column enum: "+ raw +" | "+ remark);
                         throw new RuntimeException(e);
                     }

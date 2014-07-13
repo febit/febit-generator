@@ -5,19 +5,19 @@ package webit.generator.core.model;
  *
  * @author zqq90
  */
-public class ColumnEnumModel {
+public class ColumnEnum {
 
     public final short value;
     public final String name;
     public final String remark;
 
-    public ColumnEnumModel(short value, String name, String remark) {
+    public ColumnEnum(short value, String name, String remark) {
         this.value = value;
         this.name = name;
         this.remark = remark;
     }
 
-    public static ColumnEnumModel valueOf(String string) {
+    public static ColumnEnum valueOf(String string) {
         final String[] arr = webit.generator.core.util.StringUtil.splitc(string, '|');
         Short id;
         String name = "UNKOWN";
@@ -30,6 +30,6 @@ public class ColumnEnumModel {
                 remark = arr[2].trim();
             }
         }
-        return new ColumnEnumModel(id, name, remark);
+        return new ColumnEnum(id, name, remark);
     }
 }

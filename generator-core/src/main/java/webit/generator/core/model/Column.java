@@ -37,7 +37,7 @@ public class Column implements Comparable<Column> {
     public final boolean query;
     //
     public final boolean isenum;
-    public final List<ColumnEnumModel> enums;
+    public final List<ColumnEnum> enums;
     public final Map enumMap;
     //
     protected boolean isLinkKey; //被外键
@@ -55,7 +55,7 @@ public class Column implements Comparable<Column> {
     protected boolean hasDefaultValue;
     protected String defaultValueShow;
 
-    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size, boolean isUnique, boolean optional, boolean ispk, boolean isfk, String fkHint, boolean isGenerated, String remark, String name, String javaType, String javaSimpleType, String sqlName, String getterName, String setterName, List<Column> linkColumns, boolean query, boolean isenum, List<ColumnEnumModel> enums, Map enumMap, String defaultValueRaw, Object defaultValue, boolean hasDefaultValue, String defaultValueShow) {
+    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size, boolean isUnique, boolean optional, boolean ispk, boolean isfk, String fkHint, boolean isGenerated, String remark, String name, String javaType, String javaSimpleType, String sqlName, String getterName, String setterName, List<Column> linkColumns, boolean query, boolean isenum, List<ColumnEnum> enums, Map enumMap, String defaultValueRaw, Object defaultValue, boolean hasDefaultValue, String defaultValueShow) {
         this.table = table;
         this.attrs = attrs;
         this.raw = raw;
@@ -101,8 +101,9 @@ public class Column implements Comparable<Column> {
             } else if (fkHint != null) {
                 linkTable = TableFactory.getTable(fkHint);
                 if (linkTable != null) {
-                    Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
                     linkColumn = linkTable.getIdColumn();
+                }else{
+                    Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
                 }
             }
 
@@ -130,7 +131,7 @@ public class Column implements Comparable<Column> {
         return raw;
     }
 
-    public List<ColumnEnumModel> getEnums() {
+    public List<ColumnEnum> getEnums() {
         return enums;
     }
 
