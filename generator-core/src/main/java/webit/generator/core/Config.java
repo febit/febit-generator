@@ -61,6 +61,9 @@ public class Config {
             final List<String> tmpls = StringUtil.toUnBlankList(configs.get("tmpls"));
             if (tmpls != null) {
                 for (String item : tmpls) {
+                    if (item.charAt(0) == '#') {
+                        continue;
+                    }
                     if (item.endsWith(".each")) {
                         tableTemplates.add(item);
                     } else {
@@ -194,14 +197,6 @@ public class Config {
         }
     }
 
-    public static List<String> getCommonTemplates() {
-        return commonTemplates;
-    }
-
-    public static List<String> getTableTemplates() {
-        return tableTemplates;
-    }
-
     public static Map<String, String> getFileTypeMap() {
         return fileTypeMap;
     }
@@ -226,8 +221,23 @@ public class Config {
         return StringUtil.toUnBlankList(configs.get("folders"));
     }
 
+    public static List<String> getCommonTemplates() {
+        return commonTemplates;
+    }
+
+    public static List<String> getTableTemplates() {
+        return tableTemplates;
+    }
+    
     public static List<String> getInitTemplates() {
-        return StringUtil.toUnBlankList(configs.get("inits"));
+        List<String> values = StringUtil.toUnBlankList(configs.get("inits"));
+        for (Iterator<String> it = values.iterator(); it.hasNext();) {
+            String string = it.next();
+            if (string.charAt(0) == '#') {
+                it.remove();
+            }
+        }
+        return values;
     }
 
     public static String getWorkPath() {
