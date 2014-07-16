@@ -7,7 +7,7 @@ debug=false
 logger.level = info
 
 # 生成代码的路径，可以是相对路径，相对于传入的配置文件
-outroot=./jf-blog
+outroot=./blog
 
 # 生成 Model类 的前缀（注意，不包括包名）
 modelPrefix=
@@ -25,7 +25,7 @@ modelPkg=${basePkg}.model
 tableBlackList=
 
 # 启用的生成模块
-modules+= jfinal
+modules+=
 
 
 # 数据源的相关设置
@@ -35,7 +35,7 @@ driver=com.mysql.jdbc.Driver
 # 表前缀， 生成代码的时候将自动去除这个前缀
 tablePrefix=
 #数据源 url
-url=jdbc:mysql://localhost:3306/jfinal_demo
+url=jdbc:mysql://localhost:3306/demo
 #数据源 用户名
 username=root
 #数据源 密码
@@ -45,9 +45,9 @@ password=
 # 额外的参数， 这里的参数将自动设置成模版引擎的全局常量
 [extra]
 # 应用名
-appname=My JFinal Blog
+appname=My Blog
 # 应用名简写， 最好只有字母和数字组成 不要带空格
-appname_short=JFBlog
+appname_short=MyBlog
 # 生成到代码中的版权信息，一般生成到每个java类文件的开头
 COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
 # 生成到代码中的作者，一般用在 java类声明前的JavaDoc中
