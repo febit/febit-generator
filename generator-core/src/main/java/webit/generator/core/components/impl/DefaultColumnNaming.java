@@ -1,6 +1,7 @@
 // Copyright (c) 2013, Webit Team. All Rights Reserved.
 package webit.generator.core.components.impl;
 
+import webit.generator.core.Config;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.util.ClassNameUtil;
 
@@ -10,6 +11,12 @@ import webit.generator.core.util.ClassNameUtil;
  */
 public class DefaultColumnNaming extends ColumnNaming {
 
+    protected boolean toLower;
+
+    public DefaultColumnNaming() {
+        this.toLower = Config.getBoolean("columnNamingToLower", true);
+    }
+    
     @Override
     public String sqlName(String sqlNameRaw) {
         return sqlNameRaw;
@@ -17,6 +24,9 @@ public class DefaultColumnNaming extends ColumnNaming {
 
     @Override
     public String varName(String sqlName) {
+        if (this.toLower) {
+            sqlName = sqlName.toLowerCase();
+        }
         return ClassNameUtil.modelColumnNamingStrategy(sqlName);
     }
 

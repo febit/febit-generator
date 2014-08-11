@@ -49,6 +49,9 @@ columnFactory= webit.generator.core.components.impl.DefaultColumnFactory
 tableNaming  = webit.generator.core.components.impl.DefaultTableNaming
 columnNaming = webit.generator.core.components.impl.DefaultColumnNaming
 
+columnNamingToLower = true
+tableNamingToLower = true
+
 # 数据源的相关设置
 [db]
 # JDBC驱动
