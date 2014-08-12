@@ -7,6 +7,14 @@ package webit.generator.core.util;
  */
 public class ArraysUtil {
 
+    public static final String[] EMPTY_STRINGS = new String[0];
+    
+    public static String[] subarray(String[] src, int offset, int len) {
+        String dest[] = new String[len];
+        System.arraycopy(src, offset, dest, 0, len);
+        return dest;
+    }
+
     public static boolean in(Object src, Object[] arr) {
         return ArraysUtil.contains(arr, src);
     }

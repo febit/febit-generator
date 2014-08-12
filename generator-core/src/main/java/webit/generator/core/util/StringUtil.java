@@ -1,9 +1,6 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.core.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author zqq90
@@ -21,23 +18,50 @@ public class StringUtil {
         return null;
     }
 
-    //XXX: 可优化
-    public static List<String> toUnBlankList(String string) {
-        final String[] array;
-        array = toTrimedArray(string);
-        if (array != null) {
-            final int size;
-            final List<String> list = new ArrayList<String>(size = array.length);
-            String item;
-            for (int i = 0; i < size; i++) {
-                if ((item = array[i]).length() != 0) {
-                    list.add(item);
-                }
-            }
-            return list;
-        } else {
-            return null;
+    public static String[] toArray(String src) {
+        if (src == null) {
+            return ArraysUtil.EMPTY_STRINGS;
         }
+        final String[] array = splitc(src, DELIMITERS);
+        int count = 0;
+        for (int i = 0; i < array.length; i++) {
+            String item = array[i].trim();
+            if (item.length() == 0) {
+                continue;
+            }
+            array[count++] = item;
+        }
+        if (count == 0) {
+            return ArraysUtil.EMPTY_STRINGS;
+        }
+        if (count != array.length) {
+            return ArraysUtil.subarray(array, 0, count);
+        }
+        return array;
+    }
+    public static String[] toArrayWithoutComment(String src) {
+        if (src == null) {
+            return ArraysUtil.EMPTY_STRINGS;
+        }
+        final String[] array = splitc(src, DELIMITERS);
+        int count = 0;
+        for (int i = 0; i < array.length; i++) {
+            String item = array[i].trim();
+            if (item.length() == 0) {
+                continue;
+            }
+            if (item.charAt(0) == '#') {
+                continue;
+            }
+            array[count++] = item;
+        }
+        if (count == 0) {
+            return ArraysUtil.EMPTY_STRINGS;
+        }
+        if (count != array.length) {
+            return ArraysUtil.subarray(array, 0, count);
+        }
+        return array;
     }
 
     public static String replace(String s, String sub, String with) {

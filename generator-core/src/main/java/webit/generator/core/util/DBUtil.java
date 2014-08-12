@@ -40,16 +40,16 @@ public class DBUtil {
                 if (decimalDigits == 0) {
                     if (size == 1) {
                         return "java.lang.Boolean";
-                    } else if (size < 3) {
+                    } else if (size <= 2) {
                         return "java.lang.Byte";
-                    } else if (size < 5) {
+                    } else if (size <= 5) {
                         return "java.lang.Short";
-                    } else if (size < 10) {
+                    } else if (size <= 11) {
                         return "java.lang.Integer";
-                    } else if (size < 19) {
+                    } else if (size <= 20) {
                         return "java.lang.Long";
                     } else {
-                        return "java.math.BigDecimal";
+                        return "java.math.BigInteger";
                     }
                 }
                 return "java.math.BigDecimal";

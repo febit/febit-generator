@@ -9,8 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import webit.generator.core.Config;
 import webit.generator.core.dbaccess.model.ColumnRaw;
@@ -37,8 +39,20 @@ public class DatabaseAccesser {
                 try {
                     Class.forName(driver);
                     connection = DriverManager.getConnection(Config.getRequiredString("db.url"), Config.getRequiredString("db.username"), Config.getString("db.password"));
+                    if (Logger.isDebugEnabled()) {
+                        Logger.debug("Initialised connection: " + connection.getClass().getName());
+                        Logger.debug("  Catalog: " + Config.getString("db.catalog"));
+                        Logger.debug("  Schema: " + Config.getString("db.schema"));
+                        Logger.debug("  ClientInfo: ");
+                        Properties clientInfo = connection.getClientInfo();
+                        if (clientInfo != null) {
+                            for (Map.Entry<Object, Object> entry : clientInfo.entrySet()) {
+                                Logger.debug("    " + entry.getKey() + '=' + entry.getValue());
+                            }
+                        }
+                    }
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("not found jdbc driver class:[" + driver + "]", e);
+                    throw new RuntimeException("Not found jdbc driver class: [" + driver + "]", e);
                 }
             }
             return connection;
@@ -54,26 +68,32 @@ public class DatabaseAccesser {
     private Pattern includes;
     private Pattern excludes;
 
+    final String catalog;
+    final String schema;
+    final boolean skipUnreadableTable;
+
     public synchronized static DatabaseAccesser getInstance() {
         if (instance == null) {
             instance = new DatabaseAccesser();
-            instance.init();
         }
         return instance;
     }
 
-    private void init() {
+    private DatabaseAccesser() {
+        this.skipUnreadableTable = Config.getBoolean("skipUnreadableTable", false);
+        this.schema = Config.getString("db.schema");
+        this.catalog = Config.getString("db.catalog");
         String includesString = Config.getString("includeTables");
         if (StringUtil.notEmpty(includesString)) {
-            includes = Pattern.compile(includesString);
+            this.includes = Pattern.compile(includesString);
         }
         String excludesString = Config.getString("excludeTables");
         if (StringUtil.notEmpty(excludesString)) {
-            excludes = Pattern.compile(excludesString);
+            this.excludes = Pattern.compile(excludesString);
         }
     }
 
-    private boolean isInclude(final String tableName) {
+    private boolean isTableInclude(final String tableName) {
         return (includes == null || includes.matcher(tableName).matches())
                 && (excludes == null || !excludes.matcher(tableName).matches());
     }
@@ -86,8 +106,9 @@ public class DatabaseAccesser {
         columnCache = new ColumnCache();
         try {
             final ResultSet rs;
+            final Connection conn = getConnection();
             if (DBUtil.getDBType().equals("mysql")) { //FIXED: allways REMARKS==null in mysql
-                final Connection conn = getConnection();
+
                 PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
                         + "NULL AS TABLE_SCHEM, TABLE_NAME, "
                         + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
@@ -96,18 +117,21 @@ public class DatabaseAccesser {
                 ps.setString(1, conn.getCatalog());
                 rs = ps.executeQuery();
             } else {
-                rs = getMetaData().getTables(null, null, null, null);
+                rs = getMetaData().getTables(catalog, schema, null, null);
             }
             try {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
                     String remark = rs.getString("REMARKS");
-                    boolean isView = "VIEW".equals(rs.getString("TABLE_TYPE"));
-                    if (!isInclude(tableName)) {
+                    boolean isView = "VIEW".equalsIgnoreCase(rs.getString("TABLE_TYPE"));
+                    if (!isTableInclude(tableName)) {
                         if (Logger.isDebugEnabled()) {
                             Logger.debug("Skip table (by DatabaseAccesser): " + tableName);
                         }
                         continue;
+                    }
+                    if (Logger.isDebugEnabled()) {
+                        Logger.debug("Found table " + tableName);
                     }
                     tableCache.put(new TableRaw(tableName, remark, isView));
                 }
@@ -116,8 +140,17 @@ public class DatabaseAccesser {
             }
 
             final Map<String, TableRaw> tables = tableCache.getTables();
-            for (Map.Entry<String, TableRaw> entry : tables.entrySet()) {
-                resolveTableColumns(entry.getValue());
+            for (Iterator<Map.Entry<String, TableRaw>> it = tables.entrySet().iterator(); it.hasNext();) {
+                TableRaw table = it.next().getValue();
+                boolean result = resolveTableColumns(table);
+                if (result == false) {
+                    if (skipUnreadableTable) {
+                        Logger.warn("SKIP TABLE, unreadable: " + table);
+                        it.remove();
+                    } else {
+                        throw new RuntimeException("CAN't SKIP TABLE: " + table);
+                    }
+                }
             }
             for (Map.Entry<String, TableRaw> entry : tables.entrySet()) {
                 resolveFKS(entry.getValue());
@@ -133,21 +166,26 @@ public class DatabaseAccesser {
         return getConnection().getMetaData();
     }
 
-    private void resolveTableColumns(TableRaw table) throws SQLException {
-        Logger.trace("-------SCANF_TABLE(" + table.name + ")");
+    private boolean resolveTableColumns(TableRaw table) throws SQLException {
+        if (Logger.isTraceEnabled()) {
+            Logger.trace("Scanf table's columns: " + table);
+        }
 
         List<String> primaryKeys = getTablePrimaryKeys(table);
         if (primaryKeys.isEmpty()) {
-            Logger.warn("Not found primary key columns in table: " + table.name);
+            Logger.warn("Not found primary key columns in table: " + table);
         }
 
         final List<String> indices = new ArrayList<String>();
         final Map<String, String> uniqueIndices = new HashMap<String, String>();
         final Map<String, List<String>> uniqueColumns = new HashMap<String, List<String>>();
         final ResultSet indexRs;
-
-        indexRs = getMetaData().getIndexInfo(null, null, table.name, false, true);
-
+        try {
+            indexRs = getMetaData().getIndexInfo(catalog, schema, table.name, false, true);
+        } catch (SQLException ex) {
+            Logger.error("Unable to getIndexInfo of table: " + table);
+            return false;
+        }
         try {
             while (indexRs.next()) {
                 String columnName = indexRs.getString("COLUMN_NAME");
@@ -168,7 +206,6 @@ public class DatabaseAccesser {
                 }
             }
         } catch (SQLException ex) {
-            Logger.error("MetaData.getIndexInfo() failed.", ex);
             throw ex;
         } finally {
             indexRs.close();
@@ -177,12 +214,13 @@ public class DatabaseAccesser {
         final List<ColumnRaw> columns = getTableColumns(table, primaryKeys, indices, uniqueIndices, uniqueColumns);
         table.addColumns(columns);
         columnCache.addColums(columns);
+        return true;
     }
 
     private List<ColumnRaw> getTableColumns(TableRaw table, List<String> primaryKeys, List<String> indices, Map<String, String> uniqueIndices, Map<String, List<String>> uniqueColumns) throws SQLException {
 
         final List<ColumnRaw> columns = new ArrayList<ColumnRaw>();
-        final ResultSet columnRs = getMetaData().getColumns(null, null, table.name, null);
+        final ResultSet columnRs = getMetaData().getColumns(catalog, schema, table.name, null);
 
         try {
             while (columnRs.next()) {
@@ -228,7 +266,7 @@ public class DatabaseAccesser {
     }
 
     private void resolveFKS(TableRaw table) throws SQLException {
-        final ResultSet fkeys = getMetaData().getImportedKeys(null, null, table.name);
+        final ResultSet fkeys = getMetaData().getImportedKeys(catalog, schema, table.name);
         try {
             while (fkeys.next()) {
                 String pktable = fkeys.getString(PKTABLE_NAME);
@@ -240,11 +278,11 @@ public class DatabaseAccesser {
                 ColumnRaw pkColumn = columnCache.get(pktable, pkcol);
                 ColumnRaw fkColumn = columnCache.get(fktable, fkcol);
                 if (pkColumn == null) {
-                    Logger.warn("Foreign linked column not found: " + pktable + "." + pkcol);
+                    Logger.warn("Foreign linked column not found: " + pktable + '.' + pkcol);
                     continue;
                 }
                 if (fkColumn == null) {
-                    Logger.warn("Foreign column not found: " + fktable + "." + fkcol);
+                    Logger.warn("Foreign column not found: " + fktable + '.' + fkcol);
                     continue;
                 }
                 ForeignKey fk = new ForeignKey(pkColumn, fkColumn, iseq);
@@ -260,7 +298,7 @@ public class DatabaseAccesser {
 
     private List<String> getTablePrimaryKeys(TableRaw table) throws SQLException {
         final List<String> primaryKeys = new ArrayList<String>();
-        final ResultSet primaryKeyRs = getMetaData().getPrimaryKeys(null, null, table.name);
+        final ResultSet primaryKeyRs = getMetaData().getPrimaryKeys(catalog, schema, table.name);
         try {
             while (primaryKeyRs.next()) {
                 primaryKeys.add(primaryKeyRs.getString("COLUMN_NAME"));

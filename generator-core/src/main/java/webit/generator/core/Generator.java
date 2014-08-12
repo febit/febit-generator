@@ -13,7 +13,6 @@ import webit.generator.core.model.Table;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
-import webit.generator.core.util.StringUtil;
 import webit.generator.core.util.TemplateContextUtil;
 import webit.script.Engine;
 import webit.script.exceptions.ParseException;
@@ -58,17 +57,15 @@ public class Generator {
             outroot = FileUtil.concat(Config.getWorkPath(), Config.getRequiredString("outroot"));
             Logger.info("outroot: " + outroot);
 
-            List<String> processersClass = StringUtil.toUnBlankList(Config.getString("processers"));
-            if (processersClass != null && !processersClass.isEmpty()) {
-                processers = new GeneratorProcesser[processersClass.size()];
+            String[] processersClass = Config.getArrayWithoutComment("processers");
+            processers = new GeneratorProcesser[processersClass.length];
+            {
                 int i = 0;
                 for (String string : processersClass) {
                     Logger.info("Running processer: " + string);
                     GeneratorProcesser processer = processers[i++] = (GeneratorProcesser) ResourceUtil.loadClass(string).newInstance();
                     processer.init(this);
                 }
-            } else {
-                processers = new GeneratorProcesser[0];
             }
 
             initTemplateEngine();
@@ -80,36 +77,30 @@ public class Generator {
 
             //create_folders
             {
-                final List<String> folders = Config.getCreateFolders();
-                if (folders != null) {
-                    for (String folder : Config.getCreateFolders()) {
-                        final int i = folder.indexOf('/');
-                        getFileSaver(folder.substring(0, i)).createFolder(folder.substring(i + 1));
-                    }
+                for (String folder : Config.getCreateFolders()) {
+                    final int i = folder.indexOf('/');
+                    getFileSaver(folder.substring(0, i)).createFolder(folder.substring(i + 1));
                 }
             }
 
             //copys
             {
-                final List<String> copys = Config.getCopys();
-                if (copys != null) {
-                    for (String copy : copys) {
-                        final int i = copy.indexOf('/');
-                        String fileSaverName = copy.substring(0, i);
-                        FileSaver fileSaver = getFileSaver(fileSaverName);
-                        if (fileSaver == null) {
-                            Logger.error("Not found FileSaver:" + fileSaverName);
-                            throw new RuntimeException("Not found FileSaver:" + fileSaverName);
-                        }
-                        fileSaver.copyFile(copy.substring(i + 1), copy);
+                for (String copy : Config.getCopys()) {
+                    final int i = copy.indexOf('/');
+                    String fileSaverName = copy.substring(0, i);
+                    FileSaver fileSaver = getFileSaver(fileSaverName);
+                    if (fileSaver == null) {
+                        Logger.error("Not found FileSaver:" + fileSaverName);
+                        throw new RuntimeException("Not found FileSaver:" + fileSaverName);
                     }
+                    fileSaver.copyFile(copy.substring(i + 1), copy);
                 }
             }
 
             //init Templates
             {
-                final List<String> initTemplates;
-                if ((initTemplates = Config.getInitTemplates()) != null && initTemplates.size() > 0) {
+                final String[] initTemplates = Config.getInitTemplates();
+                if (initTemplates.length != 0) {
                     final GlobalManager globalManager = this.templateEngine.getGlobalManager();
                     final Out out = new DiscardOut();
                     final KeyValues params = KeyValuesUtil.wrap(new String[]{
@@ -130,7 +121,6 @@ public class Generator {
                         }
                     }
                 }
-
             }
 
             margeTemplates();

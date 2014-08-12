@@ -11,10 +11,10 @@ import webit.generator.core.util.ClassNameUtil;
  */
 public class DefaultColumnNaming extends ColumnNaming {
 
-    protected boolean toLower;
+    protected boolean sqlNameToLower;
 
     public DefaultColumnNaming() {
-        this.toLower = Config.getBoolean("columnNamingToLower", true);
+        this.sqlNameToLower = Config.getBoolean("columnNaming.sqlNameToLower", true);
     }
     
     @Override
@@ -24,7 +24,7 @@ public class DefaultColumnNaming extends ColumnNaming {
 
     @Override
     public String varName(String sqlName) {
-        if (this.toLower) {
+        if (this.sqlNameToLower) {
             sqlName = sqlName.toLowerCase();
         }
         return ClassNameUtil.modelColumnNamingStrategy(sqlName);

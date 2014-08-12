@@ -1,10 +1,10 @@
 package webit.generator.core.components.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import webit.generator.core.Config;
@@ -16,7 +16,6 @@ import webit.generator.core.dbaccess.model.TableRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.Table;
 import webit.generator.core.util.Logger;
-import webit.generator.core.util.StringUtil;
 
 /**
  *
@@ -27,7 +26,7 @@ public class DefaultTableFactory extends TableFactory {
     private final Set<String> blackEntitys = new HashSet<String>();
 
     private boolean inited = false;
-    
+
     public void init() {
         if (inited == true) {
             return;
@@ -35,10 +34,7 @@ public class DefaultTableFactory extends TableFactory {
         inited = true;
 
         //加载表黑名单
-        final List<String> tableBlacks = StringUtil.toUnBlankList(Config.getString("blackEntitys"));
-        if (tableBlacks != null) {
-            blackEntitys.addAll(tableBlacks);
-        }
+        blackEntitys.addAll(Arrays.asList(Config.getArrayWithoutComment("blackEntitys")));
     }
 
     @Override

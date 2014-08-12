@@ -13,8 +13,6 @@ import webit.generator.core.util.Arrays;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.Maps;
 import webit.generator.core.util.ResourceUtil;
-import static webit.generator.core.util.ResourceUtil.getResPath;
-import webit.generator.core.util.StringUtil;
 
 /**
  *
@@ -172,17 +170,14 @@ public class ConfigInit {
         beforeProcess();
 
         //ConfigInitProcessers
-        final List<String> processersClass = StringUtil.toUnBlankList(Config.getString("configInit"));
-        if (processersClass != null && !processersClass.isEmpty()) {
-            try {
-                for (String item : processersClass) {
-                    Logger.info("Running processer: " + item);
-                    ((ConfigInitProcesser) ResourceUtil.loadClass(item).newInstance()).process(this);
-                }
-            } catch (Exception ex) {
-                Logger.error("Exception: ", ex);
-                throw new RuntimeException(ex);
+        try {
+            for (String item : Config.getArrayWithoutComment("configInit")) {
+                Logger.info("Running processer: " + item);
+                ((ConfigInitProcesser) ResourceUtil.loadClass(item).newInstance()).process(this);
             }
+        } catch (Exception ex) {
+            Logger.error("Exception: ", ex);
+            throw new RuntimeException(ex);
         }
 
         afterProcess();

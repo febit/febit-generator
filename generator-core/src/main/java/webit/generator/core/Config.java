@@ -41,15 +41,12 @@ public class Config {
         //fileTypes
         {
             fileTypeMap.clear();
-            final List<String> filetypes = StringUtil.toUnBlankList(configs.get("filetypes"));
-            if (filetypes != null) {
-                for (String item : filetypes) {
-                    int index = item.indexOf('=');
-                    if (index > 0) {
-                        fileTypeMap.put(item.substring(0, index).trim(), item.substring(index + 1).trim());
-                    } else {
-                        throw buildException("filetypes lost '=',must be 'key = value");
-                    }
+            for (String item : getArrayWithoutComment("filetypes")) {
+                int index = item.indexOf('=');
+                if (index > 0) {
+                    fileTypeMap.put(item.substring(0, index).trim(), item.substring(index + 1).trim());
+                } else {
+                    throw buildException("filetypes lost '=',must be 'key = value: " + item);
                 }
             }
         }
@@ -58,17 +55,11 @@ public class Config {
         {
             tableTemplates.clear();
             commonTemplates.clear();
-            final List<String> tmpls = StringUtil.toUnBlankList(configs.get("tmpls"));
-            if (tmpls != null) {
-                for (String item : tmpls) {
-                    if (item.charAt(0) == '#') {
-                        continue;
-                    }
-                    if (item.endsWith(".each")) {
-                        tableTemplates.add(item);
-                    } else {
-                        commonTemplates.add(item);
-                    }
+            for (String item : getArrayWithoutComment("tmpls")) {
+                if (item.endsWith(".each")) {
+                    tableTemplates.add(item);
+                } else {
+                    commonTemplates.add(item);
                 }
             }
         }
@@ -83,22 +74,19 @@ public class Config {
 
     private static void resolveDepends(TreeSet<DependLib> dependSet, String propsName) {
         dependSet.clear();
-        final List<String> dependList = StringUtil.toUnBlankList(configs.get(propsName));
-        if (dependList != null) {
-            for (String item : dependList) {
-                dependSet.add(DependLib.valueOf(item));
-            }
-            //check & remove same artifact, keep higher-version one
-            final Iterator<DependLib> it = dependSet.descendingIterator();
-            if (it.hasNext()) {
-                DependLib preDepend = it.next();
-                while (it.hasNext()) {
-                    DependLib dependLib = it.next();
-                    if (dependLib.isSameArtifact(preDepend)) {
-                        it.remove();
-                    } else {
-                        preDepend = dependLib;
-                    }
+        for (String item : getArrayWithoutComment(propsName)) {
+            dependSet.add(DependLib.valueOf(item));
+        }
+        //check & remove same artifact, keep higher-version one
+        final Iterator<DependLib> it = dependSet.descendingIterator();
+        if (it.hasNext()) {
+            DependLib preDepend = it.next();
+            while (it.hasNext()) {
+                DependLib dependLib = it.next();
+                if (dependLib.isSameArtifact(preDepend)) {
+                    it.remove();
+                } else {
+                    preDepend = dependLib;
                 }
             }
         }
@@ -122,7 +110,7 @@ public class Config {
                 resolveModules(moduleProps.getValue(PROPS_MODULES));
                 props.merge(moduleProps);
             } catch (IOException ex) {
-                throw buildException("PROPS file not found:" + filename);
+                throw buildException("Not found props file: " + filename);
             }
         }
         initalize();
@@ -176,7 +164,7 @@ public class Config {
 
     private static void resolveModules(final String names) {
         if (names != null) {
-            for (String depend : StringUtil.toUnBlankList(names)) {
+            for (String depend : StringUtil.toArrayWithoutComment(names)) {
                 if (MODULES.contains(depend)) {
                     continue;
                 }
@@ -184,7 +172,7 @@ public class Config {
                 if ((moduleProps = MODILES_PROPS.get(depend)) == null) {
                     MODILES_PROPS.put(depend, moduleProps = PropsUtil.createProps());
                     if (PropsUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
-                        throw buildException("Not found module:" + depend);
+                        throw buildException("Not found module: " + depend);
                     }
                     resolveModules(moduleProps.getValue(PROPS_MODULES));
                     if (MODULES.contains(depend)) {
@@ -213,12 +201,16 @@ public class Config {
         return providedDepends;
     }
 
-    public static List<String> getCopys() {
-        return StringUtil.toUnBlankList(configs.get("copys"));
+    public static String[] getCopys() {
+        return getArrayWithoutComment("copys");
     }
 
-    public static List<String> getCreateFolders() {
-        return StringUtil.toUnBlankList(configs.get("folders"));
+    public static String[] getCreateFolders() {
+        return getArrayWithoutComment("folders");
+    }
+
+    public static String[] getInitTemplates() {
+        return getArrayWithoutComment("inits");
     }
 
     public static List<String> getCommonTemplates() {
@@ -227,17 +219,6 @@ public class Config {
 
     public static List<String> getTableTemplates() {
         return tableTemplates;
-    }
-    
-    public static List<String> getInitTemplates() {
-        List<String> values = StringUtil.toUnBlankList(configs.get("inits"));
-        for (Iterator<String> it = values.iterator(); it.hasNext();) {
-            String string = it.next();
-            if (string.charAt(0) == '#') {
-                it.remove();
-            }
-        }
-        return values;
     }
 
     public static String getWorkPath() {
@@ -282,6 +263,14 @@ public class Config {
 
     public static String getStringBlankIfNull(String key) {
         return getString(key, "");
+    }
+
+    public static String[] getArray(String key) {
+        return StringUtil.toArray(configs.get(key));
+    }
+
+    public static String[] getArrayWithoutComment(String key) {
+        return StringUtil.toArrayWithoutComment(configs.get(key));
     }
 
     public static Map<String, String> getMap(final String key) {

@@ -24,7 +24,7 @@ modelPkg=${basePkg}.model
 # 数据库表包含规则（正则表达式）
 includeTables=.*
 # 数据库表排除规则（正则表达式）
-excludeTables=
+excludeTables=BIN$.*
 
 
 # 数据库列包含规则（正则表达式）
@@ -49,8 +49,11 @@ columnFactory= webit.generator.core.components.impl.DefaultColumnFactory
 tableNaming  = webit.generator.core.components.impl.DefaultTableNaming
 columnNaming = webit.generator.core.components.impl.DefaultColumnNaming
 
-columnNamingToLower = true
-tableNamingToLower = true
+[columnNaming]
+sqlNameToLower = true
+
+[tableNaming]
+sqlNameToLower = true
 
 # 数据源的相关设置
 [db]
@@ -65,13 +68,19 @@ username=root
 #数据源 密码
 password=
 
+#catalog=
+#schema=
+
+#实验性的选项: 是否忽略不可读取的table
+#skipUnreadableTable = false
+
 # 数据库字段到java中的类型映射
 [javaTypeMapping]
 java.sql.Timestamp=java.util.Date
 java.sql.Date=java.util.Date
 java.sql.Time=java.util.Date
 java.lang.Byte=java.lang.Short
-#java.math.BigDecimal=java.lang.Long
+#java.math.BigDecimal=java.lang.Double
 
 
 # 类型转换， 一般用于转换默认值从字符串转换到目标格式
@@ -82,6 +91,7 @@ java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
 java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
 java.lang.Double=webit.generator.core.typeconverter.impl.DoubleConverter
 java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
+java.math.BigInteger=webit.generator.core.typeconverter.impl.BigIntegerConverter
 java.math.BigDecimal=webit.generator.core.typeconverter.impl.BigDecimalConverter
 
 

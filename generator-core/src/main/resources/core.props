@@ -3,8 +3,10 @@
 modules+=
 
 
-inits += /core/init,/core/initJavaClass
-
+inits +='''
+    /core/init
+    /core/initJavaClass
+'''
 
 copys+='''
 '''
