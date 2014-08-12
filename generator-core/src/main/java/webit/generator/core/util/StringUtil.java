@@ -20,7 +20,7 @@ public class StringUtil {
 
     public static String[] toArray(String src) {
         if (src == null) {
-            return ArraysUtil.EMPTY_STRINGS;
+            return Arrays.EMPTY_STRINGS;
         }
         final String[] array = splitc(src, DELIMITERS);
         int count = 0;
@@ -32,16 +32,16 @@ public class StringUtil {
             array[count++] = item;
         }
         if (count == 0) {
-            return ArraysUtil.EMPTY_STRINGS;
+            return Arrays.EMPTY_STRINGS;
         }
         if (count != array.length) {
-            return ArraysUtil.subarray(array, 0, count);
+            return Arrays.subarray(array, 0, count);
         }
         return array;
     }
     public static String[] toArrayWithoutComment(String src) {
         if (src == null) {
-            return ArraysUtil.EMPTY_STRINGS;
+            return Arrays.EMPTY_STRINGS;
         }
         final String[] array = splitc(src, DELIMITERS);
         int count = 0;
@@ -56,10 +56,10 @@ public class StringUtil {
             array[count++] = item;
         }
         if (count == 0) {
-            return ArraysUtil.EMPTY_STRINGS;
+            return Arrays.EMPTY_STRINGS;
         }
         if (count != array.length) {
-            return ArraysUtil.subarray(array, 0, count);
+            return Arrays.subarray(array, 0, count);
         }
         return array;
     }

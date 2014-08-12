@@ -56,8 +56,7 @@ public class Main {
                 System.out.println("First argument must be 'gen' or 'init'.");
             }
         } catch (Exception e) {
-            Logger.error("", e);
+            Logger.error(e.getMessage(), e);
         }
     }
-
 }

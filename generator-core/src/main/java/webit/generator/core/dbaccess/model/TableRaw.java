@@ -4,7 +4,7 @@ package webit.generator.core.dbaccess.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableRaw implements java.io.Serializable, Cloneable {
+public class TableRaw implements Comparable<TableRaw>, java.io.Serializable, Cloneable {
 
     public final String name;
     public final String remarks;
@@ -74,6 +74,30 @@ public class TableRaw implements java.io.Serializable, Cloneable {
             throw new IllegalStateException("not found primary key on table:" + name);
         }
         return getPkColumns().get(0);
+    }
+
+    @Override
+    public int compareTo(TableRaw o) {
+        return this.name.compareToIgnoreCase(o.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof TableRaw)) {
+            return false;
+        }
+        return this.name.equals(((TableRaw) obj).name);
     }
 
     @Override

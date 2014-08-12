@@ -40,7 +40,7 @@ tableBlackList=
 # modules+= 
 
 # 模版引擎使用的配置文件
-webit.script.props += /webit-script-generator.props
+engine.props += /engine.wit.props
 
 
 # Components

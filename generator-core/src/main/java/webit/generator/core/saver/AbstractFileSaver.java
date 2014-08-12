@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core.filesaver;
+package webit.generator.core.saver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +9,6 @@ import java.io.InputStream;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.StreamUtil;
-import webit.generator.core.util.TemplateContextUtil;
 import webit.script.util.ClassLoaderUtil;
 
 /**
@@ -20,10 +19,10 @@ public abstract class AbstractFileSaver implements FileSaver {
 
     private final static String COPY_ROOT = "copy/";
 
-    protected abstract String getFilePath(TemplateContextUtil.FileEntry fileEntry);
+    protected abstract String getFilePath(FileEntry fileEntry);
     protected abstract String getBasePath();
 
-    protected byte[] getContentFromTmpl(TemplateContextUtil.FileEntry fileEntry) {
+    protected byte[] getContentFromTmpl(FileEntry fileEntry) {
         final Object object = fileEntry.context;
         if (object instanceof byte[]) {
             return (byte[]) object;
@@ -75,7 +74,7 @@ public abstract class AbstractFileSaver implements FileSaver {
     }
 
     @Override
-    public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
+    public boolean saveFile(String tmpl, FileEntry fileEntry) {
         String path = getFilePath(fileEntry);
         try {
             writeFile(path, getContentFromTmpl(fileEntry));

@@ -18,21 +18,22 @@ import webit.script.util.props.Props;
 
 public class Config {
 
-    public final static String COLUMN_OF_TABLE_ATTRS = "$";
-    private static Props props;
-    private static final Map<String, String> configs = new HashMap<String, String>();
-    private static String workPath;
-    private static final String DEFAULT_PROPS_FILE = "generator-default.props";
+    public static final String COLUMN_OF_TABLE_ATTRS = "$";
+    private static final String DEFAULT_PROPS = "default.props";
     private static final String PROPS_MODULES = "modules";
+
     public static final ArrayList<String> MODULES = new ArrayList<String>();
 
-    final static List<String> commonTemplates = new ArrayList<String>();
-    final static List<String> tableTemplates = new ArrayList<String>();
-    final static Map<String, String> fileTypeMap = new HashMap<String, String>();
-    final static TreeSet<DependLib> depends = new TreeSet<DependLib>();
-    final static TreeSet<DependLib> testDepends = new TreeSet<DependLib>();
-    final static TreeSet<DependLib> providedDepends = new TreeSet<DependLib>();
+    private static final Map<String, String> configs = new HashMap<String, String>();
+    private static final List<String> commonTemplates = new ArrayList<String>();
+    private static final List<String> tableTemplates = new ArrayList<String>();
+    private static final Map<String, String> fileTypeMap = new HashMap<String, String>();
+    private static final TreeSet<DependLib> depends = new TreeSet<DependLib>();
+    private static final TreeSet<DependLib> testDepends = new TreeSet<DependLib>();
+    private static final TreeSet<DependLib> providedDepends = new TreeSet<DependLib>();
 
+    private static Props props;
+    private static String workPath;
     private static boolean loadedDefault = false;
 
     private static void initalize() {
@@ -96,7 +97,7 @@ public class Config {
         if (loadedDefault == false) {
             loadedDefault = true;
             MODULES.clear();
-            props = PropsUtil.createFromClasspath(DEFAULT_PROPS_FILE);
+            props = PropsUtil.createFromClasspath(DEFAULT_PROPS);
             resolveModules("core");
         }
     }

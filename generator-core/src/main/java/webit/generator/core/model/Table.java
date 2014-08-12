@@ -4,6 +4,7 @@ package webit.generator.core.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import webit.generator.core.dbaccess.model.TableRaw;
 
 /**
  *
@@ -181,6 +182,25 @@ public class Table implements Comparable<Table> {
         return columnModels;
     }
 
+    @Override
+    public int hashCode() {
+        return this.entity.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Table)) {
+            return false;
+        }
+        return this.entity.equals(((Table) obj).entity);
+    }
+    
     @Override
     public int compareTo(Table o) {
         return entity.compareTo(o.entity);

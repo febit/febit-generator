@@ -102,7 +102,7 @@ public class Column implements Comparable<Column> {
                 linkTable = TableFactory.getTable(fkHint);
                 if (linkTable != null) {
                     linkColumn = linkTable.getIdColumn();
-                }else{
+                } else {
                     Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
                 }
             }
@@ -273,8 +273,28 @@ public class Column implements Comparable<Column> {
         if (!this.ispk && o.ispk) {
             return 1;
         }
-
         return this.name.compareToIgnoreCase(o.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return 61 * this.table.hashCode() + this.name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Column)) {
+            return false;
+        }
+        final Column other = (Column) obj;
+        return this.table.equals(other.table)
+                && this.name.equals(other.name);
     }
 
     @Override

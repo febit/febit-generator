@@ -3,7 +3,7 @@
 modules+=
 
 
-inits +='''
+inits+='''
     /core/init
     /core/initJavaClass
 '''
@@ -21,15 +21,16 @@ depends+='''
 
 
 filetypes+='''
-    FT_JAVA=webit.generator.core.filesaver.impl.JavaFileSaver
-    FT_RES=webit.generator.core.filesaver.impl.ResourceFileFileSaver
-    FT_BASE=webit.generator.core.filesaver.impl.BaseFileFileSaver
-    FT_WEB=webit.generator.core.filesaver.impl.WebFileFileSaver
-    FT_EXTJS=webit.generator.core.filesaver.impl.ExtjsFileSaver
-    FT_APPEND=webit.generator.core.filesaver.impl.AppendFileSaver
+    FT_JAVA=webit.generator.core.saver.impl.JavaFileSaver
+    FT_RES=webit.generator.core.saver.impl.ResourceFileFileSaver
+    FT_BASE=webit.generator.core.saver.impl.BaseFileFileSaver
+    FT_WEB=webit.generator.core.saver.impl.WebFileFileSaver
+    FT_EXTJS=webit.generator.core.saver.impl.ExtjsFileSaver
+    FT_APPEND=webit.generator.core.saver.impl.AppendFileSaver
 '''
 
 
-tmpls+=
+tmpls+='''
+'''
 
 

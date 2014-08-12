@@ -6,7 +6,7 @@ import webit.generator.core.Config;
 
 public class DBUtil {
 
-    public static boolean isStringType(final int sqlType) {
+    public static boolean isTypeOfString(final int sqlType) {
         return sqlType == Types.CHAR
                 || sqlType == Types.VARCHAR
                 || sqlType == Types.LONGVARCHAR
@@ -91,7 +91,7 @@ public class DBUtil {
         }
     }
 
-    public static String getDBType() {
+    public static String getDriverType() {
         final String driver = Config.getRequiredString("db.driver").toLowerCase();
         if (driver.contains("mysql")) {
             return "mysql";

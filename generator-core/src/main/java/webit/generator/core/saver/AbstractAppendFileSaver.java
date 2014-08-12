@@ -1,10 +1,9 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core.filesaver;
+package webit.generator.core.saver;
 
 import java.io.IOException;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
-import webit.generator.core.util.TemplateContextUtil;
 
 /**
  *
@@ -12,9 +11,9 @@ import webit.generator.core.util.TemplateContextUtil;
  */
 public abstract class AbstractAppendFileSaver implements FileSaver {
 
-    protected abstract String getFilePath(TemplateContextUtil.FileEntry fileEntry);
+    protected abstract String getFilePath(FileEntry fileEntry);
 
-    protected byte[] getContentFromTmpl(TemplateContextUtil.FileEntry fileEntry) {
+    protected byte[] getContentFromTmpl(FileEntry fileEntry) {
         final Object object = fileEntry.context;
         if (object instanceof byte[]) {
             return (byte[]) object;
@@ -33,7 +32,7 @@ public abstract class AbstractAppendFileSaver implements FileSaver {
     }
 
     @Override
-    public boolean saveFile(String tmpl, TemplateContextUtil.FileEntry fileEntry) {
+    public boolean saveFile(String tmpl, FileEntry fileEntry) {
         final String realpath = getFilePath(fileEntry);
         try {
             FileUtil.appendBytes(realpath, getContentFromTmpl(fileEntry));

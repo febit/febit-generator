@@ -5,11 +5,10 @@ var CONST;
 @import java.util.ArrayList;
 @import webit.generator.core.util.CollectionUtil;
 @import webit.generator.core.util.StringUtil;
-@import webit.generator.core.util.ArraysUtil;
+@import webit.generator.core.util.Arrays;
 @import webit.generator.core.util.SQLUtil;
 @import webit.generator.core.model.Table;
-@import webit.generator.core.util.template.ContextUtil;
-@import webit.generator.core.util.TemplateContextUtil;
+@import webit.generator.core.TemplateContext;
 @import webit.generator.core.util.ClassNameUtil;
 @import webit.generator.core.Config;
 
@@ -23,7 +22,7 @@ CONST.list_merge = native List.addAll(java.util.Collection);
 CONST.list_clear = native List.clear();
 CONST.list_add = native List.add(Object);
 
-CONST.in_arr = native ArraysUtil.in(Object, Object[]);
+CONST.in_arr = native Arrays.in(Object, Object[]);
 CONST.list_adds = native CollectionUtil.adds(List, Object[]);
 CONST.list_join = native StringUtil.join(Iterable, String);
 
@@ -43,10 +42,10 @@ CONST.isModuleActived = native Config.isModuleActived(String);
 CONST.parseInt = native Integer.parseInt(String);
 
 var saveToFile =
-CONST.saveToFile = native TemplateContextUtil.saveToFile(boolean, int, String, Object);
+CONST.saveToFile = native TemplateContext.saveToFile(boolean, int, String, Object);
 
 var createFolder =
-CONST.createFolder = native TemplateContextUtil.createFolder(int, String);
+CONST.createFolder = native TemplateContext.createFolder(int, String);
 
 //writeFile
 var writeFile = 

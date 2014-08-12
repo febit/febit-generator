@@ -1,14 +1,14 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core.filesaver.impl;
+package webit.generator.core.saver.impl;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import webit.generator.core.filesaver.AbstractAppendFileSaver;
+import webit.generator.core.saver.AbstractAppendFileSaver;
+import webit.generator.core.saver.FileEntry;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
-import webit.generator.core.util.TemplateContextUtil;
 
 /**
  *
@@ -25,7 +25,7 @@ public class AppendFileSaver extends AbstractAppendFileSaver {
     }
 
     @Override
-    protected String getFilePath(TemplateContextUtil.FileEntry fileEntry) {
+    protected String getFilePath(FileEntry fileEntry) {
         final String realpath = FileUtil.concat(outroot, fileEntry.fileName);
         if (clearedFiles.contains(realpath) == false) {
             clearedFiles.add(realpath);

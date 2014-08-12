@@ -90,7 +90,7 @@ public class ClassNameUtil {
             }
             final String pkg;
             if (imports.contains(item)
-                    || (item.indexOf('.') < 0 && ArraysUtil.contains(BASE_TYPES, item))
+                    || (item.indexOf('.') < 0 && Arrays.contains(BASE_TYPES, item))
                     || (pkg = ClassNameUtil.getClassPackageName(item)).equals("java.lang")
                     || pkg.equals(thisPkg)
                     || imports.contains(pkg.concat(".*"))) {

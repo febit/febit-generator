@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Map;
 import webit.generator.core.components.GeneratorProcesser;
 import webit.generator.core.components.TableFactory;
-import webit.generator.core.filesaver.FileSaver;
 import webit.generator.core.model.Table;
+import webit.generator.core.saver.FileEntry;
+import webit.generator.core.saver.FileSaver;
+import webit.generator.core.saver.FolderEntry;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
-import webit.generator.core.util.TemplateContextUtil;
 import webit.script.Engine;
 import webit.script.exceptions.ParseException;
 import webit.script.global.GlobalManager;
@@ -32,23 +33,23 @@ public class Generator {
     public static final String RES_DEFAULT_AUTH = "default.actionauth";
     public static final String RES_TABLE_AUTH = "tableAuth";
     public static final String RES_TABLE_COLUMN = "tableColumn";
+    
     private String outroot;
-    private Map<Object, FileSaver> fileSaverMap;
     private SimpleBag constMap;
-
+    private Engine templateEngine;
     private List<Table> tableList;
     private List<Table> whiteTables;
-    private Engine templateEngine;
     private GeneratorProcesser[] processers;
+    private Map<Object, FileSaver> fileSaverMap;
 
     private void initTemplateEngine() {
-        final Engine engine;
-        this.templateEngine = engine = Engine.createEngine(Config.getString("webit.script.props"));
+        final Engine engine = Engine.createEngine(Config.getString("engine.props"));
         final GlobalManager globalManager = engine.getGlobalManager();
-        this.constMap = globalManager.getConstBag();
-
-        globalManager.getGlobalBag().set("currtable", null);
+        
         globalManager.commit();
+        
+        this.templateEngine = engine;
+        this.constMap = globalManager.getConstBag();
     }
 
     public void process() {
@@ -125,7 +126,7 @@ public class Generator {
 
             margeTemplates();
         } catch (Exception ex) {
-            ex.printStackTrace(Logger.out);
+            Logger.error(ex.getMessage(), ex);
         }
     }
 
@@ -136,7 +137,9 @@ public class Generator {
         }
         //prepare Engine
         final GlobalManager globalManager = this.templateEngine.getGlobalManager();
+        globalManager.getGlobalBag().set("currtable", null);
         globalManager.commit();
+        final int currtableGlobalIndex = globalManager.getGlobalIndex("currtable");
 
         final Map<String, Object> params = new HashMap<String, Object>();
         // Common Templates
@@ -149,10 +152,8 @@ public class Generator {
         }
 
         //reg 
-        final int currtableGlobalIndex = globalManager.getGlobalIndex("currtable");
         // Table Templates
         final List<String> tableTemplates = Config.getTableTemplates();
-
         for (Table table : whiteTables) {
             globalManager.setGlobal(currtableGlobalIndex, table);
             for (String item : tableTemplates) {
@@ -167,10 +168,10 @@ public class Generator {
 
     protected void margeTemplate(String templateName, Map<String, Object> params) throws IOException, ParseException, Exception {
 
-        TemplateContextUtil.reset();
+        TemplateContext.reset();
         this.templateEngine.getTemplate(templateName).merge(params, Logger.out);
 
-        for (TemplateContextUtil.FileEntry fileEntry : TemplateContextUtil.files) {
+        for (FileEntry fileEntry : TemplateContext.files) {
             if (fileEntry.cancel) {
                 continue;
             }
@@ -181,7 +182,7 @@ public class Generator {
                 throw new Exception("TmplFileSaver not found with id: " + fileEntry.type);
             }
         }
-        for (TemplateContextUtil.FolderEntry folderEntry : TemplateContextUtil.folders) {
+        for (FolderEntry folderEntry : TemplateContext.folders) {
             if (folderEntry.cancel) {
                 continue;
             }
@@ -192,7 +193,7 @@ public class Generator {
                 throw new Exception("TmplFileSaver not found with id: " + folderEntry.type);
             }
         }
-        TemplateContextUtil.reset();
+        TemplateContext.reset();
     }
 
     protected void initFileSaver() throws ClassNotFoundException, InstantiationException, IllegalAccessException {

@@ -138,17 +138,12 @@ public class DependLib implements Comparable<DependLib> {
 
     @Override
     public int compareTo(DependLib dep) {
-
-        //
         if (!group.equals(dep.group)) {
             return group.compareTo(dep.group);
         }
-
-        //
         if (!artifact.equals(dep.artifact)) {
             return artifact.compareTo(dep.artifact);
         }
-
         int comOfVer = compareVersion(dep);
         if (comOfVer != 0) {
             return comOfVer;

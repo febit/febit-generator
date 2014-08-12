@@ -107,7 +107,7 @@ public class DatabaseAccesser {
         try {
             final ResultSet rs;
             final Connection conn = getConnection();
-            if (DBUtil.getDBType().equals("mysql")) { //FIXED: allways REMARKS==null in mysql
+            if (DBUtil.getDriverType().equals("mysql")) { //FIXED: allways REMARKS==null in mysql
 
                 PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
                         + "NULL AS TABLE_SCHEM, TABLE_NAME, "
