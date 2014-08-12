@@ -4,7 +4,6 @@ package webit.generator.core.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.dbaccess.model.TableRaw;
 
 /**
  *

@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core.dbaccess;
+package webit.generator.core.util.dbaccess;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import webit.generator.core.Config;
-import webit.generator.core.dbaccess.model.ColumnRaw;
-import webit.generator.core.dbaccess.model.ForeignKey;
-import webit.generator.core.dbaccess.model.TableRaw;
+import webit.generator.core.util.dbaccess.model.ColumnRaw;
+import webit.generator.core.util.dbaccess.model.ForeignKey;
+import webit.generator.core.util.dbaccess.model.TableRaw;
 import webit.generator.core.util.DBUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.StringUtil;

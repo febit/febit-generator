@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.core.dbaccess.model;
+package webit.generator.core.util.dbaccess.model;
 
 import java.util.ArrayList;
 import java.util.List;

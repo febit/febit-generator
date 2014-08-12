@@ -4,7 +4,7 @@ package webit.generator.core.components.impl;
 
 import webit.generator.core.Config;
 import webit.generator.core.components.TableNaming;
-import webit.generator.core.util.ClassNameUtil;
+import webit.generator.core.util.NamingUtil;
 import webit.generator.core.util.StringUtil;
 
 /**
@@ -29,12 +29,12 @@ public class DefaultTableNaming extends TableNaming{
         if (this.sqlNameToLower) {
             sqlName = sqlName.toLowerCase();
         }
-        return ClassNameUtil.modelEntityNamingStrategy(sqlName);
+        return NamingUtil.baseNamingStrategy(sqlName);
     }
 
     @Override
     public String modelSimpleType(String entity) {
-        return Config.getString("modelPrefix", "") + ClassNameUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
+        return Config.getString("modelPrefix", "") + NamingUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
     }
 
     @Override
@@ -44,6 +44,6 @@ public class DefaultTableNaming extends TableNaming{
 
     @Override
     public String remark(String remark) {
-        return ClassNameUtil.fixRemark(remark);
+        return NamingUtil.fixRemark(remark);
     }
 }

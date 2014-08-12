@@ -6,10 +6,10 @@ import java.util.Map;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.components.TableFactory;
-import webit.generator.core.dbaccess.model.ColumnRaw;
-import webit.generator.core.dbaccess.model.ForeignKey;
-import webit.generator.core.util.ClassNameUtil;
+import webit.generator.core.util.dbaccess.model.ColumnRaw;
+import webit.generator.core.util.dbaccess.model.ForeignKey;
 import webit.generator.core.util.Logger;
+import webit.generator.core.util.NamingUtil;
 import webit.generator.core.util.StringUtil;
 
 /**
@@ -112,7 +112,7 @@ public class Column implements Comparable<Column> {
                 isfk = (fk != null);
                 fkVarName = StringUtil.cutSuffix(name, "Id");
                 fkType = linkTable.getModelType();
-                fkSimpleType = ClassNameUtil.getClassSimpleName(fkType);
+                fkSimpleType = NamingUtil.getClassSimpleName(fkType);
                 fkGetterName = ColumnNaming.instance().getterName(fkVarName, fkType);
                 fkSetterName = ColumnNaming.instance().setterName(fkVarName, fkType);
                 fk.addLinkColumns(this);

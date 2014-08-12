@@ -9,7 +9,7 @@ var CONST;
 @import webit.generator.core.util.SQLUtil;
 @import webit.generator.core.model.Table;
 @import webit.generator.core.TemplateContext;
-@import webit.generator.core.util.ClassNameUtil;
+@import webit.generator.core.util.NamingUtil;
 @import webit.generator.core.Config;
 
 
@@ -26,13 +26,13 @@ CONST.in_arr = native Arrays.in(Object, Object[]);
 CONST.list_adds = native CollectionUtil.adds(List, Object[]);
 CONST.list_join = native StringUtil.join(Iterable, String);
 
-CONST.upperFirst = native ClassNameUtil.upperFirst(String);
-CONST.lowerFirst = native ClassNameUtil.lowerFirst(String);
-CONST.getClassPackageName = native ClassNameUtil.getClassPackageName(String);
-CONST.getClassSimpleName = native ClassNameUtil.getClassSimpleName(String);
+CONST.upperFirst = native NamingUtil.upperFirst(String);
+CONST.lowerFirst = native NamingUtil.lowerFirst(String);
+CONST.getClassPackageName = native NamingUtil.getClassPackageName(String);
+CONST.getClassSimpleName = native NamingUtil.getClassSimpleName(String);
 
-CONST.javaImportsCheck = native ClassNameUtil.javaImportsCheck(List, String);
-CONST.varNameToUpper = native ClassNameUtil.varNameToUpper(String);
+CONST.javaImportsCheck = native NamingUtil.javaImportsCheck(List, String);
+CONST.varNameToUpper = native NamingUtil.varNameToUpper(String);
 
 CONST.tm_getColumnByName = native Table.getColumnByName(String);
 CONST.tm_getFkColumnsByType = native Table.getFkColumnsByType(String);

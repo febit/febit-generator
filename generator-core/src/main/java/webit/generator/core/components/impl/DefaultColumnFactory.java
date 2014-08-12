@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
-import webit.generator.core.dbaccess.model.ColumnRaw;
+import webit.generator.core.util.dbaccess.model.ColumnRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.ColumnEnum;
 import webit.generator.core.model.Table;
 import webit.generator.core.typeconverter.TypeConverterUtil;
-import webit.generator.core.util.ClassNameUtil;
 import webit.generator.core.util.Logger;
+import webit.generator.core.util.NamingUtil;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 
@@ -69,7 +69,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         //
         final String varName = columnNaming.varName(raw.name);
         final String javaType = raw.getJavaType();
-        final String javaSimpleType = ClassNameUtil.getClassSimpleName(javaType);
+        final String javaSimpleType = NamingUtil.getClassSimpleName(javaType);
         final String getterName = columnNaming.getterName(varName, javaType);
         final String setterName = columnNaming.setterName(varName, javaType);
         final ArrayList linkColumns = new ArrayList<Column>();

@@ -11,7 +11,6 @@ import java.util.TreeSet;
 import webit.generator.core.model.DependLib;
 import webit.generator.core.model.Table;
 import webit.generator.core.util.Logger;
-import webit.generator.core.util.PropsUtil;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
 import webit.script.util.props.Props;
@@ -97,7 +96,7 @@ public class Config {
         if (loadedDefault == false) {
             loadedDefault = true;
             MODULES.clear();
-            props = PropsUtil.createFromClasspath(DEFAULT_PROPS);
+            props = ResourceUtil.createFromClasspath(DEFAULT_PROPS);
             resolveModules("core");
         }
     }
@@ -106,8 +105,8 @@ public class Config {
         loadDefault();
         if (filename != null) {
             try {
-                Props moduleProps = PropsUtil.createProps();
-                PropsUtil.loadFormFile(moduleProps, filename);
+                Props moduleProps = ResourceUtil.createProps();
+                ResourceUtil.loadFormFile(moduleProps, filename);
                 resolveModules(moduleProps.getValue(PROPS_MODULES));
                 props.merge(moduleProps);
             } catch (IOException ex) {
@@ -171,8 +170,8 @@ public class Config {
                 }
                 Props moduleProps;
                 if ((moduleProps = MODILES_PROPS.get(depend)) == null) {
-                    MODILES_PROPS.put(depend, moduleProps = PropsUtil.createProps());
-                    if (PropsUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
+                    MODILES_PROPS.put(depend, moduleProps = ResourceUtil.createProps());
+                    if (ResourceUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
                         throw buildException("Not found module: " + depend);
                     }
                     resolveModules(moduleProps.getValue(PROPS_MODULES));

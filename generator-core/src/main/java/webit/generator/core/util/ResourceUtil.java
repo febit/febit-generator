@@ -65,7 +65,7 @@ public class ResourceUtil {
     public static Map<String, String> loadResource(String filename) {
         final Props props;
         try {
-            PropsUtil.loadFormFile(props = PropsUtil.createProps(), getResPath(filename));
+            loadFormFile(props = createProps(), ResourceUtil.getResPath(filename));
         } catch (IOException ex) {
             //Logger.error("IOException of file: " + getResPath(filename), ex);
             //throw new RuntimeException(ex);
@@ -156,6 +156,31 @@ public class ResourceUtil {
 
     public static Object toValidValue(Object value) {
         return "".equals(value) ? null : value;
+    }
+
+    public static void loadFormFile(Props props, String fileName) throws IOException {
+        props.load(FileUtil.readChars(fileName));
+    }
+
+    public static Props createFromClasspath(String fileName) {
+        final Props props;
+        loadFormClasspath(props = createProps(), fileName);
+        return props;
+    }
+
+    public static Props createProps() {
+        Props props = new Props();
+        props.setSkipEmptyProps(false);
+        return props;
+    }
+
+    public static boolean loadFormClasspath(Props props, String fileName) {
+        final char[] data = ResourceUtil.readCharsFromClasspath(fileName);
+        if (data != null) {
+            props.load(data);
+            return true;
+        }
+        return false;
     }
 
 }

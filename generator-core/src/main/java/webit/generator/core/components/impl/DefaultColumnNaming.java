@@ -3,7 +3,7 @@ package webit.generator.core.components.impl;
 
 import webit.generator.core.Config;
 import webit.generator.core.components.ColumnNaming;
-import webit.generator.core.util.ClassNameUtil;
+import webit.generator.core.util.NamingUtil;
 
 /**
  *
@@ -27,21 +27,21 @@ public class DefaultColumnNaming extends ColumnNaming {
         if (this.sqlNameToLower) {
             sqlName = sqlName.toLowerCase();
         }
-        return ClassNameUtil.modelColumnNamingStrategy(sqlName);
+        return NamingUtil.baseNamingStrategy(sqlName);
     }
 
     @Override
     public String getterName(String varName, String javaType) {
-        return ClassNameUtil.getGetterMethodName(varName, javaType);
+        return NamingUtil.getGetterMethodName(varName, javaType);
     }
 
     @Override
     public String setterName(String varName, String javaType) {
-        return ClassNameUtil.getSetterMethodName(varName);
+        return NamingUtil.getSetterMethodName(varName);
     }
 
     @Override
     public String remark(String remark) {
-        return ClassNameUtil.fixRemark(remark);
+        return NamingUtil.fixRemark(remark);
     }
 }
