@@ -19,10 +19,11 @@ public class Main {
 
         Config.load(configFile);
         Logger.setLevel(Config.getString("logger.level"));
-
-        Logger.setLogFile(FileUtil.concat(workpath, FileUtil.getName(configFile) + "." + action + "." + System.currentTimeMillis() + ".log"));
+        
+        Date now = new Date();
+        Logger.setLogFile(FileUtil.concat(workpath, FileUtil.getName(configFile) + '.' + action + '.' + new SimpleDateFormat("yyyMMddhhmmss").format(now) + ".log"));
         Logger.info("===================");
-        Logger.info("TIME:" + new SimpleDateFormat("yyy-MM-dd hh:mm:ss").format(new Date()));
+        Logger.info("TIME:" + new SimpleDateFormat("yyy-MM-dd hh:mm:ss").format(now));
         Logger.info("");
 
         Config.setWorkPath(workpath);
@@ -31,8 +32,8 @@ public class Main {
         Logger.info("Common Templates amount: " + Config.getCommonTemplates().size());
         Logger.info("Table  Templates amount: " + Config.getTableTemplates().size());
     }
-
-    public static void generator(String fileFullPath) throws IOException {
+    
+    public static void generate(String fileFullPath) throws IOException {
         initGenerator(fileFullPath, "gen");
         new Generator().process();
     }
@@ -49,7 +50,7 @@ public class Main {
         String action = args[0];
         try {
             if ("gen".equals(action)) {
-                generator(args[1]);
+                generate(args[1]);
             } else if ("init".equals(action)) {
                 initConfig(args[1]);
             } else {
@@ -58,5 +59,10 @@ public class Main {
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
         }
+    }
+
+    @Deprecated
+    public static void generator(String fileFullPath) throws IOException {
+        generate(fileFullPath);
     }
 }

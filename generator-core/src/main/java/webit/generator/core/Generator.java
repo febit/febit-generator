@@ -123,11 +123,12 @@ public class Generator {
                     }
                 }
             }
-
+            //TODO: log table summary
             margeTemplates();
         } catch (Exception ex) {
             Logger.error(ex.getMessage(), ex);
         }
+        //TODO: log summary
     }
 
     protected void margeTemplates() throws IOException, ParseException, Exception {

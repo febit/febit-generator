@@ -181,6 +181,7 @@ public class ConfigInit {
         }
 
         afterProcess();
+        //TODO: log summary
     }
 
     public Map<String, Map<String, Map<String, Object>>> getTablesColumns() {
