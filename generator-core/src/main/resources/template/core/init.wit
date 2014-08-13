@@ -110,5 +110,50 @@ CONST.writeWebFile = function(cancel, filename, func_content){
     writeFile(FT_WEB, "Web file", cancel, filename, content);
 };
 
+/*
+var JDBC_TYPES = {
+    -7   : "BIT",
+    -6   : "TINYINT",
+    5    : "SMALLINT",
+    4    : "INTEGER",
+    -5   : "BIGINT",
+    6    : "FLOAT",
+    7    : "REAL",
+    8    : "DOUBLE",
+    2    : "NUMERIC",
+    3    : "DECIMAL",
+    1    : "CHAR",
+    12   : "VARCHAR",
+    -1   : "LONGVARCHAR",
+    91   : "DATE",
+    92   : "TIME",
+    93   : "TIMESTAMP",
+    -2   : "BINARY",
+    -3   : "VARBINARY",
+    -4   : "LONGVARBINARY",
+    0    : "NULL",
+    1111 : "OTHER",
+    2000 : "JAVA_OBJECT",
+    2001 : "DISTINCT",
+    2002 : "STRUCT",
+    2003 : "ARRAY",
+    2004 : "BLOB",
+    2005 : "CLOB",
+    2006 : "REF",
+    70   : "DATALINK",
+    16   : "BOOLEAN",
+    -8   : "ROWID",
+    -15  : "NCHAR",
+    -9   : "NVARCHAR",
+    -16  : "LONGNVARCHAR",
+    2011 : "NCLOB",
+    2009 : "SQLXML"
+};
+*/
+
+var _getJdbcTypeString = native webit.generator.core.util.DBUtil.getJdbcTypeString(int);
+CONST.getJdbcTypeString = function(column){
+    return _getJdbcTypeString(column.raw.type || -1);
+};
 
 %>
