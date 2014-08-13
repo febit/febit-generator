@@ -12,14 +12,17 @@ public class ShortConverter implements Converter<Short> {
 
     @Override
     public Short convert(String stringValue) {
-        if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
-            try {
-                return Short.valueOf(stringValue);
-            } catch (NumberFormatException e) {
-                Logger.error("默认值的格式错误：" + stringValue, e);
-                return null;
-            }
-        } else {
+        if (stringValue == null) {
+            return null;
+        }
+        stringValue = stringValue.trim();
+        if (stringValue.length() == 0) {
+            return null;
+        }
+        try {
+            return Short.valueOf(stringValue);
+        } catch (NumberFormatException e) {
+            Logger.error("Format error for [" + getClass().getName() + "]： " + stringValue);
             return null;
         }
     }

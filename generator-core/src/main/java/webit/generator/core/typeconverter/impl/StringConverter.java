@@ -13,5 +13,4 @@ public class StringConverter implements Converter<String> {
     public String convert(String stringValue) {
         return stringValue;
     }
-
 }

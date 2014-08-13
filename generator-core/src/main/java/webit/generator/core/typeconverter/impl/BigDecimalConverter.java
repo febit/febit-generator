@@ -12,14 +12,17 @@ public class BigDecimalConverter implements Converter<BigDecimal> {
 
     @Override
     public BigDecimal convert(String stringValue) {
-        if (stringValue != null && (stringValue = stringValue.trim()).length() != 0) {
-            try {
-                return new BigDecimal(stringValue);
-            } catch (Exception e) {
-                Logger.error("默认值的格式错误：" + stringValue, e);
-                return null;
-            }
-        } else {
+        if (stringValue == null) {
+            return null;
+        }
+        stringValue = stringValue.trim();
+        if (stringValue.length() == 0) {
+            return null;
+        }
+        try {
+            return new BigDecimal(stringValue);
+        } catch (NumberFormatException e) {
+            Logger.error("Format error for [" + getClass().getName() + "]： " + stringValue, e);
             return null;
         }
     }
