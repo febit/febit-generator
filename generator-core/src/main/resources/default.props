@@ -50,10 +50,10 @@ tableNaming  = webit.generator.core.components.impl.DefaultTableNaming
 columnNaming = webit.generator.core.components.impl.DefaultColumnNaming
 
 [columnNaming]
-sqlNameToLower = true
+toCamelCase = true
 
 [tableNaming]
-sqlNameToLower = true
+toCamelCase = true
 
 # 数据源的相关设置
 [db]

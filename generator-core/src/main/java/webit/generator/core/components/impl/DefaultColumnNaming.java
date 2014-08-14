@@ -11,12 +11,12 @@ import webit.generator.core.util.NamingUtil;
  */
 public class DefaultColumnNaming extends ColumnNaming {
 
-    protected boolean sqlNameToLower;
+    protected boolean toCamelCase;
 
     public DefaultColumnNaming() {
-        this.sqlNameToLower = Config.getBoolean("columnNaming.sqlNameToLower", true);
+        this.toCamelCase = Config.getBoolean("columnNaming.toCamelCase", true);
     }
-    
+
     @Override
     public String sqlName(String sqlNameRaw) {
         return sqlNameRaw;
@@ -24,20 +24,20 @@ public class DefaultColumnNaming extends ColumnNaming {
 
     @Override
     public String varName(String sqlName) {
-        if (this.sqlNameToLower) {
-            sqlName = sqlName.toLowerCase();
+        if (this.toCamelCase) {
+            return NamingUtil.toLowerCamelCase(sqlName);
         }
-        return NamingUtil.baseNamingStrategy(sqlName);
+        return sqlName;
     }
 
     @Override
     public String getterName(String varName, String javaType) {
-        return NamingUtil.getGetterMethodName(varName, javaType);
+        return NamingUtil.getGetterName(varName, javaType);
     }
 
     @Override
     public String setterName(String varName, String javaType) {
-        return NamingUtil.getSetterMethodName(varName);
+        return NamingUtil.getSetterName(varName);
     }
 
     @Override

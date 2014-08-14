@@ -18,18 +18,18 @@ public class DefaultTableNaming extends TableNaming{
         return StringUtil.cutPrefix(sqlNameRaw, Config.getString("db.tablePrefix", ""));
     }
 
-    protected boolean sqlNameToLower;
+    protected boolean toCamelCase;
 
     public DefaultTableNaming() {
-        this.sqlNameToLower = Config.getBoolean("tableNaming.sqlNameToLower", true);
+        this.toCamelCase = Config.getBoolean("tableNaming.toCamelCase", true);
     }
     
     @Override
     public String entity(String sqlName) {
-        if (this.sqlNameToLower) {
-            sqlName = sqlName.toLowerCase();
+        if (this.toCamelCase) {
+            return NamingUtil.toLowerCamelCase(sqlName);
         }
-        return NamingUtil.baseNamingStrategy(sqlName);
+        return sqlName;
     }
 
     @Override

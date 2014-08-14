@@ -39,7 +39,7 @@ public class ResourceUtil {
                 final String column;
                 final String property;
                 if (index2 < 0) {
-                    column = "$";
+                    column = Config.COLUMN_OF_TABLE_ATTRS;
                     property = key.substring(index + 1);
                 } else {
                     column = key.substring(index + 1, index2);

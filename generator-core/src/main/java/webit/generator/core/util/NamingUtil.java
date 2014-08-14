@@ -20,21 +20,34 @@ public class NamingUtil {
         return className;
     }
 
-    public static String getClassPackageName(String classFullName) {
-        final int index = classFullName.lastIndexOf('.');
+    public static String getClassPackageName(String className) {
+        final int index = className.lastIndexOf('.');
         if (index > 0) {
-            return classFullName.substring(0, index);
+            return className.substring(0, index);
         }
         return "";
     }
 
-    public static String baseNamingStrategy(String name) {
-        //XXX: 使用 StringBuilder
-        final String[] parts = StringUtil.splitc(StringUtil.cutPrefix(name, "_"), '_');
-        for (int i = 1, len = parts.length; i < len; i++) {
-            parts[i] = upperFirst(parts[i]);
+    public static String toLowerCamelCase(String name) {
+        char[] buffer = name.toCharArray();
+        int count = 0;
+        boolean lastUnderscore = false;
+        for (int i = 0; i < buffer.length; i++) {
+            char c = buffer[i];
+            if (c == '_') {
+                lastUnderscore = true;
+            } else {
+                c = (lastUnderscore && count != 0)
+                        ? CharUtil.toUpperAscii(c)
+                        : CharUtil.toLowerAscii(c);
+                buffer[count++] = c;
+                lastUnderscore = false;
+            }
         }
-        return lowerFirst(StringUtil.join(parts));
+        if (count != buffer.length) {
+            buffer = Arrays.subarray(buffer, 0, count);
+        }
+        return new String(buffer);
     }
 
     public static String upperFirst(String str) {
@@ -61,7 +74,7 @@ public class NamingUtil {
         }
     }
 
-    public static String getGetterMethodName(String field, String javaType) {
+    public static String getGetterName(String field, String javaType) {
         if (field.length() <= 1
                 || CharUtil.isLowercaseAlpha(field.charAt(1))) {
             field = upperFirst(field);
@@ -69,7 +82,7 @@ public class NamingUtil {
         return "get".concat(field);
     }
 
-    public static String getSetterMethodName(String field) {
+    public static String getSetterName(String field) {
         if (field.length() <= 1
                 || CharUtil.isLowercaseAlpha(field.charAt(1))) {
             field = upperFirst(field);

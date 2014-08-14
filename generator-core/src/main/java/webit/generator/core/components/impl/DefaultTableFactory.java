@@ -67,7 +67,7 @@ public class DefaultTableFactory extends TableFactory {
         tableSettings = Config.getTableSettings(entity);
         final Table table = new Table(entity, sqlName, remark, tableSettings, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
         {
-            //TODO: tableSettings.get("id")
+            //XXX: tableSettings.get("id")
             for (ColumnRaw columnRaw : tableRaw.getColumns()) {
                 Column cm = ColumnFactory.create(columnRaw, table);
                 if (cm == null) {

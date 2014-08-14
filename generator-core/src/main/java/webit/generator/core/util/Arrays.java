@@ -37,6 +37,12 @@ public class Arrays {
         return dest;
     }
 
+    public static char[] subarray(char[] src, int offset, int len) {
+        char[] dest = new char[len];
+        System.arraycopy(src, offset, dest, 0, len);
+        return dest;
+    }
+
     public static boolean in(Object src, Object[] arr) {
         return contains(arr, src);
     }
