@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import webit.generator.core.util.dbaccess.DatabaseAccesser;
-import webit.generator.core.util.dbaccess.model.TableRaw;
 import webit.generator.core.model.Table;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.ResourceUtil;
+import webit.generator.core.util.dbaccess.DatabaseAccesser;
+import webit.generator.core.util.dbaccess.model.TableRaw;
 
 /**
  *
@@ -28,8 +28,7 @@ public abstract class TableFactory {
         final List<Table> tableList;
         {
             final Map<String, Table> tableMaps = _tableMap = new HashMap<String, Table>();
-            for (Map.Entry<String, TableRaw> entry : DatabaseAccesser.getInstance().getAllTables().entrySet()) {
-                TableRaw raw = entry.getValue();
+            for (TableRaw raw : DatabaseAccesser.getInstance().getAllTables()) {
                 Table table = createTable(raw);
                 if (table != null) {
                     tableMaps.put(table.entity, table);

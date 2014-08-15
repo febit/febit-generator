@@ -6,11 +6,11 @@ import java.util.Map;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
 import webit.generator.core.components.TableFactory;
-import webit.generator.core.util.dbaccess.model.ColumnRaw;
-import webit.generator.core.util.dbaccess.model.ForeignKey;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.NamingUtil;
 import webit.generator.core.util.StringUtil;
+import webit.generator.core.util.dbaccess.model.ColumnRaw;
+import webit.generator.core.util.dbaccess.model.ForeignKey;
 
 /**
  *

@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import webit.generator.core.Config;
 import webit.generator.core.components.ColumnFactory;
 import webit.generator.core.components.ColumnNaming;
-import webit.generator.core.util.dbaccess.model.ColumnRaw;
 import webit.generator.core.model.Column;
 import webit.generator.core.model.ColumnEnum;
 import webit.generator.core.model.Table;
@@ -18,6 +17,7 @@ import webit.generator.core.util.Logger;
 import webit.generator.core.util.NamingUtil;
 import webit.generator.core.util.ResourceUtil;
 import webit.generator.core.util.StringUtil;
+import webit.generator.core.util.dbaccess.model.ColumnRaw;
 
 /**
  *

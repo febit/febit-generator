@@ -4,10 +4,11 @@ package webit.generator.core.util.dbaccess;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,79 +16,36 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import webit.generator.core.Config;
+import webit.generator.core.util.Logger;
+import webit.generator.core.util.StringUtil;
 import webit.generator.core.util.dbaccess.model.ColumnRaw;
 import webit.generator.core.util.dbaccess.model.ForeignKey;
 import webit.generator.core.util.dbaccess.model.TableRaw;
-import webit.generator.core.util.DBUtil;
-import webit.generator.core.util.Logger;
-import webit.generator.core.util.StringUtil;
 
 public class DatabaseAccesser {
 
-    private static final String PKTABLE_NAME = "PKTABLE_NAME";
-    private static final String PKCOLUMN_NAME = "PKCOLUMN_NAME";
-    private static final String FKTABLE_NAME = "FKTABLE_NAME";
-    private static final String FKCOLUMN_NAME = "FKCOLUMN_NAME";
-    private static final String KEY_SEQ = "KEY_SEQ";
-
+    private static DatabaseAccesser instance;
     private static Connection connection;
 
-    public static synchronized Connection getConnection() {
-        try {
-            if (connection == null || connection.isClosed()) {
-                final String driver = Config.getRequiredString("db.driver");
-                try {
-                    Class.forName(driver);
-                    connection = DriverManager.getConnection(Config.getRequiredString("db.url"), Config.getRequiredString("db.username"), Config.getString("db.password"));
-                    if (Logger.isDebugEnabled()) {
-                        Logger.debug("Initialised connection: " + connection.getClass().getName());
-                        Logger.debug("  Catalog: " + Config.getString("db.catalog"));
-                        Logger.debug("  Schema: " + Config.getString("db.schema"));
-                        Logger.debug("  ClientInfo: ");
-                        Properties clientInfo = connection.getClientInfo();
-                        if (clientInfo != null) {
-                            for (Map.Entry<Object, Object> entry : clientInfo.entrySet()) {
-                                Logger.debug("    " + entry.getKey() + '=' + entry.getValue());
-                            }
-                        }
-                    }
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Not found jdbc driver class: [" + driver + "]", e);
-                }
-            }
-            return connection;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static DatabaseAccesser instance;
     private TableCache tableCache;
     private ColumnCache columnCache;
 
     private Pattern includes;
     private Pattern excludes;
 
-    final String catalog;
-    final String schema;
-    final boolean skipUnreadableTable;
-
-    public synchronized static DatabaseAccesser getInstance() {
-        if (instance == null) {
-            instance = new DatabaseAccesser();
-        }
-        return instance;
-    }
+    private final boolean skipUnreadableTable;
+    private final String catalog;
+    private final String schema;
 
     private DatabaseAccesser() {
         this.skipUnreadableTable = Config.getBoolean("skipUnreadableTable", false);
-        this.schema = Config.getString("db.schema");
         this.catalog = Config.getString("db.catalog");
+        this.schema = Config.getString("db.schema");
         String includesString = Config.getString("includeTables");
+        String excludesString = Config.getString("excludeTables");
         if (StringUtil.notEmpty(includesString)) {
             this.includes = Pattern.compile(includesString);
         }
-        String excludesString = Config.getString("excludeTables");
         if (StringUtil.notEmpty(excludesString)) {
             this.excludes = Pattern.compile(excludesString);
         }
@@ -98,27 +56,24 @@ public class DatabaseAccesser {
                 && (excludes == null || !excludes.matcher(tableName).matches());
     }
 
-    public synchronized Map<String, TableRaw> getAllTables() {
-        if (this.tableCache != null) {
+    public Collection<TableRaw> getAllTables() {
+        TableCache myTableCache = this.tableCache;
+        if (myTableCache != null) {
             return tableCache.getTables();
         }
-        tableCache = new TableCache();
+        myTableCache = new TableCache();
         columnCache = new ColumnCache();
         try {
             final ResultSet rs;
-            final Connection conn = getConnection();
-            if (DBUtil.getDriverType().equals("mysql")) { //FIXED: allways REMARKS==null in mysql
-
-                PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
-                        + "NULL AS TABLE_SCHEM, TABLE_NAME, "
-                        + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
-                        + "TABLE_COMMENT AS REMARKS "
-                        + "FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?;");
-                ps.setString(1, conn.getCatalog());
-                rs = ps.executeQuery();
-            } else {
-                rs = getMetaData().getTables(catalog, schema, null, null);
-            }
+            //XXX: find a better way to fix mysql jdbc bug of some version: allways REMARKS == null
+//            PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
+//                    + "NULL AS TABLE_SCHEM, TABLE_NAME, "
+//                    + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
+//                    + "TABLE_COMMENT AS REMARKS "
+//                    + "FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?;");
+//            ps.setString(1, conn.getCatalog());
+//            rs = ps.executeQuery();
+            rs = getMetaData().getTables(catalog, schema, null, null);
             try {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
@@ -133,37 +88,32 @@ public class DatabaseAccesser {
                     if (Logger.isDebugEnabled()) {
                         Logger.debug("Found table " + tableName);
                     }
-                    tableCache.put(new TableRaw(tableName, remark, isView));
+                    myTableCache.put(new TableRaw(tableName, remark, isView));
                 }
             } finally {
                 rs.close();
             }
 
-            final Map<String, TableRaw> tables = tableCache.getTables();
-            for (Iterator<Map.Entry<String, TableRaw>> it = tables.entrySet().iterator(); it.hasNext();) {
-                TableRaw table = it.next().getValue();
+            for (Iterator<TableRaw> it = myTableCache.getTables().iterator(); it.hasNext();) {
+                TableRaw table = it.next();
                 boolean result = resolveTableColumns(table);
-                if (result == false) {
+                if (!result) {
                     if (skipUnreadableTable) {
-                        Logger.warn("SKIP TABLE, unreadable: " + table);
+                        Logger.warn("Skip table, unreadable: " + table);
                         it.remove();
                     } else {
-                        throw new RuntimeException("CAN't SKIP TABLE: " + table);
+                        throw new RuntimeException("Can't skip table: " + table);
                     }
                 }
             }
-            for (Map.Entry<String, TableRaw> entry : tables.entrySet()) {
-                resolveFKS(entry.getValue());
+            for (TableRaw table : myTableCache.getTables()) {
+                resolveFKS(table);
             }
-            return tables;
+            return myTableCache.getTables();
         } catch (SQLException e) {
             Logger.error("Unable to read table info.", e);
             throw new RuntimeException("Unable to read table info.", e);
         }
-    }
-
-    private DatabaseMetaData getMetaData() throws SQLException {
-        return getConnection().getMetaData();
     }
 
     private boolean resolveTableColumns(TableRaw table) throws SQLException {
@@ -269,11 +219,11 @@ public class DatabaseAccesser {
         final ResultSet fkeys = getMetaData().getImportedKeys(catalog, schema, table.name);
         try {
             while (fkeys.next()) {
-                String pktable = fkeys.getString(PKTABLE_NAME);
-                String pkcol = fkeys.getString(PKCOLUMN_NAME);
-                String fktable = fkeys.getString(FKTABLE_NAME);
-                String fkcol = fkeys.getString(FKCOLUMN_NAME);
-                Integer iseq = Integer.valueOf(fkeys.getString(KEY_SEQ));
+                String pktable = fkeys.getString("PKTABLE_NAME");
+                String pkcol = fkeys.getString("PKCOLUMN_NAME");
+                String fktable = fkeys.getString("FKTABLE_NAME");
+                String fkcol = fkeys.getString("FKCOLUMN_NAME");
+                Integer iseq = Integer.valueOf(fkeys.getString("KEY_SEQ"));
 
                 ColumnRaw pkColumn = columnCache.get(pktable, pkcol);
                 ColumnRaw fkColumn = columnCache.get(fktable, fkcol);
@@ -309,7 +259,219 @@ public class DatabaseAccesser {
         return primaryKeys;
     }
 
-    protected static class ColumnCache {
+    public static DatabaseAccesser getInstance() {
+        DatabaseAccesser accesser = instance;
+        if (accesser == null) {
+            accesser = instance = new DatabaseAccesser();
+        }
+        return accesser;
+    }
+
+    private static DatabaseMetaData getMetaData() throws SQLException {
+        return getConnection().getMetaData();
+    }
+
+    public static Connection getConnection() {
+        try {
+            Connection conn = connection;
+            if (conn == null || conn.isClosed()) {
+                final String driver = Config.getRequiredString("db.driver");
+                try {
+                    Class.forName(driver);
+
+                    String url = Config.getRequiredString("db.url");
+                    String user = Config.getString("db.username");
+                    String password = Config.getString("db.password");
+                    Properties info = new Properties();
+                    if (user != null) {
+                        info.put("user", user);
+                    }
+                    if (password != null) {
+                        info.put("password", password);
+                    }
+                    if ("oracle".equals(getJdbcType())) {
+                        info.put("remarksReporting", "true");
+                    }
+                    conn = DriverManager.getConnection(url, info);
+                    if (Logger.isDebugEnabled()) {
+                        Logger.debug("Initialized connection: " + conn.getClass().getName());
+                        Logger.debug("  Catalog: " + Config.getString("db.catalog"));
+                        Logger.debug("  Schema: " + Config.getString("db.schema"));
+                    }
+                    connection = conn;
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Not found jdbc driver class: [" + driver + "]", e);
+                }
+            }
+            return conn;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getJdbcType(String driver) {
+        if (driver.startsWith("jdbc:")) {
+            int endindex = driver.indexOf(':', 5);
+            if (endindex > 0) {
+                return driver.substring(5, endindex).toLowerCase();
+            }
+        }
+        return "unkown";
+    }
+
+    public static String getJdbcType() {
+        return getJdbcType(Config.getRequiredString("db.driver").toLowerCase());
+    }
+
+    public static String getJdbcTypeString(int type) {
+        switch (type) {
+            case Types.BIT:
+                return "BIT";
+            case Types.TINYINT:
+                return "TINYINT";
+            case Types.SMALLINT:
+                return "SMALLINT";
+            case Types.INTEGER:
+                return "INTEGER";
+            case Types.BIGINT:
+                return "BIGINT";
+            case Types.FLOAT:
+                return "FLOAT";
+            case Types.REAL:
+                return "REAL";
+            case Types.DOUBLE:
+                return "DOUBLE";
+            case Types.NUMERIC:
+                return "NUMERIC";
+            case Types.DECIMAL:
+                return "DECIMAL";
+            case Types.CHAR:
+                return "CHAR";
+            case Types.VARCHAR:
+                return "VARCHAR";
+            case Types.LONGVARCHAR:
+                return "LONGVARCHAR";
+            case Types.DATE:
+                return "DATE";
+            case Types.TIME:
+                return "TIME";
+            case Types.TIMESTAMP:
+                return "TIMESTAMP";
+            case Types.BINARY:
+                return "BINARY";
+            case Types.VARBINARY:
+                return "VARBINARY";
+            case Types.LONGVARBINARY:
+                return "LONGVARBINARY";
+            case Types.NULL:
+                return "NULL";
+            case Types.OTHER:
+                return "OTHER";
+            case Types.JAVA_OBJECT:
+                return "JAVA_OBJECT";
+            case Types.DISTINCT:
+                return "DISTINCT";
+            case Types.STRUCT:
+                return "STRUCT";
+            case Types.ARRAY:
+                return "ARRAY";
+            case Types.BLOB:
+                return "BLOB";
+            case Types.CLOB:
+                return "CLOB";
+            case Types.REF:
+                return "REF";
+            case Types.DATALINK:
+                return "DATALINK";
+            case Types.BOOLEAN:
+                return "BOOLEAN";
+            case Types.ROWID:
+                return "ROWID";
+            case Types.NCHAR:
+                return "NCHAR";
+            case Types.NVARCHAR:
+                return "NVARCHAR";
+            case Types.LONGNVARCHAR:
+                return "LONGNVARCHAR";
+            case Types.NCLOB:
+                return "NCLOB";
+            case Types.SQLXML:
+                return "SQLXML";
+            default:
+                return null;
+        }
+    }
+
+    public static String getJavaType(final int sqlType, final int size, final int decimalDigits) {
+        switch (sqlType) {
+            case Types.TINYINT:
+                if (size == 1) {
+                    return "java.lang.Boolean";
+                }
+                return "java.lang.Byte";
+            case Types.SMALLINT:
+                return "java.lang.Short";
+            case Types.INTEGER:
+                return "java.lang.Integer";
+            case Types.BIGINT:
+                return "java.lang.Long";
+            case Types.REAL:
+                return "java.lang.Float";
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return "java.lang.Double";
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+                if (decimalDigits == 0) {
+                    if (size == 1) {
+                        return "java.lang.Boolean";
+                    } else if (size <= 2) {
+                        return "java.lang.Byte";
+                    } else if (size <= 5) {
+                        return "java.lang.Short";
+                    } else if (size <= 11) {
+                        return "java.lang.Integer";
+                    } else if (size <= 20) {
+                        return "java.lang.Long";
+                    } else {
+                        return "java.math.BigInteger";
+                    }
+                }
+                return "java.math.BigDecimal";
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return "java.lang.Boolean";
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.NVARCHAR:
+                return "java.lang.String";
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                return "byte[]";
+            case Types.DATE:
+                return "java.sql.Date";
+            case Types.TIME:
+                return "java.sql.Time";
+            case Types.TIMESTAMP:
+                return "java.sql.Timestamp";
+            case Types.CLOB:
+                return "java.sql.Clob";
+            case Types.BLOB:
+                return "java.sql.Blob";
+            case Types.ARRAY:
+                return "java.sql.Array";
+            case Types.REF:
+                return "java.sql.Ref";
+            case Types.STRUCT:
+            case Types.JAVA_OBJECT:
+            default:
+                return "java.lang.Object";
+        }
+    }
+
+    private static class ColumnCache {
 
         private final Map<String, ColumnRaw> columns = new HashMap<String, ColumnRaw>();
 
@@ -344,7 +506,7 @@ public class DatabaseAccesser {
         }
     }
 
-    protected static class TableCache {
+    private static class TableCache {
 
         private final Map<String, TableRaw> tables = new HashMap<String, TableRaw>();
 
@@ -365,7 +527,11 @@ public class DatabaseAccesser {
             return tables.containsKey(getHashKey(tableName));
         }
 
-        public Map<String, TableRaw> getTables() {
+        public Collection<TableRaw> getTables() {
+            return tables.values();
+        }
+
+        public Map<String, TableRaw> getTableMap() {
             return tables;
         }
     }

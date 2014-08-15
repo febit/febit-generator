@@ -151,7 +151,7 @@ var JDBC_TYPES = {
 };
 */
 
-var _getJdbcTypeString = native webit.generator.core.util.DBUtil.getJdbcTypeString(int);
+var _getJdbcTypeString = native webit.generator.core.util.dbaccess.DatabaseAccesser.getJdbcTypeString(int);
 CONST.getJdbcTypeString = function(column){
     return _getJdbcTypeString(column.raw.type || -1);
 };

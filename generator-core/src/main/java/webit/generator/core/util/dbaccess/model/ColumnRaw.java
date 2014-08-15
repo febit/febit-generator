@@ -1,8 +1,9 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.core.util.dbaccess.model;
 
+import java.sql.Types;
 import webit.generator.core.Config;
-import webit.generator.core.util.DBUtil;
+import webit.generator.core.util.dbaccess.DatabaseAccesser;
 
 public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<ColumnRaw> {
 
@@ -43,7 +44,7 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
     }
 
     public String getJavaType() {
-        final String javaType = DBUtil.getJavaType(this.type, this.size, this.decimalDigits);
+        final String javaType = DatabaseAccesser.getJavaType(this.type, this.size, this.decimalDigits);
         return Config.getString("javaTypeMapping.".concat(javaType), javaType);
     }
 
@@ -52,7 +53,12 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
     }
 
     public boolean isTypeOfString() {
-        return DBUtil.isTypeOfString(type);
+        int sqlType = this.type;
+        return sqlType == Types.CHAR
+                || sqlType == Types.VARCHAR
+                || sqlType == Types.LONGVARCHAR
+                || sqlType == Types.NCHAR
+                || sqlType == Types.NVARCHAR;
     }
 
     public void setIsFk(boolean isFk) {
