@@ -44,10 +44,10 @@ engine.props += /engine.wit.props
 
 
 # Components
-tableFactory = webit.generator.core.components.impl.DefaultTableFactory
-columnFactory= webit.generator.core.components.impl.DefaultColumnFactory
-tableNaming  = webit.generator.core.components.impl.DefaultTableNaming
-columnNaming = webit.generator.core.components.impl.DefaultColumnNaming
+tableFactory = webit.generator.components.impl.DefaultTableFactory
+columnFactory= webit.generator.components.impl.DefaultColumnFactory
+tableNaming  = webit.generator.components.impl.DefaultTableNaming
+columnNaming = webit.generator.components.impl.DefaultColumnNaming
 
 [columnNaming]
 toCamelCase = true
@@ -85,14 +85,14 @@ java.lang.Byte=java.lang.Short
 
 # 类型转换， 一般用于转换默认值从字符串转换到目标格式
 [typeConverter]
-java.lang.Long=webit.generator.core.typeconverter.impl.LongConverter
-java.lang.Short=webit.generator.core.typeconverter.impl.ShortConverter
-java.lang.Integer=webit.generator.core.typeconverter.impl.IntegerConverter
-java.lang.Boolean=webit.generator.core.typeconverter.impl.BooleanConverter
-java.lang.Double=webit.generator.core.typeconverter.impl.DoubleConverter
-java.util.Date=webit.generator.core.typeconverter.impl.TimeMillisConverter
-java.math.BigInteger=webit.generator.core.typeconverter.impl.BigIntegerConverter
-java.math.BigDecimal=webit.generator.core.typeconverter.impl.BigDecimalConverter
+java.lang.Long=webit.generator.typeconverter.impl.LongConverter
+java.lang.Short=webit.generator.typeconverter.impl.ShortConverter
+java.lang.Integer=webit.generator.typeconverter.impl.IntegerConverter
+java.lang.Boolean=webit.generator.typeconverter.impl.BooleanConverter
+java.lang.Double=webit.generator.typeconverter.impl.DoubleConverter
+java.util.Date=webit.generator.typeconverter.impl.TimeMillisConverter
+java.math.BigInteger=webit.generator.typeconverter.impl.BigIntegerConverter
+java.math.BigDecimal=webit.generator.typeconverter.impl.BigDecimalConverter
 
 
 # 额外的参数， 这里的参数将自动设置成模版引擎的全局常量

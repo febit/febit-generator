@@ -3,14 +3,14 @@ var CONST;
 
 @import java.util.List;
 @import java.util.ArrayList;
-@import webit.generator.core.util.CollectionUtil;
-@import webit.generator.core.util.StringUtil;
-@import webit.generator.core.util.Arrays;
-@import webit.generator.core.util.SQLUtil;
-@import webit.generator.core.model.Table;
-@import webit.generator.core.TemplateContext;
-@import webit.generator.core.util.NamingUtil;
-@import webit.generator.core.Config;
+@import webit.generator.util.CollectionUtil;
+@import webit.generator.util.StringUtil;
+@import webit.generator.util.Arrays;
+@import webit.generator.util.SQLUtil;
+@import webit.generator.model.Table;
+@import webit.generator.TemplateContext;
+@import webit.generator.util.NamingUtil;
+@import webit.generator.Config;
 
 
 //Global Functions
@@ -151,7 +151,7 @@ var JDBC_TYPES = {
 };
 */
 
-var _getJdbcTypeString = native webit.generator.core.util.dbaccess.DatabaseAccesser.getJdbcTypeString(int);
+var _getJdbcTypeString = native webit.generator.util.dbaccess.DatabaseAccesser.getJdbcTypeString(int);
 CONST.getJdbcTypeString = function(column){
     return _getJdbcTypeString(column.raw.type || -1);
 };
