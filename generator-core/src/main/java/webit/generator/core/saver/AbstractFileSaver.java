@@ -6,10 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import webit.generator.core.util.ClassLoaderUtil;
 import webit.generator.core.util.FileUtil;
 import webit.generator.core.util.Logger;
 import webit.generator.core.util.StreamUtil;
-import webit.script.util.ClassLoaderUtil;
 
 /**
  *

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import webit.generator.core.Config;
 import webit.generator.core.typeconverter.impl.StringConverter;
+import webit.generator.core.util.ClassLoaderUtil;
 import webit.generator.core.util.Logger;
-import webit.script.util.ClassLoaderUtil;
 
 /**
  *
