@@ -20,22 +20,18 @@ import webit.script.exceptions.ParseException;
 import webit.script.global.GlobalManager;
 import webit.script.io.Out;
 import webit.script.io.impl.DiscardOut;
-import webit.script.util.SimpleBag;
-import webit.script.util.keyvalues.KeyValues;
-import webit.script.util.keyvalues.KeyValuesUtil;
+import webit.script.lang.Bag;
+import webit.script.lang.KeyValues;
+import webit.script.util.KeyValuesUtil;
 
 /**
  *
  * @author ZQQ
  */
 public class Generator {
-
-    public static final String RES_DEFAULT_AUTH = "default.actionauth";
-    public static final String RES_TABLE_AUTH = "tableAuth";
-    public static final String RES_TABLE_COLUMN = "tableColumn";
     
     private String outroot;
-    private SimpleBag constMap;
+    private Bag constMap;
     private Engine templateEngine;
     private List<Table> tableList;
     private List<Table> whiteTables;

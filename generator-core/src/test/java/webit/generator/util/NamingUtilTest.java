@@ -1,8 +1,7 @@
 // Copyright (c) 2013, Webit Team. All Rights Reserved.
 package webit.generator.util;
 
-import webit.generator.util.NamingUtil;
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 import org.junit.Test;
 
 /**
