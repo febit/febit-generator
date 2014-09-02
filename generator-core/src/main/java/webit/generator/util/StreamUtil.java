@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import webit.script.util.FastCharArrayWriter;
+import webit.script.util.CharArrayWriter;
 
 /**
  *
@@ -26,9 +26,9 @@ public class StreamUtil {
     }
 
     public static char[] readChars(InputStream in, String encoding) throws IOException {
-        FastCharArrayWriter fastCharArrayWriter = new FastCharArrayWriter();
+        CharArrayWriter fastCharArrayWriter = new CharArrayWriter();
         StreamUtil.copy(in, fastCharArrayWriter, encoding);
-        return fastCharArrayWriter.toCharArray();
+        return fastCharArrayWriter.toArray();
     }
 
     public static int copy(InputStream input, OutputStream output) throws IOException {

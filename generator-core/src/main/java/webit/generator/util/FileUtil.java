@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import webit.script.util.FastCharArrayWriter;
+import webit.script.util.CharArrayWriter;
 
 /**
  *
@@ -198,9 +198,9 @@ public class FileUtil {
         InputStream in = null;
         try {
             in = new FileInputStream(file);
-            FastCharArrayWriter fastCharArrayWriter = new FastCharArrayWriter((int) len);
+            CharArrayWriter fastCharArrayWriter = new CharArrayWriter((int) len);
             StreamUtil.copy(in, fastCharArrayWriter, encoding);
-            return fastCharArrayWriter.toCharArray();
+            return fastCharArrayWriter.toArray();
         } finally {
             StreamUtil.close(in);
         }

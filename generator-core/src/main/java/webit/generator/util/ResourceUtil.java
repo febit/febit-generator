@@ -14,7 +14,7 @@ import webit.generator.Config;
 import webit.generator.components.TableFactory;
 import webit.generator.model.Column;
 import webit.generator.model.Table;
-import webit.script.util.props.Props;
+import webit.script.util.Props;
 
 /**
  *
@@ -72,7 +72,7 @@ public class ResourceUtil {
             return null;
         }
         final Map<String, String> data;
-        props.extractProps(data = new HashMap<String, String>());
+        props.extractTo(data = new HashMap<String, String>());
         return data;
     }
 
@@ -163,15 +163,13 @@ public class ResourceUtil {
     }
 
     public static Props createFromClasspath(String fileName) {
-        final Props props;
-        loadFormClasspath(props = createProps(), fileName);
+        final Props props = createProps();
+        loadFormClasspath(props, fileName);
         return props;
     }
 
     public static Props createProps() {
-        Props props = new Props();
-        props.setSkipEmptyProps(false);
-        return props;
+        return new Props();
     }
 
     public static boolean loadFormClasspath(Props props, String fileName) {

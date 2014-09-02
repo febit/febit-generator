@@ -20,7 +20,6 @@ import webit.script.exceptions.ParseException;
 import webit.script.global.GlobalManager;
 import webit.script.io.Out;
 import webit.script.io.impl.DiscardOut;
-import webit.script.lang.Bag;
 import webit.script.lang.KeyValues;
 import webit.script.util.KeyValuesUtil;
 
@@ -29,9 +28,9 @@ import webit.script.util.KeyValuesUtil;
  * @author ZQQ
  */
 public class Generator {
-    
+
     private String outroot;
-    private Bag constMap;
+    private GlobalManager globalManager;
     private Engine templateEngine;
     private List<Table> tableList;
     private List<Table> whiteTables;
@@ -39,13 +38,9 @@ public class Generator {
     private Map<Object, FileSaver> fileSaverMap;
 
     private void initTemplateEngine() {
-        final Engine engine = Engine.createEngine(Config.getString("engine.props"));
-        final GlobalManager globalManager = engine.getGlobalManager();
-        
-        globalManager.commit();
-        
+        final Engine engine = Engine.create(Config.getString("engine.props"));
+        this.globalManager = engine.getGlobalManager();
         this.templateEngine = engine;
-        this.constMap = globalManager.getConstBag();
     }
 
     public void process() {
@@ -207,7 +202,7 @@ public class Generator {
 
             fileSavers.put(typeName, tmplFileSaver);
             fileSavers.put(i, tmplFileSaver);
-            constMap.set(typeName, i);
+            this.globalManager.setConst(typeName, i);
             ++i;
             Logger.info("Loaded FileType:" + typeName);
         }
@@ -219,19 +214,19 @@ public class Generator {
 
     protected void initRoot() throws IOException {
 
-        constMap.set("DEBUG", Config.getBoolean("debug"));
-        constMap.set("basePkg", Config.getRequiredString("basePkg"));
-        constMap.set("modelPkg", Config.getRequiredString("modelPkg"));
-        constMap.set("modelPrefix", Config.getString("modelPrefix", ""));
+        this.globalManager.setConst("DEBUG", Config.getBoolean("debug"));
+        this.globalManager.setConst("basePkg", Config.getRequiredString("basePkg"));
+        this.globalManager.setConst("modelPkg", Config.getRequiredString("modelPkg"));
+        this.globalManager.setConst("modelPrefix", Config.getString("modelPrefix", ""));
 
-        constMap.set("db", Config.getMap("db"));
+        this.globalManager.setConst("db", Config.getMap("db"));
 
-        constMap.set("depends", Config.getDepends());
-        constMap.set("testDepends", Config.getTestDepends());
-        constMap.set("providedDepends", Config.getProvidedDepends());
+        this.globalManager.setConst("depends", Config.getDepends());
+        this.globalManager.setConst("testDepends", Config.getTestDepends());
+        this.globalManager.setConst("providedDepends", Config.getProvidedDepends());
 
         for (Map.Entry<String, String> entry : Config.getMap("extra").entrySet()) {
-            constMap.set(entry.getKey(), entry.getValue());
+            this.globalManager.setConst(entry.getKey(), entry.getValue());
         }
 
         this.tableList = TableFactory.getTables();
@@ -242,7 +237,7 @@ public class Generator {
             }
         }
 
-        constMap.set("tables", this.tableList);
+        this.globalManager.setConst("tables", this.tableList);
     }
 
     public String getOutroot() {

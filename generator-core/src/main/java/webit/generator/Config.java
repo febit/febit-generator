@@ -13,7 +13,7 @@ import webit.generator.model.Table;
 import webit.generator.util.Logger;
 import webit.generator.util.ResourceUtil;
 import webit.generator.util.StringUtil;
-import webit.script.util.props.Props;
+import webit.script.util.Props;
 
 public class Config {
 
@@ -37,7 +37,7 @@ public class Config {
 
     private static void initalize() {
         configs.clear();
-        props.extractProps(configs);
+        props.extractTo(configs);
         //fileTypes
         {
             fileTypeMap.clear();
@@ -107,7 +107,7 @@ public class Config {
             try {
                 Props moduleProps = ResourceUtil.createProps();
                 ResourceUtil.loadFormFile(moduleProps, filename);
-                resolveModules(moduleProps.getValue(PROPS_MODULES));
+                resolveModules(moduleProps.get(PROPS_MODULES));
                 props.merge(moduleProps);
             } catch (IOException ex) {
                 throw buildException("Not found props file: " + filename);
@@ -174,7 +174,7 @@ public class Config {
                     if (ResourceUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
                         throw buildException("Not found module: " + depend);
                     }
-                    resolveModules(moduleProps.getValue(PROPS_MODULES));
+                    resolveModules(moduleProps.get(PROPS_MODULES));
                     if (MODULES.contains(depend)) {
                         continue;
                     }
