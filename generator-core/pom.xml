@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.github.zqq90.webit-script</groupId>
             <artifactId>webit-script</artifactId>
-            <version>1.5</version>
+            <version>1.5.1</version>
         </dependency>
         
         <!-- test -->
