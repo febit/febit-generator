@@ -4,6 +4,7 @@ package webit.generator.util.dbaccess;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -63,17 +64,17 @@ public class DatabaseAccesser {
         }
         myTableCache = new TableCache();
         columnCache = new ColumnCache();
+        final String jdbcType = getJdbcType();
         try {
             final ResultSet rs;
-            //XXX: find a better way to fix mysql jdbc bug of some version: allways REMARKS == null
-//            PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, "
-//                    + "NULL AS TABLE_SCHEM, TABLE_NAME, "
-//                    + "CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, "
-//                    + "TABLE_COMMENT AS REMARKS "
-//                    + "FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?;");
-//            ps.setString(1, conn.getCatalog());
-//            rs = ps.executeQuery();
-            rs = getMetaData().getTables(catalog, schema, null, null);
+            if ("mysql".equals(jdbcType)) {
+                Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement("SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, CASE WHEN TABLE_TYPE='BASE TABLE' THEN 'TABLE' WHEN TABLE_TYPE='TEMPORARY' THEN 'LOCAL_TEMPORARY' ELSE TABLE_TYPE END AS TABLE_TYPE, TABLE_COMMENT AS REMARKS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?;");
+                ps.setString(1, conn.getCatalog());
+                rs = ps.executeQuery();
+            } else {
+                rs = getMetaData().getTables(catalog, schema, null, null);
+            }
             try {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
