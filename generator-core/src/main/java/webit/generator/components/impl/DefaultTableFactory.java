@@ -53,7 +53,7 @@ public class DefaultTableFactory extends TableFactory {
 
         final TableNaming tableNaming = TableNaming.instance();
 
-        remark = tableNaming.remark(tableRaw.remarks);
+        remark = tableNaming.remark(tableRaw.remark);
         columns = new ArrayList<Column>();
         idColumns = new ArrayList<Column>();
         columnMap = new HashMap<String, Column>();

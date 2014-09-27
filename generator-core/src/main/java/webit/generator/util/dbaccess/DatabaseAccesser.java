@@ -81,12 +81,12 @@ public class DatabaseAccesser {
                     boolean isView = "VIEW".equalsIgnoreCase(rs.getString("TABLE_TYPE"));
                     if (!isTableInclude(tableName)) {
                         if (Logger.isDebugEnabled()) {
-                            Logger.debug("Skip table (by DatabaseAccesser): " + tableName);
+                            Logger.debug("Skip table (by DatabaseAccesser): " + tableName + (remark != null ? "  " + remark : ""));
                         }
                         continue;
                     }
                     if (Logger.isDebugEnabled()) {
-                        Logger.debug("Found table " + tableName);
+                        Logger.debug("Found table " + tableName + (remark != null ? "  " + remark : ""));
                     }
                     myTableCache.put(new TableRaw(tableName, remark, isView));
                 }
@@ -282,6 +282,8 @@ public class DatabaseAccesser {
                     String url = Config.getRequiredString("db.url");
                     String user = Config.getString("db.username");
                     String password = Config.getString("db.password");
+                    final String JdbcType = getJdbcType(driver);
+                    Logger.debug("Jdbc Type: " + JdbcType);
                     Properties info = new Properties();
                     if (user != null) {
                         info.put("user", user);
@@ -289,7 +291,7 @@ public class DatabaseAccesser {
                     if (password != null) {
                         info.put("password", password);
                     }
-                    if ("oracle".equals(getJdbcType())) {
+                    if ("oracle".equals(JdbcType)) {
                         info.put("remarksReporting", "true");
                     }
                     conn = DriverManager.getConnection(url, info);
@@ -320,7 +322,7 @@ public class DatabaseAccesser {
     }
 
     public static String getJdbcType() {
-        return getJdbcType(Config.getRequiredString("db.driver").toLowerCase());
+        return getJdbcType(Config.getRequiredString("db.driver"));
     }
 
     public static String getJdbcTypeString(int type) {

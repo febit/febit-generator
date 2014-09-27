@@ -7,15 +7,15 @@ import java.util.List;
 public class TableRaw implements Comparable<TableRaw>, java.io.Serializable, Cloneable {
 
     public final String name;
-    public final String remarks;
+    public final String remark;
     public final boolean isView;
     private final List<ColumnRaw> columns = new ArrayList<ColumnRaw>();
     private final List<ForeignKey> importedKeys = new ArrayList<ForeignKey>();
     private final List<ForeignKey> exportedKeys = new ArrayList<ForeignKey>();
 
-    public TableRaw(String name, String remarks, boolean isView) {
+    public TableRaw(String name, String remark, boolean isView) {
         this.name = name;
-        this.remarks = remarks;
+        this.remark = remark;
         this.isView = isView;
     }
 
