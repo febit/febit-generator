@@ -282,7 +282,7 @@ public class DatabaseAccesser {
                     String url = Config.getRequiredString("db.url");
                     String user = Config.getString("db.username");
                     String password = Config.getString("db.password");
-                    final String JdbcType = getJdbcType(driver);
+                    final String JdbcType = getJdbcType(url);
                     Logger.debug("Jdbc Type: " + JdbcType);
                     Properties info = new Properties();
                     if (user != null) {
@@ -311,18 +311,18 @@ public class DatabaseAccesser {
         }
     }
 
-    public static String getJdbcType(String driver) {
-        if (driver.startsWith("jdbc:")) {
-            int endindex = driver.indexOf(':', 5);
+    public static String getJdbcType(String url) {
+        if (url.startsWith("jdbc:")) {
+            int endindex = url.indexOf(':', 5);
             if (endindex > 0) {
-                return driver.substring(5, endindex).toLowerCase();
+                return url.substring(5, endindex).toLowerCase();
             }
         }
         return "unkown";
     }
 
     public static String getJdbcType() {
-        return getJdbcType(Config.getRequiredString("db.driver"));
+        return getJdbcType(Config.getRequiredString("db.url"));
     }
 
     public static String getJdbcTypeString(int type) {
