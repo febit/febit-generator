@@ -19,11 +19,11 @@ public class Main {
 
         Config.load(configFile);
         Logger.setLevel(Config.getString("logger.level"));
-        
+
         Date now = new Date();
-        Logger.setLogFile(FileUtil.concat(workpath, FileUtil.getName(configFile) + '.' + action + '.' + new SimpleDateFormat("yyyMMddhhmmss").format(now) + ".log"));
+        Logger.setLogFile(FileUtil.concat(workpath, FileUtil.getName(configFile) + '.' + action + '.' + new SimpleDateFormat("yyyyMMddhhmmss").format(now) + ".log"));
         Logger.info("===================");
-        Logger.info("TIME:" + new SimpleDateFormat("yyy-MM-dd hh:mm:ss").format(now));
+        Logger.info("TIME:" + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(now));
         Logger.info("");
 
         Config.setWorkPath(workpath);
