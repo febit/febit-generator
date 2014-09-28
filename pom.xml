@@ -1,18 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
     <groupId>com.github.zqq90.generator</groupId>
     <artifactId>parent</artifactId>
-    <name>Webit Generator</name>
     <packaging>pom</packaging>
-    <version>1.2</version>
+    <version>1.2-SNAPSHOT</version>
+
+    <name>Webit Generator</name>
+    <description>A Code Generator, used webit-script.</description>
+
+    <url>https://github.com/zqq90/webit-generator</url>
+
+    <modules>
+        <module>generator-core</module>
+        <!--<module>distribution</module>-->
+    </modules>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
-    <modules>
-        <module>generator-core</module>
-        <module>distribution</module>
-    </modules>
+
+    <scm>
+        <url>https://zqq90.github.com/webit-generator</url>
+        <connection>scm:git:https://github.com/zqq90/webit-generator.git</connection>
+        <developerConnection>scm:git:git@github.com:zqq90/webit-generator.git</developerConnection>
+    </scm>
+    <organization>
+        <name>Webit</name>
+        <url>https://github.com/zqq90</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>The New BSD License</name>
+            <url>https://github.com/zqq90/webit-generator/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>zqq</id>
+            <name>Zhu Qingqing</name>
+            <email>zqq_90@163.com</email>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/zqq90/webit-generator/issues</url>
+    </issueManagement>
 </project>
