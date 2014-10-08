@@ -239,8 +239,18 @@ public class DatabaseAccesser {
                 ForeignKey fk = new ForeignKey(pkColumn, fkColumn, iseq);
                 fkColumn.setIsFk(true);
                 fkColumn.setHasOne(fk);
-                tableCache.get(pktable).addExportedKeys(fk);
-                tableCache.get(fktable).addImportedKeys(fk);
+                TableRaw pktableRaw = tableCache.get(pktable);
+                if (pktableRaw == null) {
+                    Logger.error("Foreign pk table not found: " + pktable + ", for " + fktable + '.' + fkcol);
+                    continue;
+                }
+                TableRaw fktableRaw = tableCache.get(fktable);
+                if (fktableRaw == null) {
+                    Logger.error("Foreign fk table not found: " + fktable + ", for " + fktable + '.' + fkcol);
+                    continue;
+                }
+                pktableRaw.addExportedKeys(fk);
+                fktableRaw.addImportedKeys(fk);
             }
         } finally {
             fkeys.close();
