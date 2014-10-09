@@ -9,7 +9,7 @@ import webit.generator.model.Table;
  *
  * @author zqq90
  */
-public class GeneratorProcesserAdapter implements GeneratorProcesser {
+public abstract class GeneratorProcesserAdapter implements GeneratorProcesser {
 
     protected Generator generator;
 
