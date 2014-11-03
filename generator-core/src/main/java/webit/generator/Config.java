@@ -164,7 +164,7 @@ public class Config {
 
     private static void resolveModules(final String names) {
         if (names != null) {
-            for (String depend : StringUtil.toArrayWithoutComment(names)) {
+            for (String depend : StringUtil.toArray(names)) {
                 if (MODULES.contains(depend)) {
                     continue;
                 }
@@ -270,7 +270,7 @@ public class Config {
     }
 
     public static String[] getArrayWithoutComment(String key) {
-        return StringUtil.toArrayWithoutComment(configs.get(key));
+        return StringUtil.toArray(configs.get(key));
     }
 
     public static Map<String, String> getMap(final String key) {

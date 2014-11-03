@@ -1,6 +1,8 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.model;
 
+import webit.generator.util.StringUtil;
+
 /**
  *
  * @author zqq90
@@ -18,7 +20,7 @@ public class ColumnEnum {
     }
 
     public static ColumnEnum valueOf(String string) {
-        final String[] arr = webit.generator.util.StringUtil.splitc(string, '|');
+        final String[] arr = StringUtil.toArray(string, '|');
         Short id;
         String name = "UNKOWN";
         String remark = "unkown";

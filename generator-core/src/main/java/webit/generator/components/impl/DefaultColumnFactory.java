@@ -126,7 +126,7 @@ public class DefaultColumnFactory extends ColumnFactory {
                     && remark.length() != 0
                     && (end = remark.lastIndexOf(')')) >= 0
                     && (start = remark.lastIndexOf("E(", end)) >= 0) {
-                final String[] emumStr = StringUtil.splitc(remark.substring(start + 2, end), ',');
+                final String[] emumStr = StringUtil.toArray(remark.substring(start + 2, end), ',');
                 enums = new ArrayList<ColumnEnum>();
                 enumMap = new HashMap();
                 for (String emumRaw : emumStr) {

@@ -10,8 +10,8 @@ import webit.generator.util.StringUtil;
 public class DependLib implements Comparable<DependLib> {
 
     public static final String JAR = "jar";
-    private transient int hash = 0;
-    //
+    private transient int hash;
+
     public final String group;
     public final String artifact;
     public final String version;
@@ -83,20 +83,17 @@ public class DependLib implements Comparable<DependLib> {
                 String[] ver2 = StringUtil.splitc(dep.version, ".-");
                 for (int i = 0; i < ver1.length && i < ver2.length; i++) {
                     try {
-
                         int v1 = Integer.parseInt(ver1[i]);
                         int v2 = Integer.parseInt(ver2[i]);
                         if (v1 == v2) {
                             continue;
-                        } else {
-                            return v1 - v2;
                         }
+                        return v1 - v2;
                     } catch (Exception e) {
                         if (ver1[i].equals(ver2[i])) {
                             continue;
-                        } else {
-                            return ver1[i].compareTo(ver2[i]);
                         }
+                        return ver1[i].compareTo(ver2[i]);
                     }
                 }
                 //same at pre
@@ -113,7 +110,7 @@ public class DependLib implements Comparable<DependLib> {
         if (string == null) {
             return null;
         }
-        String[] arr = StringUtil.splitc(string, ':');
+        String[] arr = StringUtil.toArray(string, ':');
 
         String group;
         String artifact = "";
@@ -130,7 +127,7 @@ public class DependLib implements Comparable<DependLib> {
                 version = arr[3].trim();
             }
         }
-        if(version != null && version.length() == 0){
+        if (version != null && version.length() == 0) {
             version = null;
         }
         return new DependLib(group, artifact, version, type);
@@ -144,11 +141,6 @@ public class DependLib implements Comparable<DependLib> {
         if (!artifact.equals(dep.artifact)) {
             return artifact.compareTo(dep.artifact);
         }
-        int comOfVer = compareVersion(dep);
-        if (comOfVer != 0) {
-            return comOfVer;
-        } else {
-            return 0;
-        }
+        return compareVersion(dep);
     }
 }

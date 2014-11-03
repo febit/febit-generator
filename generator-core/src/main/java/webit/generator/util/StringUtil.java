@@ -1,167 +1,90 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
 package webit.generator.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author zqq90
  */
 public class StringUtil {
 
-    private final static char[] DELIMITERS = ",\n\r".toCharArray();
-
-    public static String[] toTrimedArray(String string) {
-        if (string != null) {
-            final String[] array;
-            trimAll(array = splitc(string, DELIMITERS));
-            return array;
-        }
-        return null;
-    }
-
-    public static String[] toArray(String src) {
-        if (src == null) {
-            return Arrays.EMPTY_STRINGS;
-        }
-        final String[] array = splitc(src, DELIMITERS);
-        int count = 0;
-        for (int i = 0; i < array.length; i++) {
-            String item = array[i].trim();
-            if (item.length() == 0) {
-                continue;
-            }
-            array[count++] = item;
-        }
-        if (count == 0) {
-            return Arrays.EMPTY_STRINGS;
-        }
-        if (count != array.length) {
-            return Arrays.subarray(array, 0, count);
-        }
-        return array;
-    }
-    public static String[] toArrayWithoutComment(String src) {
-        if (src == null) {
-            return Arrays.EMPTY_STRINGS;
-        }
-        final String[] array = splitc(src, DELIMITERS);
-        int count = 0;
-        for (int i = 0; i < array.length; i++) {
-            String item = array[i].trim();
-            if (item.length() == 0) {
-                continue;
-            }
-            if (item.charAt(0) == '#') {
-                continue;
-            }
-            array[count++] = item;
-        }
-        if (count == 0) {
-            return Arrays.EMPTY_STRINGS;
-        }
-        if (count != array.length) {
-            return Arrays.subarray(array, 0, count);
-        }
-        return array;
-    }
-
-    public static String replace(String s, String sub, String with) {
-        int c = 0;
-        int i = s.indexOf(sub, c);
-        if (i == -1) {
-            return s;
-        }
-        int length = s.length();
-        StringBuilder sb = new StringBuilder(length + with.length());
-        do {
-            sb.append(s.substring(c, i));
-            sb.append(with);
-            c = i + sub.length();
-        } while ((i = s.indexOf(sub, c)) != -1);
-        if (c < length) {
-            sb.append(s.substring(c, length));
-        }
-        return sb.toString();
-    }
-
-    public static String cutPrefix(String string, String prefix) {
-        if (string.startsWith(prefix)) {
-            string = string.substring(prefix.length());
-        }
-        return string;
-    }
-
-    public static String cutSuffix(String string, String suffix) {
-        if (string.endsWith(suffix)) {
-            string = string.substring(0, string.length() - suffix.length());
-        }
-        return string;
-    }
-
+    public static final String[] EMPTY_ARRAY = webit.script.util.StringUtil.EMPTY_ARRAY;
     public static final String EMPTY = "";
 
-    public static void trimAll(String[] strings) {
-        for (int i = 0; i < strings.length; i++) {
-            String string = strings[i];
-            if (string != null) {
-                strings[i] = string.trim();
-            }
-        }
+    public static String[] toArray(final String src) {
+        return toArray(src, ',');
     }
 
-    public static String[] splitc(String src, char delimiter) {
-        if (src.length() == 0) {
-            return new String[]{EMPTY};
+    public static String[] toArray(final String src, final char split) {
+        if (src == null || src.length() == 0) {
+            return EMPTY_ARRAY;
         }
-        char[] srcc = src.toCharArray();
 
-        int maxparts = srcc.length + 1;
-        int[] start = new int[maxparts];
-        int[] end = new int[maxparts];
+        final char[] srcc = src.toCharArray();
+        final int len = srcc.length;
 
-        int count = 0;
+        // list max size = (size + 1) / 2
+        List<String> list = new ArrayList<String>(
+                len > 1024 ? 128
+                        : len > 64 ? 32
+                                : (len + 1) >> 1);
 
-        start[0] = 0;
-        int s = 0, e;
-        if (srcc[0] == delimiter) {	// string starts with delimiter
-            end[0] = 0;
-            count++;
-            s = CharUtil.findFirstDiff(srcc, 1, delimiter);
-            if (s == -1) {							// nothing after delimiters
-                return new String[]{"", ""};
+        int i = 0;
+        while (i < len) {
+            //skip empty & splits
+            while (i < len) {
+                char c = srcc[i];
+                if (c != split
+                        && c != '\n'
+                        && c != '\r'
+                        && c != ' '
+                        && c != '\t') {
+                    break;
+                }
+                i++;
             }
-            start[1] = s;							// new start
-        }
-        while (true) {
-            // find new end
-            e = CharUtil.findFirstEqual(srcc, s, delimiter);
-            if (e == -1) {
-                end[count] = srcc.length;
+            //check if end
+            if (i == len) {
                 break;
             }
-            end[count] = e;
+            final int start = i;
 
-            // find new start
-            count++;
-            s = CharUtil.findFirstDiff(srcc, e, delimiter);
-            if (s == -1) {
-                start[count] = end[count] = srcc.length;
+            //find end
+            while (i < len) {
+                char c = srcc[i];
+                if (c == split
+                        || c == '\n'
+                        || c == '\r') {
+                    break;
+                }
+                i++;
+            }
+            int end = i;
+            //trim back end
+            for (;;) {
+                char c = srcc[end - 1];
+                if (c == ' '
+                        || c == '\t') {
+                    end--;
+                    continue;
+                }
                 break;
             }
-            start[count] = s;
+            list.add(new String(srcc, start, end - start));
         }
-        count++;
-        String[] result = new String[count];
-        for (int i = 0; i < count; i++) {
-            result[i] = src.substring(start[i], end[i]);
+        if (list.isEmpty()) {
+            return EMPTY_ARRAY;
         }
-        return result;
+        return list.toArray(new String[list.size()]);
     }
 
-    public static String[] splitc(String src, String delimiters) {
+    public static String[] splitc(final String src, final String delimiters) {
         return splitc(src, delimiters.toCharArray());
     }
 
-    public static String[] splitc(String src, char[] delimiters) {
+    public static String[] splitc(final String src, final char[] delimiters) {
         if ((delimiters.length == 0) || (src.length() == 0)) {
             return new String[]{src};
         }
@@ -210,8 +133,41 @@ public class StringUtil {
         return result;
     }
 
+    public static String replace(String s, String sub, String with) {
+        int c = 0;
+        int i = s.indexOf(sub, c);
+        if (i == -1) {
+            return s;
+        }
+        int length = s.length();
+        StringBuilder sb = new StringBuilder(length + with.length());
+        do {
+            sb.append(s.substring(c, i));
+            sb.append(with);
+            c = i + sub.length();
+        } while ((i = s.indexOf(sub, c)) != -1);
+        if (c < length) {
+            sb.append(s.substring(c, length));
+        }
+        return sb.toString();
+    }
+
+    public static String cutPrefix(String string, String prefix) {
+        if (string.startsWith(prefix)) {
+            string = string.substring(prefix.length());
+        }
+        return string;
+    }
+
+    public static String cutSuffix(String string, String suffix) {
+        if (string.endsWith(suffix)) {
+            string = string.substring(0, string.length() - suffix.length());
+        }
+        return string;
+    }
+
     public static String join(String... parts) {
-        StringBuilder sb = new StringBuilder(parts.length);
+        final StringBuilder sb = new StringBuilder(parts.length * 16);
         for (String part : parts) {
             sb.append(part);
         }
@@ -222,7 +178,7 @@ public class StringUtil {
         if (elements == null) {
             return EMPTY;
         }
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (Object o : elements) {
             if (sb.length() != 0
                     && separator != null) {
