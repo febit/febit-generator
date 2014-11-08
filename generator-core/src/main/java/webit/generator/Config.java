@@ -274,7 +274,7 @@ public class Config {
     }
 
     public static Map<String, String> getMap(final String key) {
-        Map<String, String> result = new HashMap<String, String>();
+        final Map<String, String> result = new HashMap<String, String>();
         final String prefix = key.concat(".");
         final int index = key.length() + 1;
         for (Map.Entry<String, String> entry : configs.entrySet()) {
