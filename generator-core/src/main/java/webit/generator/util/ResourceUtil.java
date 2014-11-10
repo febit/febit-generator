@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -76,8 +78,15 @@ public class ResourceUtil {
         return data;
     }
 
+    public static void backupResourceIfExists(final File file) {
+        if (file.exists()) {
+            file.renameTo(new File(file.getPath() + '.' + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".bak"));
+        }
+    }
+
     public static void saveTableColumns(final Map<String, Map<String, Map<String, Object>>> tableColumnsMap) {
         final File file = new File(getResPath(COLUMNS_PROPS));
+        backupResourceIfExists(file);
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), "UTF-8"));
