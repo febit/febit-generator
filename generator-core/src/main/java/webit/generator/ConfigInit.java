@@ -99,10 +99,14 @@ public class ConfigInit {
             Arrays.each(tables, handler);
         } else {
             Arrays.each(tables, new Arrays.Handler<Table>() {
+                private int count;
 
                 @Override
                 public boolean each(int index, Table value) {
-                    return handler.each(index, value);
+                    if (value.isBlackEntity) {
+                        return true;
+                    }
+                    return handler.each(count++, value);
                 }
             });
         }
