@@ -164,7 +164,7 @@ public class Config {
 
     private static void resolveModules(final String names) {
         if (names != null) {
-            for (String depend : StringUtil.toArray(names)) {
+            for (String depend : StringUtil.toArrayWithoutCommit(names)) {
                 if (MODULES.contains(depend)) {
                     continue;
                 }
