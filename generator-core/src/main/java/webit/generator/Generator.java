@@ -106,6 +106,9 @@ public class Generator {
                     for (String templateName : initTemplates) {
                         if (templateName != null
                                 && (templateName = templateName.trim()).length() != 0) {
+                            if (Logger.isDebugEnabled()) {
+                                Logger.debug("Run init: " + templateName);
+                            }
                             this.templateEngine.getTemplate(templateName)
                                     .merge(params, out);
                             //Commit Global
