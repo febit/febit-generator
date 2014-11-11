@@ -93,7 +93,7 @@ public class Config {
     }
 
     private static void loadDefault() {
-        if (loadedDefault == false) {
+        if (!loadedDefault) {
             loadedDefault = true;
             MODULES.clear();
             props = ResourceUtil.createFromClasspath(DEFAULT_PROPS);
@@ -171,7 +171,7 @@ public class Config {
                 Props moduleProps;
                 if ((moduleProps = MODILES_PROPS.get(depend)) == null) {
                     MODILES_PROPS.put(depend, moduleProps = ResourceUtil.createProps());
-                    if (ResourceUtil.loadFormClasspath(moduleProps, depend + ".props") == false) {
+                    if (!ResourceUtil.loadFormClasspath(moduleProps, depend + ".props")) {
                         throw buildException("Not found module: " + depend);
                     }
                     resolveModules(moduleProps.get(PROPS_MODULES));

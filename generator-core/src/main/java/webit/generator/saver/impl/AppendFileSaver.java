@@ -27,7 +27,7 @@ public class AppendFileSaver extends AbstractAppendFileSaver {
     @Override
     protected String getFilePath(FileEntry fileEntry) {
         final String realpath = FileUtil.concat(outroot, fileEntry.fileName);
-        if (clearedFiles.contains(realpath) == false) {
+        if (!clearedFiles.contains(realpath)) {
             clearedFiles.add(realpath);
             try {
                 FileUtil.deleteFile(realpath);

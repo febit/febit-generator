@@ -125,7 +125,7 @@ public class Table implements Comparable<Table> {
      */
     public List<Table> getExtTables() {
         final Column idColumn = getIdColumn();
-        if (idColumn == null || idColumn.getIsLinkKey() == false) {
+        if (idColumn == null || !idColumn.getIsLinkKey()) {
             return null;
         }
 
@@ -140,7 +140,7 @@ public class Table implements Comparable<Table> {
 
     public List<Table> getLinkedTables() {
         final Column idColumn = getIdColumn();
-        if (idColumn == null || idColumn.getIsLinkKey() == false) {
+        if (idColumn == null || !idColumn.getIsLinkKey()) {
             return null;
         }
 

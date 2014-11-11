@@ -15,7 +15,7 @@ public class Maps {
 
     public static <K, V> boolean each(Map<K, V> map, Handler<K, V> handler) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
-            if (handler.each(entry.getKey(), entry.getValue()) == false) {
+            if (!handler.each(entry.getKey(), entry.getValue())) {
                 return false;
             }
         }

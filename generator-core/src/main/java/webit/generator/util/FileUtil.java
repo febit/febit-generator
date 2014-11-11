@@ -128,13 +128,13 @@ public class FileUtil {
     }
 
     public static void deleteFile(File dest) throws IOException {
-        if (dest.exists() == false) {
+        if (!dest.exists()) {
             throw new FileNotFoundException(MSG_NOT_FOUND + dest);
         }
-        if (dest.isFile() == false) {
+        if (!dest.isFile()) {
             throw new IOException(MSG_NOT_A_FILE + dest);
         }
-        if (dest.delete() == false) {
+        if (!dest.delete()) {
             throw new IOException(MSG_UNABLE_TO_DELETE + dest);
         }
     }
@@ -164,14 +164,14 @@ public class FileUtil {
     /**
      * Creates all folders at once.
      */
-    public static void mkdirs(File dirs) throws IOException {
+    public static void mkdirs(final File dirs) throws IOException {
         if (dirs.exists()) {
-            if (dirs.isDirectory() == false) {
+            if (!dirs.isDirectory()) {
                 throw new IOException(MSG_NOT_A_DIRECTORY + dirs);
             }
             return;
         }
-        if (dirs.mkdirs() == false) {
+        if (!dirs.mkdirs()) {
             throw new IOException(MSG_CANT_CREATE + dirs);
         }
     }
@@ -185,10 +185,10 @@ public class FileUtil {
     }
 
     public static char[] readChars(File file, String encoding) throws IOException {
-        if (file.exists() == false) {
+        if (!file.exists()) {
             throw new FileNotFoundException(file.getAbsolutePath());
         }
-        if (file.isFile() == false) {
+        if (!file.isFile()) {
             throw new IOException(file.getAbsolutePath());
         }
         long len = (int) file.length();

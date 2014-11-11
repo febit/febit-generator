@@ -54,7 +54,7 @@ public class NamingUtil {
         if (str != null
                 && str.length() != 0
                 && CharUtil.isLowercaseAlpha(str.charAt(0))) {
-            char[] chars = str.toCharArray();
+            final char[] chars = str.toCharArray();
             chars[0] = CharUtil.toUpperAscii(chars[0]);
             return new String(chars);
         } else {
@@ -66,7 +66,7 @@ public class NamingUtil {
         if (str != null
                 && str.length() != 0
                 && CharUtil.isUppercaseAlpha(str.charAt(0))) {
-            char[] chars = str.toCharArray();
+            final char[] chars = str.toCharArray();
             chars[0] = CharUtil.toLowerAscii(chars[0]);
             return new String(chars);
         } else {

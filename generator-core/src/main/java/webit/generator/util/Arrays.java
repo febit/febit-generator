@@ -55,7 +55,7 @@ public class Arrays {
     public static <V> boolean each(Collection<V> collection, Handler<V> handler) {
         int index = 0;
         for (V item : collection) {
-            if (handler.each(index++, item) == false) {
+            if (!handler.each(index++, item)) {
                 return false;
             }
         }

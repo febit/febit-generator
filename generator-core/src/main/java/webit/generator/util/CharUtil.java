@@ -16,27 +16,9 @@ public class CharUtil {
         return false;
     }
 
-    public static int findFirstDiff(char[] source, int index, char match) {
-        for (int i = index; i < source.length; i++) {
-            if (source[i] != match) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     public static int findFirstDiff(char[] source, int index, char[] match) {
         for (int i = index; i < source.length; i++) {
-            if (equalsOne(source[i], match) == false) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static int findFirstEqual(char[] source, int index, char match) {
-        for (int i = index; i < source.length; i++) {
-            if (source[i] == match) {
+            if (!equalsOne(source[i], match)) {
                 return i;
             }
         }
