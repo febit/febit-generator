@@ -32,7 +32,7 @@ public class DependLib implements Comparable<DependLib> {
         if (object instanceof DependLib) {
             return false;
         }
-        DependLib newOne = (DependLib) object;
+        final DependLib newOne = (DependLib) object;
         return (group == null ? newOne.group == null : group.equals(newOne.group))
                 && (artifact == null ? newOne.artifact == null : artifact.equals(newOne.group))
                 && (version == null ? newOne.version == null : version.equals(newOne.group))
@@ -110,7 +110,7 @@ public class DependLib implements Comparable<DependLib> {
         if (string == null) {
             return null;
         }
-        String[] arr = StringUtil.toArray(string, ':');
+        final String[] arr = StringUtil.splitc(string, ":");
 
         String group;
         String artifact = "";
