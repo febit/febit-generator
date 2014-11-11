@@ -13,6 +13,25 @@ public class StringUtil {
     public static final String[] EMPTY_ARRAY = webit.script.util.StringUtil.EMPTY_ARRAY;
     public static final String EMPTY = "";
 
+    public static String[] toArrayWithoutCommit(String src) {
+        final String[] array = toArray(src);
+        int count = 0;
+        for (String str : array) {
+            if (str.charAt(0) != '#') {
+                array[count++] = str;
+            }
+        }
+        if (count == 0) {
+            return EMPTY_ARRAY;
+        }
+        if (count == array.length) {
+            return array;
+        }
+        final String[] result = new String[count];
+        System.arraycopy(array, 0, result, 0, count);
+        return result;
+    }
+
     public static String[] toArray(final String src) {
         return toArray(src, ',');
     }

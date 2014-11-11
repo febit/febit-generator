@@ -270,7 +270,7 @@ public class Config {
     }
 
     public static String[] getArrayWithoutComment(String key) {
-        return StringUtil.toArray(configs.get(key));
+        return StringUtil.toArrayWithoutCommit(configs.get(key));
     }
 
     public static Map<String, String> getMap(final String key) {
