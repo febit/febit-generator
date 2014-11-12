@@ -9,7 +9,7 @@ import webit.generator.model.Table;
 import webit.generator.util.Logger;
 import webit.generator.util.ResourceUtil;
 import webit.generator.util.dbaccess.DatabaseAccesser;
-import webit.generator.util.dbaccess.model.TableRaw;
+import webit.generator.util.dbaccess.TableRaw;
 
 /**
  *
@@ -49,7 +49,7 @@ public abstract class TableFactory {
         Collections.sort(tableList);
         if (Logger.isInfoEnabled()) {
             for (Table table : tableList) {
-                Logger.info("Loaded table: " + table.getSqlName() + "  " + table.getRemark());
+                Logger.info("Loaded table: " + table.sqlName + "  " + table.remark);
             }
         }
 

@@ -121,7 +121,7 @@ public class ConfigInit {
 
             @Override
             public boolean each(int index, Table table) {
-                return Arrays.each(table.getColumns(), handler);
+                return Arrays.each(table.columns, handler);
             }
         }, withBlankEntitys);
     }

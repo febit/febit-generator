@@ -5,7 +5,7 @@ import java.util.Map;
 import webit.generator.model.Column;
 import webit.generator.model.Table;
 import webit.generator.util.ResourceUtil;
-import webit.generator.util.dbaccess.model.ColumnRaw;
+import webit.generator.util.dbaccess.ColumnRaw;
 
 /**
  *

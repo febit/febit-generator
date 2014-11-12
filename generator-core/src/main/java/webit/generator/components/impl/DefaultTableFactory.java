@@ -14,8 +14,8 @@ import webit.generator.components.TableNaming;
 import webit.generator.model.Column;
 import webit.generator.model.Table;
 import webit.generator.util.Logger;
-import webit.generator.util.dbaccess.model.ColumnRaw;
-import webit.generator.util.dbaccess.model.TableRaw;
+import webit.generator.util.dbaccess.ColumnRaw;
+import webit.generator.util.dbaccess.TableRaw;
 
 /**
  *

@@ -42,22 +42,6 @@ public class Table implements Comparable<Table> {
         }
     }
 
-    public String getEntity() {
-        return entity;
-    }
-
-    public String getSqlName() {
-        return sqlName;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public Map<String, Object> getAttrs() {
-        return attrs;
-    }
-
     /**
      * Only if has single one id column, returns this single id column, or
      * returns null.
@@ -68,54 +52,28 @@ public class Table implements Comparable<Table> {
         return idColumns.size() == 1 ? idColumns.get(0) : null;
     }
 
-    public List<Column> getIdColumns() {
-        return idColumns;
-    }
-
-    public boolean getIsBlackEntity() {
-        return isBlackEntity;
-    }
-
-    public Map<String, Column> getColumnMap() {
-        return columnMap;
-    }
-
     public Column getColumnByName(String name) {
         return columnMap.get(name);
     }
 
-    public List<Column> getColumns() {
-        return columns;
-    }
-
-    public String getModelType() {
-        return modelType;
-    }
-
-    public String getModelSimpleType() {
-        return modelSimpleType;
-    }
-
     public List<Column> getFkColumns() {
-
-        List<Column> columnModels = new ArrayList<Column>();
-        for (Column columnModel : columns) {
-            if (columnModel.getIsfk()) {
-                columnModels.add(columnModel);
+        final List<Column> results = new ArrayList<Column>(columns.size());
+        for (Column column : columns) {
+            if (column.getIsfk()) {
+                results.add(column);
             }
         }
-        return columnModels;
+        return results;
     }
 
     public List<Column> getFkColumnsByType(String type) {
-
-        List<Column> columnModels = new ArrayList<Column>();
-        for (Column columnModel : columns) {
-            if (columnModel.getIsfk() && columnModel.getFkType().equals(type)) {
-                columnModels.add(columnModel);
+        final List<Column> results = new ArrayList<Column>(columns.size());
+        for (Column column : columns) {
+            if (column.getIsfk() && column.getFkType().equals(type)) {
+                results.add(column);
             }
         }
-        return columnModels.isEmpty() ? null : columnModels;
+        return results.isEmpty() ? null : results;
     }
 
     /**
@@ -128,11 +86,14 @@ public class Table implements Comparable<Table> {
         if (idColumn == null || !idColumn.getIsLinkKey()) {
             return null;
         }
-
-        List<Table> tables = new ArrayList<Table>();
-        for (Column columnModel : idColumn.getLinkColumns()) {
-            if (columnModel.getIspk()) {
-                tables.add(columnModel.getTable());
+        final List<Column> linkColumns = idColumn.getLinkColumns();
+        if (linkColumns.isEmpty()) {
+            return null;
+        }
+        final List<Table> tables = new ArrayList<Table>(linkColumns.size());
+        for (Column column : linkColumns) {
+            if (column.getIspk()) {
+                tables.add(column.getTable());
             }
         }
         return tables.isEmpty() ? null : tables;
@@ -143,42 +104,45 @@ public class Table implements Comparable<Table> {
         if (idColumn == null || !idColumn.getIsLinkKey()) {
             return null;
         }
-
-        List<Table> tables = new ArrayList<Table>();
-        for (Column columnModel : idColumn.getLinkColumns()) {
-            tables.add(columnModel.getTable());
+        final List<Column> linkColumns = idColumn.getLinkColumns();
+        if (linkColumns.isEmpty()) {
+            return null;
+        }
+        final List<Table> tables = new ArrayList<Table>(linkColumns.size());
+        for (Column column : linkColumns) {
+            tables.add(column.getTable());
         }
         return tables.isEmpty() ? null : tables;
     }
 
     public List<Column> getEnumColumns() {
-        List<Column> columnModels = new ArrayList<Column>();
-        for (Column columnModel : columns) {
-            if (columnModel.getIsenum()) {
-                columnModels.add(columnModel);
+        final List<Column> results = new ArrayList<Column>(columns.size());
+        for (Column column : columns) {
+            if (column.getIsenum()) {
+                results.add(column);
             }
         }
-        return columnModels;
+        return results;
     }
 
     public List<Column> getQueryColumns() {
-        List<Column> columnModels = new ArrayList<Column>();
-        for (Column columnModel : columns) {
-            if (columnModel.getQuery() && !columnModel.getIspk()) {
-                columnModels.add(columnModel);
+        final List<Column> results = new ArrayList<Column>(columns.size());
+        for (Column column : columns) {
+            if (column.getQuery() && !column.getIspk()) {
+                results.add(column);
             }
         }
-        return columnModels;
+        return results;
     }
 
     public List<Column> getUniqueColumns() {
-        List<Column> columnModels = new ArrayList<Column>();
-        for (Column columnModel : columns) {
-            if (columnModel.getIsUnique() && !columnModel.getIspk()) {
-                columnModels.add(columnModel);
+        final List<Column> results = new ArrayList<Column>(columns.size());
+        for (Column column : columns) {
+            if (column.getIsUnique() && !column.getIspk()) {
+                results.add(column);
             }
         }
-        return columnModels;
+        return results;
     }
 
     @Override
@@ -199,7 +163,7 @@ public class Table implements Comparable<Table> {
         }
         return this.entity.equals(((Table) obj).entity);
     }
-    
+
     @Override
     public int compareTo(Table o) {
         return entity.compareTo(o.entity);

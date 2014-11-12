@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014, Webit Team. All Rights Reserved.
-package webit.generator.util.dbaccess.model;
+package webit.generator.util.dbaccess;
 
 import java.sql.Types;
 import webit.generator.Config;

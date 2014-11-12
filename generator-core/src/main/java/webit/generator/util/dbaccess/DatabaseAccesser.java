@@ -19,9 +19,6 @@ import java.util.regex.Pattern;
 import webit.generator.Config;
 import webit.generator.util.Logger;
 import webit.generator.util.StringUtil;
-import webit.generator.util.dbaccess.model.ColumnRaw;
-import webit.generator.util.dbaccess.model.ForeignKey;
-import webit.generator.util.dbaccess.model.TableRaw;
 
 public class DatabaseAccesser {
 

@@ -9,8 +9,8 @@ import webit.generator.components.TableFactory;
 import webit.generator.util.Logger;
 import webit.generator.util.NamingUtil;
 import webit.generator.util.StringUtil;
-import webit.generator.util.dbaccess.model.ColumnRaw;
-import webit.generator.util.dbaccess.model.ForeignKey;
+import webit.generator.util.dbaccess.ColumnRaw;
+import webit.generator.util.dbaccess.ForeignKey;
 
 /**
  *
@@ -111,7 +111,7 @@ public class Column implements Comparable<Column> {
                 fk = linkColumn;
                 isfk = (fk != null);
                 fkVarName = StringUtil.cutSuffix(name, "Id");
-                fkType = linkTable.getModelType();
+                fkType = linkTable.modelType;
                 fkSimpleType = NamingUtil.getClassSimpleName(fkType);
                 fkGetterName = ColumnNaming.instance().getterName(fkVarName, fkType);
                 fkSetterName = ColumnNaming.instance().setterName(fkVarName, fkType);

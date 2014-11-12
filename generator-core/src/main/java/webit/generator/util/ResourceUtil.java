@@ -93,7 +93,7 @@ public class ResourceUtil {
             for (Map.Entry<String, Map<String, Map<String, Object>>> entry : new TreeMap<String, Map<String, Map<String, Object>>>(tableColumnsMap).entrySet()) {
                 final String entity = entry.getKey();
                 final Table table = TableFactory.getTable(entity);
-                writer.append("\n\n### ").append(table.getRemark()).append('\n');
+                writer.append("\n\n### ").append(table.remark).append('\n');
                 writer.append('[').append(table.entity).append(']').append("\n\n");
                 for (Map.Entry<String, Map<String, Object>> entry1 : new TreeMap<String, Map<String, Object>>(entry.getValue()).entrySet()) {
                     final String varName = entry1.getKey();

@@ -17,7 +17,7 @@ import webit.generator.util.Logger;
 import webit.generator.util.NamingUtil;
 import webit.generator.util.ResourceUtil;
 import webit.generator.util.StringUtil;
-import webit.generator.util.dbaccess.model.ColumnRaw;
+import webit.generator.util.dbaccess.ColumnRaw;
 
 /**
  *
@@ -130,15 +130,15 @@ public class DefaultColumnFactory extends ColumnFactory {
                 enums = new ArrayList<ColumnEnum>();
                 enumMap = new HashMap();
                 for (String emumRaw : emumStr) {
-                    ColumnEnum columnEnumModel;
+                    final ColumnEnum columnEnum;
                     try {
-                        columnEnumModel = ColumnEnum.valueOf(emumRaw);
-                    }catch (Exception e) {
-                        Logger.error("Faild to parse column enum: "+ raw +" | "+ remark);
+                        columnEnum = ColumnEnum.valueOf(emumRaw);
+                    } catch (Exception e) {
+                        Logger.error("Faild to parse column enum: " + raw + " | " + remark);
                         throw new RuntimeException(e);
                     }
-                    enums.add(columnEnumModel);
-                    enumMap.put(columnEnumModel.value, columnEnumModel);
+                    enums.add(columnEnum);
+                    enumMap.put(columnEnum.value, columnEnum);
                 }
                 isenum = true;
                 remark = remark.substring(0, start).trim(); //replaceAll(pattern_enum.pattern(), "");

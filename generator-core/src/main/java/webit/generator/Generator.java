@@ -235,7 +235,7 @@ public class Generator {
         this.tableList = TableFactory.getTables();
         whiteTables = new ArrayList<Table>(this.tableList.size());
         for (Table table : tableList) {
-            if (!table.getIsBlackEntity()) {
+            if (!table.isBlackEntity) {
                 whiteTables.add(table);
             }
         }
