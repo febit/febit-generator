@@ -28,6 +28,9 @@ CONST.list_join = native StringUtil.join(Iterable, String);
 
 CONST.upperFirst = native NamingUtil.upperFirst(String);
 CONST.lowerFirst = native NamingUtil.lowerFirst(String);
+CONST.toLowerCase = native String.toLowerCase();
+CONST.toUpperCase = native String.toUpperCase();
+
 CONST.getClassPackageName = native NamingUtil.getClassPackageName(String);
 CONST.getClassSimpleName = native NamingUtil.getClassSimpleName(String);
 
