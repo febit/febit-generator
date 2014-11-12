@@ -13,6 +13,7 @@ import webit.generator.model.Column;
 import webit.generator.model.ColumnEnum;
 import webit.generator.model.Table;
 import webit.generator.typeconverter.TypeConverterUtil;
+import webit.generator.util.CommonUtil;
 import webit.generator.util.Logger;
 import webit.generator.util.NamingUtil;
 import webit.generator.util.ResourceUtil;
@@ -65,7 +66,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         if (!isInclude(raw)) {
             return null;
         }
-        ColumnNaming columnNaming = ColumnNaming.instance();
+        final ColumnNaming columnNaming = ColumnNaming.instance();
         //
         final String varName = columnNaming.varName(raw.name);
         final String javaType = raw.getJavaType();
@@ -79,8 +80,8 @@ public class DefaultColumnFactory extends ColumnFactory {
         final boolean query;
         final String fkHint;
         final boolean isfk;
-        //XXX:column settings 可丰富功能
-        query = "true".equals(attrs.get("query"));
+
+        query = CommonUtil.toBoolean(attrs.get("query"));
         fkHint = (String) ResourceUtil.toValidValue(attrs.get("fk"));
         isfk = raw.getIsFk() || fkHint != null;
 
@@ -149,7 +150,7 @@ public class DefaultColumnFactory extends ColumnFactory {
             }
         }
 
-        Column column = new Column(table, attrs, raw,
+        return new Column(table, attrs, raw,
                 raw.size, raw.isUnique, raw.isNullable, raw.isPk, isfk, fkHint,
                 raw.isPk && !raw.getIsFk(), //Note:是否主键自动生成
                 remark,
@@ -157,7 +158,5 @@ public class DefaultColumnFactory extends ColumnFactory {
                 raw.name, getterName, setterName, linkColumns, query,
                 isenum, enums, enumMap,
                 defaultValueRaw, defaultValue, hasDefaultValue, defaultValueShow);
-
-        return column;
     }
 }

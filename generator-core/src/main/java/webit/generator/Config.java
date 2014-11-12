@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import webit.generator.model.DependLib;
 import webit.generator.model.Table;
+import webit.generator.util.CommonUtil;
 import webit.generator.util.Logger;
 import webit.generator.util.ResourceUtil;
 import webit.generator.util.StringUtil;
@@ -238,11 +239,7 @@ public class Config {
     }
 
     public static boolean getBoolean(String key, boolean defaultValue) {
-        final String value = configs.get(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        return "true".equalsIgnoreCase(value.trim());
+        return CommonUtil.toBoolean(configs.get(key), defaultValue);
     }
 
     public static String getString(String key, String defaultValue) {

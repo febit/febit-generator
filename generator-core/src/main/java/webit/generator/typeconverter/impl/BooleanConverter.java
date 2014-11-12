@@ -2,6 +2,7 @@
 package webit.generator.typeconverter.impl;
 
 import webit.generator.typeconverter.Converter;
+import webit.generator.util.CommonUtil;
 
 /**
  *
@@ -14,13 +15,10 @@ public class BooleanConverter implements Converter<Boolean> {
         if (stringValue == null) {
             return null;
         }
-        stringValue = stringValue.trim().toLowerCase();
-        if (stringValue.length() == 0) {
+        stringValue = stringValue.trim();
+        if (stringValue.isEmpty()) {
             return null;
         }
-        return stringValue.equals("1")
-                || stringValue.equals("b'1'") //bit(1) false: b'0', true: b'1'
-                || stringValue.equals("true")
-                || stringValue.equals("on");
+        return CommonUtil.toBoolean(stringValue);
     }
 }
