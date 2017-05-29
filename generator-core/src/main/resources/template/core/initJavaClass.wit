@@ -16,10 +16,10 @@ var initClassConfig = function(){
     cfg_abstract = false;
     cfg_final = false;
     cfg_extends = null;
-    cfg_implements@list_clear();
-    cfg_annotations@list_clear();
-    cfg_docs@list_clear();
-    cfg_imports@list_clear();
+    cfg_implements.~clear();
+    cfg_annotations.~clear();
+    cfg_docs.~clear();
+    cfg_imports.~clear();
 };
 
 // init at first
@@ -50,7 +50,7 @@ CONST.java_final = function(flag){
 };
 
 CONST.java_imports = function(){
-    cfg_imports@list_adds(arguments);
+    list_adds(cfg_imports,arguments);
 };
 
 CONST.java_extends = function(classname){
@@ -58,16 +58,16 @@ CONST.java_extends = function(classname){
 };
 
 CONST.java_impl = CONST.java_implements = function(){
-    cfg_implements@list_adds(arguments);
+    list_adds(cfg_implements, arguments);
 };
 
 CONST.java_annotations = CONST.java_anno = function(){
-    cfg_annotations@list_adds(arguments);
+    list_adds(cfg_annotations,arguments);
 };
 
 var java_docs = 
 CONST.java_docs = function(){
-    cfg_docs@list_adds(arguments);
+    list_adds(cfg_docs, arguments);
 };
 
 
@@ -76,9 +76,9 @@ var writeClassBody = function(classname, classContent){
     cfg_imports = javaImportsCheck(cfg_imports, classname);
     java_docs("", "@author "+ author);
 
-    writeCopyright(); 
+    writeCopyright();
 %>
-package ${classname@getClassPackageName()};
+package ${getClassPackageName(classname)};
 <%
 for(aimport : cfg_imports){%>
 import ${aimport};<%
@@ -94,11 +94,11 @@ import ${aimport};<%
 @${anno}<%
     }%>
 ${cfg_class_modifier} ${cfg_abstract?"abstract ":null}${cfg_final?"final ":null}${cfg_class_interface?"interface":"class"} ${
-    classname@getClassSimpleName()
+    getClassSimpleName(classname)
 }${
     cfg_extends?(" extends "+ cfg_extends):null
 }${
-    cfg_implements?" implements " + cfg_implements@list_join(", ") :null
+    cfg_implements?" implements " + list_join(cfg_implements, ", ") :null
 } {
 ${classContent}
 }

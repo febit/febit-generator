@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import webit.script.util.CharArrayWriter;
+import org.febit.wit.util.CharArrayWriter;
 
 /**
  *

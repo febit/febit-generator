@@ -1,25 +1,21 @@
 <%
 
-writeBaseFile(false, "pom.xml", #{
+writeBaseFile(false, "pom.xml", ()->{
 
 %><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>${basePkg}</groupId>
     <artifactId>${appname_short}</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-
     <name>${appname_short}</name>
     <url></url>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
-
     <dependencies>
 <%
     for(dep : depends){%>

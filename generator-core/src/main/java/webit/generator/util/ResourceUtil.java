@@ -16,7 +16,7 @@ import webit.generator.Config;
 import webit.generator.components.TableFactory;
 import webit.generator.model.Column;
 import webit.generator.model.Table;
-import webit.script.util.Props;
+import org.febit.wit.util.Props;
 
 /**
  *

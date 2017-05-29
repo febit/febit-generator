@@ -3,7 +3,6 @@ package webit.generator.util.dbaccess;
 
 import java.sql.Types;
 import webit.generator.Config;
-import webit.generator.util.dbaccess.DatabaseAccesser;
 
 public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<ColumnRaw> {
 

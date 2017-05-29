@@ -1,0 +1,12 @@
+
+
+[engine]
+looseVar=false
+trimCodeBlockBlankLine=false
+
+[pathLoader]
+appendLostSuffix=true
+
+
+[classpathLoader]
+root=template

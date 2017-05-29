@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class StringUtil {
 
-    public static final String[] EMPTY_ARRAY = webit.script.util.StringUtil.EMPTY_ARRAY;
+    public static final String[] EMPTY_ARRAY = org.febit.wit.util.ArrayUtil.EMPTY_STRINGS;
     public static final String EMPTY = "";
 
     public static String[] toArrayWithoutCommit(String src) {

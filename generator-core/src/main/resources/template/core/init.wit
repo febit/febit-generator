@@ -16,11 +16,6 @@ var CONST;
 //Global Functions
 CONST.str_replace = native StringUtil.replace(String, String, String);
 CONST.new_list = native new ArrayList();
-CONST.list_size = native List.size();
-CONST.list_contains = native List.contains(Object);
-CONST.list_merge = native List.addAll(java.util.Collection);
-CONST.list_clear = native List.clear();
-CONST.list_add = native List.add(Object);
 
 CONST.in_arr = native Arrays.in(Object, Object[]);
 CONST.list_adds = native CollectionUtil.adds(List, Object[]);
@@ -28,8 +23,6 @@ CONST.list_join = native StringUtil.join(Iterable, String);
 
 CONST.upperFirst = native NamingUtil.upperFirst(String);
 CONST.lowerFirst = native NamingUtil.lowerFirst(String);
-CONST.toLowerCase = native String.toLowerCase();
-CONST.toUpperCase = native String.toUpperCase();
 
 CONST.getClassPackageName = native NamingUtil.getClassPackageName(String);
 CONST.getClassSimpleName = native NamingUtil.getClassSimpleName(String);
@@ -37,8 +30,16 @@ CONST.getClassSimpleName = native NamingUtil.getClassSimpleName(String);
 CONST.javaImportsCheck = native NamingUtil.javaImportsCheck(List, String);
 CONST.varNameToUpper = native NamingUtil.varNameToUpper(String);
 
+//Deprecated
 CONST.tm_getColumnByName = native Table.getColumnByName(String);
 CONST.tm_getFkColumnsByType = native Table.getFkColumnsByType(String);
+CONST.toLowerCase = native String.toLowerCase();
+CONST.toUpperCase = native String.toUpperCase();
+CONST.list_size = native List.size();
+CONST.list_contains = native List.contains(Object);
+CONST.list_merge = native List.addAll(java.util.Collection);
+CONST.list_clear = native List.clear();
+CONST.list_add = native List.add(Object);
 
 CONST.isModuleActived = native Config.isModuleActived(String);
 

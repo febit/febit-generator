@@ -15,13 +15,13 @@ import webit.generator.saver.FolderEntry;
 import webit.generator.util.FileUtil;
 import webit.generator.util.Logger;
 import webit.generator.util.ResourceUtil;
-import webit.script.Engine;
-import webit.script.exceptions.ParseException;
-import webit.script.global.GlobalManager;
-import webit.script.io.Out;
-import webit.script.io.impl.DiscardOut;
-import webit.script.lang.KeyValues;
-import webit.script.util.KeyValuesUtil;
+import org.febit.wit.Engine;
+import org.febit.wit.exceptions.ParseException;
+import org.febit.wit.global.GlobalManager;
+import org.febit.wit.io.Out;
+import org.febit.wit.io.impl.DiscardOut;
+import org.febit.wit.lang.KeyValues;
+import org.febit.wit.util.KeyValuesUtil;
 
 /**
  *

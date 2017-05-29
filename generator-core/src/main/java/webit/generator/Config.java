@@ -14,7 +14,7 @@ import webit.generator.util.CommonUtil;
 import webit.generator.util.Logger;
 import webit.generator.util.ResourceUtil;
 import webit.generator.util.StringUtil;
-import webit.script.util.Props;
+import org.febit.wit.util.Props;
 
 public class Config {
 

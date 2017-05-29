@@ -1,7 +1,5 @@
 
-
 modules+=
-
 
 inits+='''
     /core/init
@@ -11,14 +9,11 @@ inits+='''
 copys+='''
 '''
 
-
 folders+='''
 '''
 
-
 depends+='''
 '''
-
 
 filetypes+='''
     FT_JAVA=webit.generator.saver.impl.JavaFileSaver
@@ -32,5 +27,3 @@ filetypes+='''
 
 tmpls+='''
 '''
-
-
