@@ -49,9 +49,9 @@ appname=My Blog
 # 应用名简写， 最好只有字母和数字组成 不要带空格
 appname_short=MyBlog
 # 生成到代码中的版权信息，一般生成到每个java类文件的开头
-COPY_RIGHT=//Powered By Webit Team, Since 2012 - 2014
+COPY_RIGHT=//Powered By xxx, Since 2017
 # 生成到代码中的作者，一般用在 java类声明前的JavaDoc中
-author=Webit-Zqq
+author=xxx
 
 
 

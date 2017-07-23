@@ -6,7 +6,7 @@ if '%1=='## goto ENVSET
 rem set JAVA_HOME=K:\java\jdk1.6.0_21
 
 set PATH=%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin
-set MAIN_CLASS=webit.generator.Main
+set MAIN_CLASS=org.febit.generator.Main
 set PROPS=%~dp0generator.props
 
 rem 设定CLSPATH

@@ -16,12 +16,12 @@ depends+='''
 '''
 
 filetypes+='''
-    FT_JAVA=webit.generator.saver.impl.JavaFileSaver
-    FT_RES=webit.generator.saver.impl.ResourceFileFileSaver
-    FT_BASE=webit.generator.saver.impl.BaseFileFileSaver
-    FT_WEB=webit.generator.saver.impl.WebFileFileSaver
-    FT_EXTJS=webit.generator.saver.impl.ExtjsFileSaver
-    FT_APPEND=webit.generator.saver.impl.AppendFileSaver
+    FT_JAVA=org.febit.generator.saver.impl.JavaFileSaver
+    FT_RES=org.febit.generator.saver.impl.ResourceFileFileSaver
+    FT_BASE=org.febit.generator.saver.impl.BaseFileFileSaver
+    FT_WEB=org.febit.generator.saver.impl.WebFileFileSaver
+    FT_EXTJS=org.febit.generator.saver.impl.ExtjsFileSaver
+    FT_APPEND=org.febit.generator.saver.impl.AppendFileSaver
 '''
 
 
