@@ -19,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.febit.generator.Config;
 import org.febit.generator.typeconverter.impl.StringConverter;
-import org.febit.generator.util.ClassLoaderUtil;
-import org.febit.generator.util.Logger;
+import org.febit.util.ClassUtil;
 
 /**
  *
@@ -36,12 +35,7 @@ public class TypeConverterUtil {
         if (converter == null) {
             String convertType = Config.getString("typeConverter." + type);
             if (convertType != null) {
-                try {
-                    converter = (Converter) ClassLoaderUtil.getDefaultClassLoader().loadClass(convertType).newInstance();
-                } catch (Exception ex) {
-                    Logger.error("Unable to load Converter: " + type, ex);
-                    throw new RuntimeException(ex);
-                }
+                converter = (Converter) ClassUtil.newInstance(convertType);
             } else {
                 converter = DEFAULT_CONVERTER;
             }

@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 
 /**
  *
@@ -31,11 +31,6 @@ public class Main {
     public static void generate(String fileFullPath) throws IOException {
         loadConfig(fileFullPath, "gen");
         new Generator().process();
-    }
-
-    @Deprecated
-    public static void generator(String fileFullPath) throws IOException {
-        generate(fileFullPath);
     }
 
     public static void initConfig(String fileFullPath) throws IOException {

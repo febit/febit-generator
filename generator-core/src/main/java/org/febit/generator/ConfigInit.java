@@ -25,8 +25,8 @@ import org.febit.generator.model.Column;
 import org.febit.generator.model.Table;
 import org.febit.generator.util.Arrays;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.Maps;
 import org.febit.generator.util.ResourceUtil;
+import org.febit.lang.Function2;
 
 /**
  *
@@ -140,8 +140,12 @@ public class ConfigInit {
         }, withBlankEntitys);
     }
 
-    public void eachTableColumnSettings(Maps.Handler<String, Map<String, Map<String, Object>>> handler) {
-        Maps.each(this.tablesColumns, handler);
+    public void eachTableColumnSettings(Function2<Boolean, String, Map<String, Map<String, Object>>> handler) {
+        for (Map.Entry<String, Map<String, Map<String, Object>>> entry : tablesColumns.entrySet()) {
+            if (!handler.call(entry.getKey(), entry.getValue())) {
+                return;
+            }
+        }
     }
 
     public void init() {

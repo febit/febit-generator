@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import org.febit.generator.Config;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 
 public class DatabaseAccesser {
 
@@ -55,10 +55,10 @@ public class DatabaseAccesser {
         this.schema = Config.getString("db.schema");
         String includesString = Config.getString("includeTables");
         String excludesString = Config.getString("excludeTables");
-        if (StringUtil.notEmpty(includesString)) {
+        if (StringUtil.isNotEmpty(includesString)) {
             this.includes = Pattern.compile(includesString);
         }
-        if (StringUtil.notEmpty(excludesString)) {
+        if (StringUtil.isNotEmpty(excludesString)) {
             this.excludes = Pattern.compile(excludesString);
         }
     }

@@ -27,7 +27,7 @@ import org.febit.generator.model.Table;
 import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.ResourceUtil;
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 import org.febit.wit.util.Props;
 
 public class Config {
@@ -179,7 +179,7 @@ public class Config {
 
     private static void resolveModules(final String names) {
         if (names != null) {
-            for (String depend : StringUtil.toArrayWithoutCommit(names)) {
+            for (String depend : StringUtil.toArrayExcludeCommit(names)) {
                 if (MODULES.contains(depend)) {
                     continue;
                 }
@@ -281,19 +281,19 @@ public class Config {
     }
 
     public static String[] getArrayWithoutComment(String key) {
-        return StringUtil.toArrayWithoutCommit(configs.get(key));
+        return StringUtil.toArrayExcludeCommit(configs.get(key));
     }
 
     public static Map<String, String> getMap(final String key) {
         final Map<String, String> result = new HashMap<>();
         final String prefix = key.concat(".");
         final int index = key.length() + 1;
-        for (Map.Entry<String, String> entry : configs.entrySet()) {
+        configs.entrySet().forEach((entry) -> {
             String property = entry.getKey();
             if (property.startsWith(prefix)) {
                 result.put(property.substring(index), entry.getValue());
             }
-        }
+        });
         return result;
     }
 

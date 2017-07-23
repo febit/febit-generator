@@ -177,10 +177,9 @@ public class Generator {
 
     protected void margeTemplate(String templateName, Map<String, Object> params) throws IOException, ParseException, Exception {
 
-        TemplateContext.reset();
         this.templateEngine.getTemplate(templateName).merge(params, Logger.out);
 
-        for (FileEntry fileEntry : TemplateContext.files) {
+        for (FileEntry fileEntry : TemplateContext.popFiles()) {
             if (fileEntry.cancel) {
                 continue;
             }
@@ -191,7 +190,7 @@ public class Generator {
                 throw new Exception("TmplFileSaver not found with id: " + fileEntry.type);
             }
         }
-        for (FolderEntry folderEntry : TemplateContext.folders) {
+        for (FolderEntry folderEntry : TemplateContext.popFolders()) {
             if (folderEntry.cancel) {
                 continue;
             }
@@ -202,7 +201,6 @@ public class Generator {
                 throw new Exception("TmplFileSaver not found with id: " + folderEntry.type);
             }
         }
-        TemplateContext.reset();
     }
 
     protected void initFileSaver() throws ClassNotFoundException, InstantiationException, IllegalAccessException {

@@ -22,7 +22,7 @@ import org.febit.generator.components.ColumnNaming;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.NamingUtil;
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
 import org.febit.generator.util.dbaccess.ForeignKey;
 

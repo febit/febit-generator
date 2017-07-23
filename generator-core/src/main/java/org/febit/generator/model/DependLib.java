@@ -15,7 +15,7 @@
  */
 package org.febit.generator.model;
 
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 
 /**
  *

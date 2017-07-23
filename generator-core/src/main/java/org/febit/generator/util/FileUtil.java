@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import jodd.io.FileNameUtil;
+import jodd.io.StreamUtil;
 import org.febit.wit.util.CharArrayWriter;
 
 /**
@@ -34,92 +36,30 @@ public class FileUtil {
     private static final String MSG_NOT_FOUND = "Not found: ";
     private static final String MSG_NOT_A_FILE = "Not a file: ";
     private static final String MSG_UNABLE_TO_DELETE = "Unable to delete: ";
-
-    public static final char UNIX_SEPARATOR = '/';
-    public static final char WINDOWS_SEPARATOR = '\\';
     public static final char SYSTEM_SEPARATOR = File.separatorChar;
-    public static final char OTHER_SEPARATOR;
-
-    static {
-        if (SYSTEM_SEPARATOR == WINDOWS_SEPARATOR) {
-            OTHER_SEPARATOR = UNIX_SEPARATOR;
-        } else {
-            OTHER_SEPARATOR = WINDOWS_SEPARATOR;
-        }
-    }
 
     public static String getPath(String filename) {
-        filename = normalize(filename);
-        int i = filename.lastIndexOf(SYSTEM_SEPARATOR);
-        if (i >= 0) {
-            return filename.substring(0, i + 1);
-        } else {
-            return StringUtil.EMPTY;
-        }
+        return FileNameUtil.getPath(filename);
     }
 
     public static String getName(String filename) {
-        filename = normalize(filename);
-        int i = filename.lastIndexOf(SYSTEM_SEPARATOR);
-        if (i >= 0) {
-            return filename.substring(i + 1);
-        } else {
-            return filename;
-        }
+        return FileNameUtil.getName(filename);
     }
 
     public static String normalize(String name) {
-        return name.replace(OTHER_SEPARATOR, SYSTEM_SEPARATOR);
+        return FileNameUtil.normalize(name);
     }
 
     public static String normalizeToUnixStyle(String name) {
-        return name.replace(WINDOWS_SEPARATOR, UNIX_SEPARATOR);
+        return FileNameUtil.normalize(name, true);
     }
 
     public static String concatWithUnixStyle(String parent, String name) {
-        parent = normalizeToUnixStyle(parent);
-        if (name.length() != 0) {
-            name = normalizeToUnixStyle(name);
-            char firstChar = name.charAt(0);
-            if (parent.charAt(parent.length() - 1) == UNIX_SEPARATOR) {
-                if (firstChar == UNIX_SEPARATOR) {
-                    return parent.concat(name.substring(1));
-                } else {
-                    return parent.concat(name);
-                }
-            } else {
-                if (firstChar == UNIX_SEPARATOR) {
-                    return parent.concat(name);
-                } else {
-                    return parent + UNIX_SEPARATOR + name;
-                }
-            }
-        } else {
-            return parent;
-        }
+        return FileNameUtil.concat(parent, name, true);
     }
 
     public static String concat(String parent, String name) {
-        parent = normalize(parent);
-        if (name.length() != 0) {
-            name = normalize(name);
-            char firstChar = name.charAt(0);
-            if (parent.charAt(parent.length() - 1) == SYSTEM_SEPARATOR) {
-                if (firstChar == SYSTEM_SEPARATOR) {
-                    return parent.concat(name.substring(1));
-                } else {
-                    return parent.concat(name);
-                }
-            } else {
-                if (firstChar == SYSTEM_SEPARATOR) {
-                    return parent.concat(name);
-                } else {
-                    return parent + SYSTEM_SEPARATOR + name;
-                }
-            }
-        } else {
-            return parent;
-        }
+        return FileNameUtil.concat(parent, name);
     }
 
     public static void writeFile(String basepath, String subpath, byte[] code) throws IOException {

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import jodd.io.StreamUtil;
 import org.febit.generator.Config;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.model.Column;

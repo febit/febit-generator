@@ -15,6 +15,10 @@
       <artifactId>wit-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.febit</groupId>
+      <artifactId>febit-common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>

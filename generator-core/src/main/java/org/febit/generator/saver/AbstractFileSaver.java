@@ -20,10 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.febit.generator.util.ClassLoaderUtil;
+import jodd.io.StreamUtil;
 import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.StreamUtil;
+import org.febit.util.ClassUtil;
 
 /**
  *
@@ -46,12 +46,9 @@ public abstract class AbstractFileSaver implements FileSaver {
 
     @Override
     public boolean copyFile(String file, String src) {
-
         String from = FileUtil.concatWithUnixStyle(COPY_ROOT, src);
-
         String to = FileUtil.concat(getBasePath(), file);
-
-        InputStream input = ClassLoaderUtil.getDefaultClassLoader().getResourceAsStream(from);
+        InputStream input = ClassUtil.getDefaultClassLoader().getResourceAsStream(from);
         if (input == null) {
             Logger.error("Not found resource: " + from);
             return false;
@@ -103,7 +100,6 @@ public abstract class AbstractFileSaver implements FileSaver {
     }
 
     protected boolean dealExceptions(String msg, Exception ex) {
-
         Logger.error(msg, ex);
         return false;
     }

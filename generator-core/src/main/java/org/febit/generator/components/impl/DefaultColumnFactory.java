@@ -31,7 +31,7 @@ import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.NamingUtil;
 import org.febit.generator.util.ResourceUtil;
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
 
 /**
@@ -53,11 +53,11 @@ public class DefaultColumnFactory extends ColumnFactory {
 
         {
             String includesString = Config.getString("includeColumns");
-            if (StringUtil.notEmpty(includesString)) {
+            if (StringUtil.isNotEmpty(includesString)) {
                 includes = Pattern.compile(includesString);
             }
             String excludesString = Config.getString("excludeColumns");
-            if (StringUtil.notEmpty(excludesString)) {
+            if (StringUtil.isNotEmpty(excludesString)) {
                 excludes = Pattern.compile(excludesString);
             }
         }
@@ -87,7 +87,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         final String javaSimpleType = NamingUtil.getClassSimpleName(javaType);
         final String getterName = columnNaming.getterName(varName, javaType);
         final String setterName = columnNaming.setterName(varName, javaType);
-        final ArrayList linkColumns = new ArrayList<Column>();
+        final ArrayList linkColumns = new ArrayList<>();
 
         final Map<String, Object> attrs = Config.getColumnSettings(table, varName);
 
@@ -141,7 +141,7 @@ public class DefaultColumnFactory extends ColumnFactory {
                     && remark.length() != 0
                     && (end = remark.lastIndexOf(')')) >= 0
                     && (start = remark.lastIndexOf("E(", end)) >= 0) {
-                final String[] emumStr = StringUtil.toArray(remark.substring(start + 2, end), ',');
+                final String[] emumStr = StringUtil.splitc(remark.substring(start + 2, end), ',');
                 enums = new ArrayList<>();
                 enumMap = new HashMap();
                 for (String emumRaw : emumStr) {

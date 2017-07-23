@@ -15,7 +15,7 @@
  */
 package org.febit.generator.model;
 
-import org.febit.generator.util.StringUtil;
+import org.febit.util.StringUtil;
 
 /**
  *
@@ -34,16 +34,17 @@ public class ColumnEnum {
     }
 
     public static ColumnEnum valueOf(String string) {
-        final String[] arr = StringUtil.toArray(string, '|');
+        final String[] arr = StringUtil.splitc(string, '|');
+        StringUtil.trim(arr);
         Short id;
         String name = "UNKOWN";
         String remark = "unkown";
-        String value = arr[0].trim();
+        String value = arr[0];
         id = Short.valueOf(value);
         if (arr.length >= 2) {
-            name = arr[1].trim();
+            name = arr[1];
             if (arr.length == 3) {
-                remark = arr[2].trim();
+                remark = arr[2];
             }
         }
         return new ColumnEnum(id, name, remark);

@@ -3,13 +3,13 @@ var CONST;
 
 @import java.util.List;
 @import java.util.ArrayList;
-@import org.febit.generator.util.CollectionUtil;
-@import org.febit.generator.util.StringUtil;
+@import org.febit.util.StringUtil;
 @import org.febit.generator.util.Arrays;
+@import org.febit.generator.util.CollectionUtil;
 @import org.febit.generator.util.SQLUtil;
+@import org.febit.generator.util.NamingUtil;
 @import org.febit.generator.model.Table;
 @import org.febit.generator.TemplateContext;
-@import org.febit.generator.util.NamingUtil;
 @import org.febit.generator.Config;
 
 
