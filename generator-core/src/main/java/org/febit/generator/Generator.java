@@ -22,13 +22,15 @@ import java.util.List;
 import java.util.Map;
 import org.febit.generator.components.GeneratorProcesser;
 import org.febit.generator.components.TableFactory;
+import org.febit.generator.model.DependLibs;
 import org.febit.generator.model.Table;
 import org.febit.generator.saver.FileEntry;
 import org.febit.generator.saver.FileSaver;
 import org.febit.generator.saver.FolderEntry;
-import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.ResourceUtil;
+import org.febit.lang.Singleton;
+import org.febit.util.CollectionUtil;
+import org.febit.util.Petite;
 import org.febit.wit.Engine;
 import org.febit.wit.exceptions.ParseException;
 import org.febit.wit.global.GlobalManager;
@@ -41,105 +43,146 @@ import org.febit.wit.util.KeyValuesUtil;
  *
  * @author zqq90
  */
-public class Generator {
+public class Generator implements Singleton {
 
-    private String outroot;
-    private GlobalManager globalManager;
+    protected Config config;
+    protected Petite petite;
+
+    protected DependLibs depends;
+    protected DependLibs testDepends;
+    protected DependLibs providedDepends;
+
+    protected String[] tmpls;
+    protected String[] copys;
+    protected String[] folders;
+    protected String[] inits;
+
+    protected String outroot;
+    protected GeneratorProcesser[] processers;
+    protected TableFactory tableFactory;
+
+    protected String engineProps;
+    protected boolean debug;
+    protected String basePkg;  //Required
+    protected String modelPkg; //Required
+    protected String modelPrefix;
+
     private Engine templateEngine;
     private List<Table> tableList;
     private List<Table> whiteTables;
-    private GeneratorProcesser[] processers;
-    private Map<Object, FileSaver> fileSaverMap;
 
-    private void initTemplateEngine() {
-        final Engine engine = Engine.create(Config.getString("engine.props"));
-        this.globalManager = engine.getGlobalManager();
-        this.templateEngine = engine;
+    private final Map<Object, FileSaver> fileSavers = new HashMap<>();
+    private final List<String> commonTemplates = new ArrayList<>();
+    private final List<String> tableTemplates = new ArrayList<>();
+
+    @Petite.Init
+    public void init() {
+        this.templateEngine = Engine.create(engineProps);
+        for (String item : tmpls) {
+            if (item.startsWith("#")) {
+                continue;
+            }
+            if (item.endsWith(".each")) {
+                tableTemplates.add(item);
+            } else {
+                commonTemplates.add(item);
+            }
+        }
+
+        Logger.info("Common Templates amount: " + commonTemplates.size());
+        Logger.info("Table  Templates amount: " + tableTemplates.size());
+    }
+
+    protected void initFileSaver() {
+        GlobalManager globalManager = this.templateEngine.getGlobalManager();
+
+        int i = 0;
+        for (Map.Entry<String, String> entry : config.extract("filetypes.").entrySet()) {
+            String key = entry.getKey();
+            String className = entry.getValue();
+
+            FileSaver tmplFileSaver = (FileSaver) petite.get(className);
+            tmplFileSaver.init(outroot);
+
+            fileSavers.put(key, tmplFileSaver);
+            fileSavers.put(i, tmplFileSaver);
+            globalManager.setConst(key, i);
+            i++;
+            Logger.info("Loaded FileType:" + key);
+        }
     }
 
     public void process() {
         try {
-
-            outroot = FileUtil.concat(Config.getWorkPath(), Config.getRequiredString("outroot"));
-            Logger.info("outroot: " + outroot);
-
-            String[] processersClass = Config.getArrayWithoutComment("processers");
-            processers = new GeneratorProcesser[processersClass.length];
-            {
-                int i = 0;
-                for (String string : processersClass) {
-                    Logger.info("Running processer: " + string);
-                    GeneratorProcesser processer = processers[i++] = (GeneratorProcesser) ResourceUtil.loadClass(string).newInstance();
-                    processer.init(this);
-                }
-            }
-
-            initTemplateEngine();
-            initRoot();
-            for (GeneratorProcesser processer : processers) {
-                processer.afterInitRoot();
-            }
-            initFileSaver();
-
-            //create_folders
-            {
-                for (String folder : Config.getCreateFolders()) {
-                    final int i = folder.indexOf('/');
-                    getFileSaver(folder.substring(0, i)).createFolder(folder.substring(i + 1));
-                }
-            }
-
-            //copys
-            {
-                for (String copy : Config.getCopys()) {
-                    final int i = copy.indexOf('/');
-                    String fileSaverName = copy.substring(0, i);
-                    FileSaver fileSaver = getFileSaver(fileSaverName);
-                    if (fileSaver == null) {
-                        Logger.error("Not found FileSaver:" + fileSaverName);
-                        throw new RuntimeException("Not found FileSaver:" + fileSaverName);
-                    }
-                    fileSaver.copyFile(copy.substring(i + 1), copy);
-                }
-            }
-
-            //init Templates
-            {
-                final String[] initTemplates = Config.getInitTemplates();
-                if (initTemplates.length != 0) {
-                    final GlobalManager globalManager = this.templateEngine.getGlobalManager();
-                    final Out out = new DiscardOut();
-                    final KeyValues params = KeyValuesUtil.wrap(new String[]{
-                        "GLOBAL",
-                        "CONST"
-                    }, new Object[]{
-                        globalManager.getGlobalBag(),
-                        globalManager.getConstBag()
-                    });
-
-                    for (String templateName : initTemplates) {
-                        if (templateName != null
-                                && (templateName = templateName.trim()).length() != 0) {
-                            if (Logger.isDebugEnabled()) {
-                                Logger.debug("Run init: " + templateName);
-                            }
-                            this.templateEngine.getTemplate(templateName)
-                                    .merge(params, out);
-                            //Commit Global
-                            globalManager.commit();
-                        }
-                    }
-                }
-            }
-            //TODO: log table summary
-            margeTemplates();
+            _process();
         } catch (Exception ex) {
             Logger.error(ex.getMessage(), ex);
         }
+    }
+
+    protected void _process() throws IOException, Exception {
+        Logger.info("outroot: " + outroot);
+        initRoot();
+        for (GeneratorProcesser processer : processers) {
+            processer.afterInitRoot();
+        }
+        initFileSaver();
+
+        //create_folders
+        for (String folder : folders) {
+            if (folder.startsWith("#")) {
+                continue;
+            }
+            final int i = folder.indexOf('/');
+            getFileSaver(folder.substring(0, i)).createFolder(folder.substring(i + 1));
+        }
+
+        //copys
+        for (String copy : copys) {
+            if (copy.startsWith("#")) {
+                continue;
+            }
+            final int i = copy.indexOf('/');
+            String fileSaverName = copy.substring(0, i);
+            FileSaver fileSaver = getFileSaver(fileSaverName);
+            if (fileSaver == null) {
+                Logger.error("Not found FileSaver:" + fileSaverName);
+                throw new RuntimeException("Not found FileSaver:" + fileSaverName);
+            }
+            fileSaver.copyFile(copy.substring(i + 1), copy);
+        }
+
+        //init Templates
+        if (inits.length != 0) {
+            final GlobalManager globalManager = this.templateEngine.getGlobalManager();
+            final Out out = new DiscardOut();
+            final KeyValues params = KeyValuesUtil.wrap(new String[]{
+                "GLOBAL",
+                "CONST"
+            }, new Object[]{
+                globalManager.getGlobalBag(),
+                globalManager.getConstBag()
+            });
+
+            for (String templateName : inits) {
+                if (templateName.startsWith("#")) {
+                    continue;
+                }
+                if (Logger.isDebugEnabled()) {
+                    Logger.debug("Run init: " + templateName);
+                }
+                this.templateEngine.getTemplate(templateName)
+                        .merge(params, out);
+                //Commit Global
+                globalManager.commit();
+            }
+        }
+        //TODO: log table summary
+        margeTemplates();
         //TODO: log summary
     }
 
-    protected void margeTemplates() throws IOException, ParseException, Exception {
+    protected void margeTemplates() throws IOException, ParseException {
 
         for (GeneratorProcesser processer : processers) {
             processer.beforeMargeTemplates();
@@ -152,7 +195,7 @@ public class Generator {
 
         final Map<String, Object> params = new HashMap<>();
         // Common Templates
-        for (String item : Config.getCommonTemplates()) {
+        for (String item : commonTemplates) {
             params.clear();
             for (GeneratorProcesser processer : processers) {
                 processer.beforeMargeCommonTemplate(item, params);
@@ -162,7 +205,6 @@ public class Generator {
 
         //reg 
         // Table Templates
-        final List<String> tableTemplates = Config.getTableTemplates();
         for (Table table : whiteTables) {
             globalManager.setGlobal(currtableGlobalIndex, table);
             for (String item : tableTemplates) {
@@ -175,7 +217,7 @@ public class Generator {
         }
     }
 
-    protected void margeTemplate(String templateName, Map<String, Object> params) throws IOException, ParseException, Exception {
+    protected void margeTemplate(String templateName, Map<String, Object> params) throws IOException, ParseException {
 
         this.templateEngine.getTemplate(templateName).merge(params, Logger.out);
 
@@ -187,7 +229,7 @@ public class Generator {
             if (fileSaver != null) {
                 fileSaver.saveFile(templateName, fileEntry);
             } else {
-                throw new Exception("TmplFileSaver not found with id: " + fileEntry.type);
+                throw new RuntimeException("TmplFileSaver not found with id: " + fileEntry.type);
             }
         }
         for (FolderEntry folderEntry : TemplateContext.popFolders()) {
@@ -198,61 +240,39 @@ public class Generator {
             if (fileSaver != null) {
                 fileSaver.createFolder(folderEntry.fileName);
             } else {
-                throw new Exception("TmplFileSaver not found with id: " + folderEntry.type);
+                throw new RuntimeException("TmplFileSaver not found with id: " + folderEntry.type);
             }
-        }
-    }
-
-    protected void initFileSaver() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Map<Object, FileSaver> fileSavers = this.fileSaverMap = new HashMap<>();
-        Map<String, String> fileTypeMap = Config.getFileTypeMap();
-        int i = 0;
-        for (Map.Entry<String, String> entry : fileTypeMap.entrySet()) {
-            String typeName = entry.getKey();
-            String className = entry.getValue();
-
-            Class typeClass = ResourceUtil.loadClass(className);
-            FileSaver tmplFileSaver = (FileSaver) typeClass.newInstance();
-            tmplFileSaver.init(outroot);
-
-            fileSavers.put(typeName, tmplFileSaver);
-            fileSavers.put(i, tmplFileSaver);
-            this.globalManager.setConst(typeName, i);
-            ++i;
-            Logger.info("Loaded FileType:" + typeName);
         }
     }
 
     protected FileSaver getFileSaver(Object fileType) {
-        return fileSaverMap.get(fileType);
+        return fileSavers.get(fileType);
     }
 
     protected void initRoot() throws IOException {
 
-        this.globalManager.setConst("DEBUG", Config.getBoolean("debug"));
-        this.globalManager.setConst("basePkg", Config.getRequiredString("basePkg"));
-        this.globalManager.setConst("modelPkg", Config.getRequiredString("modelPkg"));
-        this.globalManager.setConst("modelPrefix", Config.getString("modelPrefix", ""));
+        GlobalManager globalManager = this.templateEngine.getGlobalManager();
+        globalManager.setConst("DEBUG", debug);
+        globalManager.setConst("basePkg", basePkg);
+        globalManager.setConst("modelPkg", modelPkg);
+        globalManager.setConst("modelPrefix", modelPrefix);
 
-        this.globalManager.setConst("db", Config.getMap("db"));
+        globalManager.setConst("db", config.extract("db."));
 
-        this.globalManager.setConst("depends", Config.getDepends());
-        this.globalManager.setConst("testDepends", Config.getTestDepends());
-        this.globalManager.setConst("providedDepends", Config.getProvidedDepends());
+        globalManager.setConst("depends", depends);
+        globalManager.setConst("testDepends", testDepends);
+        globalManager.setConst("providedDepends", providedDepends);
 
-        for (Map.Entry<String, String> entry : Config.getMap("extra").entrySet()) {
-            this.globalManager.setConst(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, String> entry : config.extract("extra.").entrySet()) {
+            globalManager.setConst(entry.getKey(), entry.getValue());
         }
 
-        this.tableList = TableFactory.getTables();
-        whiteTables = new ArrayList<>(this.tableList.size());
-        for (Table table : tableList) {
-            if (!table.isBlackEntity) {
-                whiteTables.add(table);
-            }
-        }
+        this.tableList = tableFactory.getTables();
+        this.whiteTables = CollectionUtil.toIter(this.tableList)
+                .filter((Table table) -> !table.isBlackEntity)
+                .readList();
 
-        this.globalManager.setConst("tables", this.tableList);
+        globalManager.setConst("tables", this.tableList);
     }
 
     public String getOutroot() {
@@ -260,7 +280,7 @@ public class Generator {
     }
 
     public Map<Object, FileSaver> getFileSaverMap() {
-        return fileSaverMap;
+        return fileSavers;
     }
 
     public List<Table> getWhiteTables() {

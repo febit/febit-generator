@@ -15,6 +15,7 @@
  */
 package org.febit.generator.model;
 
+import org.febit.convert.Convert;
 import org.febit.util.StringUtil;
 
 /**
@@ -24,6 +25,15 @@ import org.febit.util.StringUtil;
 public class DependLib implements Comparable<DependLib> {
 
     public static final String JAR = "jar";
+
+    static {
+        Convert.register(DependLib.class, (String raw, Class type1) -> DependLib.valueOf(raw));
+    }
+
+    public static void noop() {
+        // Do nothing
+    }
+
     private transient int hash;
 
     public final String group;

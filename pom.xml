@@ -15,7 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <wit.version>2.0.0-beta</wit.version>
+    <wit.version>2.1.0-beta</wit.version>
     <febit-common.version>2.6.0-SNAPSHOT</febit-common.version>
   </properties>
   <scm>
@@ -81,9 +81,9 @@
         <version>${febit-common.version}</version>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.11</version>
+        <groupId>org.testng</groupId>
+        <artifactId>testng</artifactId>
+        <version>6.9.10</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -25,15 +25,21 @@ import org.febit.util.ClassUtil;
  *
  * @author zqq90
  */
-public class TypeConverterUtil {
+public class TypeConverter {
 
-    private static final Map<Object, Converter> CONVERTERS = new HashMap<Object, Converter>();
     private static final Converter DEFAULT_CONVERTER = new StringConverter();
 
-    private static Converter resolveConverter(String type) {
+    protected Config config;
+    protected final Map<Object, Converter> CONVERTERS = new HashMap<>();
+
+    public Object convert(String type, String value) {
+        return resolveConverter(type).convert(value);
+    }
+
+    protected Converter resolveConverter(String type) {
         Converter converter = CONVERTERS.get(type);
         if (converter == null) {
-            String convertType = Config.getString("typeConverter." + type);
+            String convertType = config.get("typeConverter." + type);
             if (convertType != null) {
                 converter = (Converter) ClassUtil.newInstance(convertType);
             } else {
@@ -42,9 +48,5 @@ public class TypeConverterUtil {
             CONVERTERS.put(type, converter);
         }
         return converter;
-    }
-
-    public static Object convert(String type, String value) {
-        return resolveConverter(type).convert(value);
     }
 }

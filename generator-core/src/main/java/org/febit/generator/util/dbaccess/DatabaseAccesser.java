@@ -30,42 +30,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import org.febit.generator.Config;
+import org.febit.generator.Lazy;
 import org.febit.generator.util.Logger;
-import org.febit.util.StringUtil;
+import org.febit.util.agent.LazyAgent;
 
 public class DatabaseAccesser {
 
-    private static DatabaseAccesser instance;
-    private static Connection connection;
+    public static final LazyAgent<DatabaseAccesser> INSATNCE = LazyAgent.create(() -> {
+        DatabaseAccesser accesser = new DatabaseAccesser();
+        Lazy.petite().inject("db", accesser);
+        return accesser;
+    });
+
+    protected Pattern includeTables;
+    protected Pattern excludeTables;
+
+    protected boolean skipUnreadableTable;
+    protected String catalog;
+    protected String schema;
+    protected String driver;
+    protected String url;
+    protected String username;
+    protected String password;
+
+    private Connection connection;
 
     private TableCache tableCache;
     private ColumnCache columnCache;
 
-    private Pattern includes;
-    private Pattern excludes;
-
-    private final boolean skipUnreadableTable;
-    private final String catalog;
-    private final String schema;
-
     private DatabaseAccesser() {
-        this.skipUnreadableTable = Config.getBoolean("skipUnreadableTable", false);
-        this.catalog = Config.getString("db.catalog");
-        this.schema = Config.getString("db.schema");
-        String includesString = Config.getString("includeTables");
-        String excludesString = Config.getString("excludeTables");
-        if (StringUtil.isNotEmpty(includesString)) {
-            this.includes = Pattern.compile(includesString);
-        }
-        if (StringUtil.isNotEmpty(excludesString)) {
-            this.excludes = Pattern.compile(excludesString);
-        }
     }
 
     private boolean isTableInclude(final String tableName) {
-        return (includes == null || includes.matcher(tableName).matches())
-                && (excludes == null || !excludes.matcher(tableName).matches());
+        return (includeTables == null || includeTables.matcher(tableName).matches())
+                && (excludeTables == null || !excludeTables.matcher(tableName).matches());
     }
 
     public Collection<TableRaw> getAllTables() {
@@ -271,34 +269,22 @@ public class DatabaseAccesser {
         return primaryKeys;
     }
 
-    public static DatabaseAccesser getInstance() {
-        DatabaseAccesser accesser = instance;
-        if (accesser == null) {
-            accesser = instance = new DatabaseAccesser();
-        }
-        return accesser;
-    }
-
-    private static DatabaseMetaData getMetaData() throws SQLException {
+    private DatabaseMetaData getMetaData() throws SQLException {
         return getConnection().getMetaData();
     }
 
-    public static Connection getConnection() {
+    public Connection getConnection() {
         try {
             Connection conn = connection;
             if (conn == null || conn.isClosed()) {
-                final String driver = Config.getRequiredString("db.driver");
                 try {
                     Class.forName(driver);
 
-                    String url = Config.getRequiredString("db.url");
-                    String user = Config.getString("db.username");
-                    String password = Config.getString("db.password");
                     final String JdbcType = getJdbcType(url);
                     Logger.debug("Jdbc Type: " + JdbcType);
                     Properties info = new Properties();
-                    if (user != null) {
-                        info.put("user", user);
+                    if (username != null) {
+                        info.put("user", username);
                     }
                     if (password != null) {
                         info.put("password", password);
@@ -309,8 +295,8 @@ public class DatabaseAccesser {
                     conn = DriverManager.getConnection(url, info);
                     if (Logger.isDebugEnabled()) {
                         Logger.debug("Initialized connection: " + conn.getClass().getName());
-                        Logger.debug("  Catalog: " + Config.getString("db.catalog"));
-                        Logger.debug("  Schema: " + Config.getString("db.schema"));
+                        Logger.debug("  Catalog: " + catalog);
+                        Logger.debug("  Schema: " + catalog);
                     }
                     connection = conn;
                 } catch (ClassNotFoundException e) {
@@ -333,8 +319,8 @@ public class DatabaseAccesser {
         return "unkown";
     }
 
-    public static String getJdbcType() {
-        return getJdbcType(Config.getRequiredString("db.url"));
+    public String getJdbcType() {
+        return getJdbcType(url);
     }
 
     public static String getJdbcTypeString(int type) {

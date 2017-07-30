@@ -15,31 +15,22 @@
  */
 package org.febit.generator.components;
 
-import org.febit.generator.util.ResourceUtil;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public abstract class TableNaming {
-
-    private static TableNaming _instance;
+public abstract class TableNaming implements Singleton {
 
     public abstract String remark(String remark);
-    
+
     public abstract String sqlName(String sqlNameRaw);
-    
+
     public abstract String entity(String sqlName);
-    
+
     public abstract String modelSimpleType(String entity);
-    
+
     public abstract String modelType(String modelSimpleType);
-    
-    public static TableNaming instance() {
-        TableNaming instance = _instance;
-        if (instance == null) {
-            instance = _instance = (TableNaming) ResourceUtil.loadComponent("tableNaming");
-        }
-        return instance;
-    }
+
 }

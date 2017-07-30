@@ -22,17 +22,16 @@ import java.util.List;
 import java.util.Map;
 import org.febit.generator.model.Table;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.ResourceUtil;
 import org.febit.generator.util.dbaccess.DatabaseAccesser;
 import org.febit.generator.util.dbaccess.TableRaw;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public abstract class TableFactory {
+public abstract class TableFactory implements Singleton {
 
-    private static TableFactory _instance;
     private static List<Table> _tables;
     private static Map<String, Table> _tableMap;
 
@@ -41,53 +40,43 @@ public abstract class TableFactory {
     public List<Table> collectTables() {
 
         final List<Table> tableList;
-        {
-            final Map<String, Table> tableMaps = _tableMap = new HashMap<>();
-            for (TableRaw raw : DatabaseAccesser.getInstance().getAllTables()) {
-                Table table = createTable(raw);
-                if (table != null) {
-                    tableMaps.put(table.entity, table);
-                } else {
-                    if (Logger.isDebugEnabled()) {
-                        Logger.debug("Skip table (by TableFactory): " + raw);
-                    }
+
+        final Map<String, Table> tableMaps = _tableMap = new HashMap<>();
+        DatabaseAccesser.INSATNCE.get().getAllTables().forEach((raw) -> {
+            Table table = createTable(raw);
+            if (table != null) {
+                tableMaps.put(table.entity, table);
+            } else {
+                if (Logger.isDebugEnabled()) {
+                    Logger.debug("Skip table (by TableFactory): " + raw);
                 }
             }
+        });
 
-            tableList = new ArrayList<>(tableMaps.values());
-            //tables init
-            for (Table table : tableList) {
-                table.init();
-            }
-        }
+        tableList = new ArrayList<>(tableMaps.values());
+        //tables init
+        tableList.forEach((table) -> {
+            table.init();
+        });
         //table list sort
         Collections.sort(tableList);
-        if (Logger.isInfoEnabled()) {
-            for (Table table : tableList) {
-                Logger.info("Loaded table: " + table.sqlName + "  " + table.remark);
-            }
-        }
+
+        tableList.forEach((table) -> {
+            Logger.info("Loaded table: " + table.sqlName + "  " + table.remark);
+        });
 
         return tableList;
     }
 
-    public static TableFactory instance() {
-        TableFactory instance = _instance;
-        if (instance == null) {
-            instance = _instance = (TableFactory) ResourceUtil.loadComponent("tableFactory");
-        }
-        return instance;
-    }
-
-    public static List<Table> getTables() {
+    public List<Table> getTables() {
         List<Table> tables = _tables;
         if (tables == null) {
-            tables = _tables = instance().collectTables();
+            tables = _tables = collectTables();
         }
         return tables;
     }
 
-    public static Map<String, Table> getTableMap() {
+    public Map<String, Table> getTableMap() {
         Map<String, Table> tableMap = _tableMap;
         if (tableMap == null) {
             getTables();
@@ -96,7 +85,7 @@ public abstract class TableFactory {
         return tableMap;
     }
 
-    public static Table getTable(String entity) {
+    public Table getTable(String entity) {
         return getTableMap().get(entity);
     }
 

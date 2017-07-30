@@ -18,9 +18,11 @@ package org.febit.generator;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.febit.generator.model.DependLib;
+import org.febit.generator.model.DependLibs;
 import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
-import org.febit.util.StringUtil;
+import org.febit.util.Props;
 
 /**
  *
@@ -28,14 +30,21 @@ import org.febit.util.StringUtil;
  */
 public class Main {
 
+    private static final String DEFAULT_PROPS = "generator-default.props";
+
+    static {
+        DependLib.noop();
+        DependLibs.noop();
+    }
+
     public static void generate(String fileFullPath) throws IOException {
         loadConfig(fileFullPath, "gen");
-        new Generator().process();
+        Lazy.get(Generator.class).process();
     }
 
     public static void initConfig(String fileFullPath) throws IOException {
         loadConfig(fileFullPath, "init");
-        new ConfigInit().process();
+        Lazy.get(ConfigInit.class).process();
     }
 
     public static void main(String[] args) {
@@ -43,13 +52,21 @@ public class Main {
             System.out.println("Arguments count must be 2 at least.");
         }
         String action = args[0];
+        if (action == null) {
+            System.out.println("First argument must be 'gen' or 'init'.");
+            return;
+        }
         try {
-            if ("gen".equals(action)) {
-                generate(args[1]);
-            } else if ("init".equals(action)) {
-                Main.initConfig(args[1]);
-            } else {
-                System.out.println("First argument must be 'gen' or 'init'.");
+            switch (action) {
+                case "gen":
+                    generate(args[1]);
+                    break;
+                case "init":
+                    Main.initConfig(args[1]);
+                    break;
+                default:
+                    System.out.println("First argument must be 'gen' or 'init'.");
+                    break;
             }
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
@@ -60,21 +77,24 @@ public class Main {
      * 加载配置
      */
     private static void loadConfig(String configFile, String action) throws IOException {
-        final String workpath = FileUtil.getPath(configFile);
+        final String workPath = FileUtil.getPath(configFile);
+        Props props = Props.shadowLoader()
+                .load(DEFAULT_PROPS)
+                .load("file:" + configFile)
+                .get();
+        props.set("workPath", workPath);
 
-        Config.load(configFile);
-        Logger.setLevel(Config.getString("logger.level"));
-
+        Lazy.init(props);
+        Config config = Lazy.config();
+        for (String module : props.getModules()) {
+            Config.addModule(module);
+        }
+        Logger.setLevel(config.get("logger.level"));
         Date now = new Date();
-        Logger.setLogFile(FileUtil.concat(workpath, FileUtil.getName(configFile) + '.' + action + '.' + new SimpleDateFormat("yyyyMMddHHmmss").format(now) + ".log"));
+        Logger.setLogFile(FileUtil.concat(workPath, FileUtil.getName(configFile) + '.' + action + '.' + new SimpleDateFormat("yyyyMMddHHmmss").format(now) + ".log"));
         Logger.info("===================");
         Logger.info("TIME:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now));
         Logger.info("");
-
-        Config.setWorkPath(workpath);
-
-        Logger.info("Active Models: " + StringUtil.join(Config.MODULES, ", "));
-        Logger.info("Common Templates amount: " + Config.getCommonTemplates().size());
-        Logger.info("Table  Templates amount: " + Config.getTableTemplates().size());
+        Logger.info(" modules: " + props.getModulesString());
     }
 }

@@ -16,7 +16,6 @@
 package org.febit.generator;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.febit.generator.components.ConfigInitProcesser;
@@ -25,83 +24,28 @@ import org.febit.generator.model.Column;
 import org.febit.generator.model.Table;
 import org.febit.generator.util.Arrays;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.ResourceUtil;
 import org.febit.lang.Function2;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public class ConfigInit {
+public class ConfigInit implements Singleton {
+
+    protected ConfigInitProcesser[] processers;
+
+    protected TableFactory tableFactory;
+    protected TableSettings tableSettings;
 
     private List<Table> tables;
-    private Map<String, Map<String, Map<String, Object>>> tablesColumns;
-    private Map<String, Map<String, Map<String, Object>>> tablesColumnsOld;
+    private TableSettings.Tables settings;
+    private TableSettings.Tables settingsOld;
 
-    public Map<String, Map<String, Object>> getOldColumnMap(String tableName) {
-        return tablesColumnsOld != null ? tablesColumnsOld.get(tableName) : null;
-    }
-
-    public Map<String, Map<String, Object>> getOldColumnMap(Table table) {
-        Map<String, Map<String, Object>> result = getOldColumnMap(table.entity);
-        if (result == null) {
-            result = getOldColumnMap(table.sqlName);
-        }
-        return result;
-    }
-
-    public Map<String, Object> getOldColumnSettings(Column column) {
-        return getOldColumnSettings(column.table, column.name, column.sqlName);
-    }
-
-    public Map<String, Object> getOldColumnSettings(Table table, String varName) {
-        return getOldColumnSettings(table, varName, null);
-    }
-
-    public Map<String, Object> getOldColumnSettings(Table table, String varName, String sqlName) {
-        Map<String, Map<String, Object>> oldColumnMaps = this.getOldColumnMap(table);
-        if (oldColumnMaps == null) {
-            return null;
-        }
-        Map<String, Object> result = oldColumnMaps.get(varName);
-        if (result == null && sqlName != null) {
-            result = oldColumnMaps.get(sqlName);
-        }
-        return result;
-    }
-
-    public Map<String, Map<String, Object>> getTableColumns(Table table) {
-        Map<String, Map<String, Object>> columnMaps = tablesColumns.get(table.entity);
-        if (columnMaps == null) {
-            columnMaps = new HashMap<>();
-            tablesColumns.put(table.entity, columnMaps);
-        }
-        return columnMaps;
-    }
-
-    public Map<String, Object> getTableSettings(Table table) {
-        return getColumnSettings(table, Config.COLUMN_OF_TABLE_ATTRS);
-    }
-
-    public Map<String, Object> getColumnSettings(Column column) {
-        return getColumnSettings(column.table, column.name, column.sqlName);
-    }
-
-    public Map<String, Object> getColumnSettings(Table table, String varName) {
-        return getColumnSettings(table, varName, null);
-    }
-
-    public Map<String, Object> getColumnSettings(Table table, String varName, String sqlName) {
-        final Map<String, Map<String, Object>> columnMap = getTableColumns(table);
-        Map<String, Object> settings = columnMap.get(varName);
-        if (settings == null) {
-            settings = getOldColumnSettings(table, varName, sqlName);
-            if (settings == null) {
-                settings = new HashMap<>();
-            }
-            columnMap.put(varName, settings);
-        }
-        return settings;
+    public void init() {
+        this.tables = tableFactory.getTables();
+        this.settings = new TableSettings.Tables();
+        this.settingsOld = tableSettings.getSettings();
     }
 
     public void eachTable(Arrays.Handler<Table> handler) {
@@ -112,16 +56,11 @@ public class ConfigInit {
         if (includeBlankEntitys) {
             Arrays.each(tables, handler);
         } else {
-            Arrays.each(tables, new Arrays.Handler<Table>() {
-                private int count;
-
-                @Override
-                public boolean each(int index, Table value) {
-                    if (value.isBlackEntity) {
-                        return true;
-                    }
-                    return handler.each(count++, value);
+            Arrays.each(tables, (Table value) -> {
+                if (value.isBlackEntity) {
+                    return true;
                 }
+                return handler.each(value);
             });
         }
     }
@@ -131,82 +70,58 @@ public class ConfigInit {
     }
 
     public void eachColumn(final Arrays.Handler<Column> handler, boolean withBlankEntitys) {
-        eachTable(new Arrays.Handler<Table>() {
-
-            @Override
-            public boolean each(int index, Table table) {
-                return Arrays.each(table.columns, handler);
-            }
-        }, withBlankEntitys);
+        eachTable((Table table) -> Arrays.each(table.columns, handler), withBlankEntitys);
     }
 
-    public void eachTableColumnSettings(Function2<Boolean, String, Map<String, Map<String, Object>>> handler) {
-        for (Map.Entry<String, Map<String, Map<String, Object>>> entry : tablesColumns.entrySet()) {
+    public void eachColumnsSettings(Function2<Boolean, String, TableSettings.Columns> handler) {
+        for (Map.Entry<String, TableSettings.Columns> entry : settings.entrySet()) {
             if (!handler.call(entry.getKey(), entry.getValue())) {
                 return;
             }
         }
     }
 
-    public void init() {
-        this.tables = TableFactory.getTables();
-        this.tablesColumns = new HashMap<>();
-        this.tablesColumnsOld = ResourceUtil.loadTableColumns();
-    }
-
     protected void beforeProcess() {
-        eachColumn(new Arrays.Handler<Column>() {
-
-            @Override
-            public boolean each(final int index, final Column column) {
-                Map<String, Object> columnMap = getColumnSettings(column);
-                if (!columnMap.containsKey("query")) {
-                    columnMap.put("query", null);
-                }
-
-                if (!columnMap.containsKey("fk") && column.name.endsWith("Id")) {
-                    columnMap.put("fk", null); //XXX: 可推断
-                }
-
-                return true;
+        eachColumn((Column column) -> {
+            TableSettings.ColumnAttrs columnMap = settings.getColumnAttrs(column);
+            if (columnMap.isEmpty()) {
+                // merge old settings
+                columnMap.putAll(this.settingsOld.getColumnAttrs(column));
             }
+            if (!columnMap.containsKey("query")) {
+                columnMap.put("query", null);
+            }
+            if (!columnMap.containsKey("fk") && column.name.endsWith("Id")) {
+                columnMap.put("fk", null); //XXX: 可推断
+            }
+            return true;
         });
-        eachTable(new Arrays.Handler<Table>() {
-
-            @Override
-            public boolean each(int index, Table table) {
-                //resure copy table settings
-                getTableSettings(table);
-                return true;
+        eachTable((Table table) -> {
+            Map<String, Object> tableAttrs = this.settings.getTableAttrs(table);
+            if (tableAttrs.isEmpty()) {
+                // merge old settings
+                tableAttrs.putAll(this.settingsOld.getTableAttrs(table));
             }
+            return true;
         });
     }
 
     public void afterProcess() {
-        ResourceUtil.saveTableColumns(this.tablesColumns);
-        Logger.info("Saved " + ResourceUtil.getResPath(ResourceUtil.COLUMNS_PROPS));
+        tableSettings.saveSettings(this.settings);
     }
 
     public void process() throws IOException {
         init();
         beforeProcess();
-
-        //ConfigInitProcessers
-        try {
-            for (String item : Config.getArrayWithoutComment("configInit")) {
-                Logger.info("Running processer: " + item);
-                ((ConfigInitProcesser) ResourceUtil.loadClass(item).newInstance()).process(this);
-            }
-        } catch (Exception ex) {
-            Logger.error("Exception: ", ex);
-            throw new RuntimeException(ex);
+        for (ConfigInitProcesser processer : processers) {
+            Logger.info("Running processer: " + processer.getClass());
+            processer.process(this);
         }
-
         afterProcess();
         //TODO: log summary
     }
 
-    public Map<String, Map<String, Map<String, Object>>> getTablesColumns() {
-        return tablesColumns;
+    public TableSettings.Tables getSettings() {
+        return settings;
     }
 }

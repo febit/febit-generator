@@ -16,13 +16,11 @@
 package org.febit.generator.components.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.febit.generator.Config;
+import org.febit.generator.TableSettings;
 import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.components.TableNaming;
@@ -31,6 +29,7 @@ import org.febit.generator.model.Table;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.dbaccess.ColumnRaw;
 import org.febit.generator.util.dbaccess.TableRaw;
+import org.febit.util.ArraysUtil;
 
 /**
  *
@@ -38,23 +37,14 @@ import org.febit.generator.util.dbaccess.TableRaw;
  */
 public class DefaultTableFactory extends TableFactory {
 
-    private final Set<String> blackEntitys = new HashSet<>();
-
-    private boolean inited = false;
-
-    public void init() {
-        if (inited == true) {
-            return;
-        }
-        inited = true;
-
-        //加载表黑名单
-        blackEntitys.addAll(Arrays.asList(Config.getArrayWithoutComment("blackEntitys")));
-    }
+    protected TableNaming tableNaming;
+    //加载表黑名单
+    protected String[] blackEntitys;
+    protected ColumnFactory columnFactory;
+    protected TableSettings tableSettings;
 
     @Override
     protected Table createTable(final TableRaw tableRaw) {
-        init();
         final String entity;
         final String sqlName;
         final String remark;
@@ -64,9 +54,7 @@ public class DefaultTableFactory extends TableFactory {
         final String modelType;
         final String modelSimpleType;
         final boolean blackEntity;
-        final Map<String, Object> tableSettings;
-
-        final TableNaming tableNaming = TableNaming.instance();
+        final Map<String, Object> tableAttrs;
 
         remark = tableNaming.remark(tableRaw.remark);
         columns = new ArrayList<>();
@@ -76,15 +64,15 @@ public class DefaultTableFactory extends TableFactory {
         sqlName = tableNaming.sqlName(tableRaw.name);
         entity = tableNaming.entity(sqlName);
 
-        blackEntity = blackEntitys.contains(entity);
+        blackEntity = ArraysUtil.contains(blackEntitys, entity);
         modelSimpleType = tableNaming.modelSimpleType(entity);
         modelType = tableNaming.modelType(modelSimpleType);
-        tableSettings = Config.getTableSettings(entity);
-        final Table table = new Table(entity, sqlName, remark, tableSettings, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
+        tableAttrs = tableSettings.getTableAttrs(entity);
+        final Table table = new Table(entity, sqlName, remark, tableAttrs, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
         {
             //XXX: tableSettings.get("id")
             for (ColumnRaw columnRaw : tableRaw.getColumns()) {
-                Column cm = ColumnFactory.create(columnRaw, table);
+                Column cm = columnFactory.create(columnRaw, table);
                 if (cm == null) {
                     if (Logger.isDebugEnabled()) {
                         Logger.debug("Skip column (by ColumnFactory): " + columnRaw);

@@ -19,34 +19,25 @@ import java.util.HashMap;
 import java.util.Map;
 import org.febit.generator.model.Column;
 import org.febit.generator.model.Table;
-import org.febit.generator.util.ResourceUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public abstract class ColumnFactory {
+public abstract class ColumnFactory implements Singleton {
 
-    private static ColumnFactory _instance;
-    private static final Map<ColumnRaw, Column> columnLinkRawMap = new HashMap<ColumnRaw, Column>();
+    private final Map<ColumnRaw, Column> columnLinkRawMap = new HashMap<>();
 
     protected abstract Column createColumn(ColumnRaw raw, Table table);
 
-    public static ColumnFactory instance() {
-        ColumnFactory instance = _instance;
-        if (instance == null) {
-            instance = _instance = (ColumnFactory) ResourceUtil.loadComponent("columnFactory");
-        }
-        return instance;
-    }
-
-    public static Column getColumn(ColumnRaw raw) {
+    public Column getColumn(ColumnRaw raw) {
         return columnLinkRawMap.get(raw);
     }
 
-    public static Column create(ColumnRaw raw, Table table) {
-        Column column = instance().createColumn(raw, table);
+    public Column create(ColumnRaw raw, Table table) {
+        Column column = createColumn(raw, table);
         if (column != null) {
             columnLinkRawMap.put(raw, column);
         }

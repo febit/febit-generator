@@ -15,9 +15,8 @@
  */
 package org.febit.generator.util;
 
-import org.febit.generator.util.NamingUtil;
-import static junit.framework.Assert.*;
-import org.junit.Test;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  *

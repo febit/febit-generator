@@ -64,13 +64,12 @@ public class Arrays {
 
     public static interface Handler<V> {
 
-        boolean each(int index, V value);
+        boolean each(V value);
     }
 
     public static <V> boolean each(Collection<V> collection, Handler<V> handler) {
-        int index = 0;
         for (V item : collection) {
-            if (!handler.each(index++, item)) {
+            if (!handler.each(item)) {
                 return false;
             }
         }

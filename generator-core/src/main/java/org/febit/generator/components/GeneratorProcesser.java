@@ -18,12 +18,13 @@ package org.febit.generator.components;
 import java.util.Map;
 import org.febit.generator.Generator;
 import org.febit.generator.model.Table;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public interface GeneratorProcesser {
+public interface GeneratorProcesser extends Singleton {
 
     void init(Generator generator);
 

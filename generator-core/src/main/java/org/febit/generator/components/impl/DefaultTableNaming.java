@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.febit.generator.components.impl;
 
 import org.febit.generator.Config;
@@ -25,19 +24,19 @@ import org.febit.util.StringUtil;
  *
  * @author zqq90
  */
-public class DefaultTableNaming extends TableNaming{
+public class DefaultTableNaming extends TableNaming {
+
+    protected String tablePrefix;
+    protected String modelPrefix;
+    protected String modelSuffix;
+    protected String modelPkg;
+    protected boolean toCamelCase;
 
     @Override
     public String sqlName(String sqlNameRaw) {
-        return StringUtil.cutPrefix(sqlNameRaw, Config.getString("db.tablePrefix", ""));
+        return StringUtil.cutPrefix(sqlNameRaw, tablePrefix);
     }
 
-    protected boolean toCamelCase;
-
-    public DefaultTableNaming() {
-        this.toCamelCase = Config.getBoolean("tableNaming.toCamelCase", true);
-    }
-    
     @Override
     public String entity(String sqlName) {
         if (this.toCamelCase) {
@@ -48,12 +47,12 @@ public class DefaultTableNaming extends TableNaming{
 
     @Override
     public String modelSimpleType(String entity) {
-        return Config.getString("modelPrefix", "") + NamingUtil.upperFirst(entity) + Config.getString("modelSuffix", "");
+        return modelPrefix + NamingUtil.upperFirst(entity) + modelSuffix;
     }
 
     @Override
     public String modelType(String modelSimpleType) {
-        return Config.getString("modelPkg", Config.getRequiredString("basePkg")) + "." + modelSimpleType;
+        return modelPkg + "." + modelSimpleType;
     }
 
     @Override

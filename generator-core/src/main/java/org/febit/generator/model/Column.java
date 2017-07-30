@@ -17,6 +17,7 @@ package org.febit.generator.model;
 
 import java.util.List;
 import java.util.Map;
+import org.febit.generator.Lazy;
 import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.ColumnNaming;
 import org.febit.generator.components.TableFactory;
@@ -106,14 +107,14 @@ public class Column implements Comparable<Column> {
 
             ForeignKey foreignKey = raw.getHasOne();
             if (foreignKey != null) {
-                linkColumn = ColumnFactory.getColumn(foreignKey.pk);
+                linkColumn = Lazy.get(ColumnFactory.class).getColumn(foreignKey.pk);
                 if (linkColumn != null) {
                     linkTable = linkColumn.table;
                 } else {
                     Logger.warn("Loss foreignKey: " + foreignKey);
                 }
             } else if (fkHint != null) {
-                linkTable = TableFactory.getTable(fkHint);
+                linkTable = Lazy.get(TableFactory.class).getTable(fkHint);
                 if (linkTable != null) {
                     linkColumn = linkTable.getIdColumn();
                 } else {
@@ -127,8 +128,9 @@ public class Column implements Comparable<Column> {
                 fkVarName = StringUtil.cutSuffix(name, "Id");
                 fkType = linkTable.modelType;
                 fkSimpleType = NamingUtil.getClassSimpleName(fkType);
-                fkGetterName = ColumnNaming.instance().getterName(fkVarName, fkType);
-                fkSetterName = ColumnNaming.instance().setterName(fkVarName, fkType);
+                ColumnNaming columnNaming = Lazy.get(ColumnNaming.class);
+                fkGetterName = columnNaming.getterName(fkVarName, fkType);
+                fkSetterName = columnNaming.setterName(fkVarName, fkType);
                 fk.addLinkColumns(this);
             } else {
                 isfk = false;

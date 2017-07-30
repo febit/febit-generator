@@ -15,9 +15,9 @@
  */
 package org.febit.generator.util;
 
-import org.junit.Test;
 import org.febit.generator.util.dbaccess.DatabaseAccesser;
-import static org.junit.Assert.*;
+import static org.testng.Assert.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  *

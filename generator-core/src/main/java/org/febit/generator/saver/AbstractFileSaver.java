@@ -24,6 +24,7 @@ import jodd.io.StreamUtil;
 import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
 import org.febit.util.ClassUtil;
+import org.febit.util.StringUtil;
 
 /**
  *
@@ -34,6 +35,7 @@ public abstract class AbstractFileSaver implements FileSaver {
     private final static String COPY_ROOT = "copy/";
 
     protected abstract String getFilePath(FileEntry fileEntry);
+
     protected abstract String getBasePath();
 
     protected byte[] getContentFromTmpl(FileEntry fileEntry) {
@@ -75,7 +77,7 @@ public abstract class AbstractFileSaver implements FileSaver {
 
     @Override
     public boolean createFolder(String folder) {
-        String dir = FileUtil.concat(getBasePath(), folder);
+        String dir = FileUtil.concat(getBasePath(), StringUtil.cutPrefix(folder, "/"));
         try {
             FileUtil.mkdirs(dir);
         } catch (IOException ex) {
@@ -88,7 +90,7 @@ public abstract class AbstractFileSaver implements FileSaver {
     public boolean saveFile(String tmpl, FileEntry fileEntry) {
         String path = getFilePath(fileEntry);
         try {
-            writeFile(path, getContentFromTmpl(fileEntry));
+            writeFile(StringUtil.cutPrefix(path, "/"), getContentFromTmpl(fileEntry));
         } catch (IOException ex) {
             return dealExceptions("Unable to saveFile: " + path, ex);
         }

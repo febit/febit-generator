@@ -16,7 +16,7 @@
 package org.febit.generator.util.dbaccess;
 
 import java.sql.Types;
-import org.febit.generator.Config;
+import org.febit.generator.Lazy;
 
 public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<ColumnRaw> {
 
@@ -58,7 +58,7 @@ public class ColumnRaw implements java.io.Serializable, Cloneable, Comparable<Co
 
     public String getJavaType() {
         final String javaType = DatabaseAccesser.getJavaType(this.type, this.size, this.decimalDigits);
-        return Config.getString("javaTypeMapping.".concat(javaType), javaType);
+        return Lazy.config().getOrElse("javaTypeMapping.".concat(javaType), javaType);
     }
 
     public boolean getIsFk() {

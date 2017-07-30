@@ -28,7 +28,6 @@ public class DefaultColumnNaming extends ColumnNaming {
     protected boolean toCamelCase;
 
     public DefaultColumnNaming() {
-        this.toCamelCase = Config.getBoolean("columnNaming.toCamelCase", true);
     }
 
     @Override

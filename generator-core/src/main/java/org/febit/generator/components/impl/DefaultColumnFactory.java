@@ -20,17 +20,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.febit.generator.Config;
+import org.febit.generator.TableSettings;
 import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.ColumnNaming;
 import org.febit.generator.model.Column;
 import org.febit.generator.model.ColumnEnum;
 import org.febit.generator.model.Table;
-import org.febit.generator.typeconverter.TypeConverterUtil;
+import org.febit.generator.typeconverter.TypeConverter;
 import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.NamingUtil;
-import org.febit.generator.util.ResourceUtil;
 import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
 
@@ -40,28 +39,12 @@ import org.febit.generator.util.dbaccess.ColumnRaw;
  */
 public class DefaultColumnFactory extends ColumnFactory {
 
-    private Pattern includes;
-    private Pattern excludes;
+    protected Pattern includes;
+    protected Pattern excludes;
 
-    private boolean inited = false;
-
-    public void init() {
-        if (inited == true) {
-            return;
-        }
-        inited = true;
-
-        {
-            String includesString = Config.getString("includeColumns");
-            if (StringUtil.isNotEmpty(includesString)) {
-                includes = Pattern.compile(includesString);
-            }
-            String excludesString = Config.getString("excludeColumns");
-            if (StringUtil.isNotEmpty(excludesString)) {
-                excludes = Pattern.compile(excludesString);
-            }
-        }
-    }
+    protected TableSettings tableSettings;
+    protected ColumnNaming columnNaming;
+    protected TypeConverter typeConverter;
 
     /**
      * include this column or not.
@@ -76,11 +59,9 @@ public class DefaultColumnFactory extends ColumnFactory {
 
     @Override
     protected Column createColumn(final ColumnRaw raw, final Table table) {
-        init();
         if (!isInclude(raw)) {
             return null;
         }
-        final ColumnNaming columnNaming = ColumnNaming.instance();
         //
         final String varName = columnNaming.varName(raw.name);
         final String javaType = raw.getJavaType();
@@ -89,14 +70,14 @@ public class DefaultColumnFactory extends ColumnFactory {
         final String setterName = columnNaming.setterName(varName, javaType);
         final ArrayList linkColumns = new ArrayList<>();
 
-        final Map<String, Object> attrs = Config.getColumnSettings(table, varName);
+        final Map<String, Object> attrs = tableSettings.getColumnAttrs(table, varName);
 
         final boolean query;
         final String fkHint;
         final boolean isfk;
 
         query = CommonUtil.toBoolean(attrs.get("query"));
-        fkHint = (String) ResourceUtil.toValidValue(attrs.get("fk"));
+        fkHint = (String) TableSettings.toValidValue(attrs.get("fk"));
         isfk = raw.getIsFk() || fkHint != null;
 
         //parser default
@@ -112,7 +93,7 @@ public class DefaultColumnFactory extends ColumnFactory {
                 defaultValueString = defaultValueString.trim();
                 final Object defaultValueObject
                         = defaultValue
-                        = TypeConverterUtil.convert(javaType, defaultValueString);
+                        = typeConverter.convert(javaType, defaultValueString);
                 if (defaultValueObject instanceof Boolean) {
                     defaultValueShow = defaultValueObject.toString();
 //            } else if (defaultValueObject instanceof BigDecimal) {

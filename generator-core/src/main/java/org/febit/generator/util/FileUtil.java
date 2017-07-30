@@ -16,14 +16,15 @@
 package org.febit.generator.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 import jodd.io.FileNameUtil;
 import jodd.io.StreamUtil;
-import org.febit.wit.util.CharArrayWriter;
+import org.febit.util.Props;
 
 /**
  *
@@ -39,7 +40,7 @@ public class FileUtil {
     public static final char SYSTEM_SEPARATOR = File.separatorChar;
 
     public static String getPath(String filename) {
-        return FileNameUtil.getPath(filename);
+        return FileNameUtil.getFullPathNoEndSeparator(filename);
     }
 
     public static String getName(String filename) {
@@ -130,34 +131,13 @@ public class FileUtil {
         }
     }
 
-    public static char[] readChars(String file) throws IOException {
-        return readChars(new File(file), "UTF-8");
+    public static Map<String, String> loadResource(String filename) {
+        return Props.shadowLoader().load(filename).get().export();
     }
 
-    public static char[] readChars(File file) throws IOException {
-        return readChars(file, "UTF-8");
-    }
-
-    public static char[] readChars(File file, String encoding) throws IOException {
-        if (!file.exists()) {
-            throw new FileNotFoundException(file.getAbsolutePath());
-        }
-        if (!file.isFile()) {
-            throw new IOException(file.getAbsolutePath());
-        }
-        long len = (int) file.length();
-        if (len >= Integer.MAX_VALUE) {
-            len = Integer.MAX_VALUE;
-        }
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            CharArrayWriter fastCharArrayWriter = new CharArrayWriter((int) len);
-            StreamUtil.copy(in, fastCharArrayWriter, encoding);
-            return fastCharArrayWriter.toArray();
-        } finally {
-            StreamUtil.close(in);
+    public static void backupResourceIfExists(final File file) {
+        if (file.exists()) {
+            file.renameTo(new File(file.getPath() + '.' + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".bak"));
         }
     }
-
 }

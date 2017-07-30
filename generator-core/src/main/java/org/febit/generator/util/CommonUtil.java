@@ -15,11 +15,20 @@
  */
 package org.febit.generator.util;
 
+import java.util.List;
+
 /**
  *
  * @author zqq90
  */
 public class CommonUtil {
+
+    public static List adds(List list, Object[] objs) {
+        if (objs != null) {
+            list.addAll(java.util.Arrays.asList(objs));
+        }
+        return list;
+    }
 
     public static boolean toBoolean(final Object value) {
         return toBoolean(value, false);

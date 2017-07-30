@@ -16,12 +16,13 @@
 package org.febit.generator.components;
 
 import org.febit.generator.ConfigInit;
+import org.febit.lang.Singleton;
 
 /**
  *
  * @author zqq90
  */
-public interface ConfigInitProcesser {
+public interface ConfigInitProcesser extends Singleton {
 
     void process(ConfigInit init);
 }
