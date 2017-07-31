@@ -57,7 +57,7 @@ public class TableSettings implements Singleton {
             ColumnAttrs val = super.get(key);
             if (val == null) {
                 val = new ColumnAttrs();
-                super.put(key, val);
+                put(key, val);
             }
             return val;
         }
@@ -78,8 +78,12 @@ public class TableSettings implements Singleton {
             return get(table).get(column);
         }
 
+        public Map<String, Object> getTableAttrs(String entity) {
+            return getColumnAttrs(entity, TableSettings.COLUMN_OF_TABLE_ATTRS);
+        }
+
         public Map<String, Object> getTableAttrs(Table table) {
-            return getColumnAttrs(table.entity, TableSettings.COLUMN_OF_TABLE_ATTRS);
+            return getTableAttrs(table.entity);
         }
 
         public Columns get(Table table) {
@@ -90,7 +94,7 @@ public class TableSettings implements Singleton {
             Columns val = super.get(key);
             if (val == null) {
                 val = new Columns();
-                super.put(key, val);
+                put(key, val);
             }
             return val;
         }
@@ -112,33 +116,23 @@ public class TableSettings implements Singleton {
     }
 
     public Columns getColumns(String entity) {
-        Columns cols = getSettings().get(entity);
-        if (cols == null) {
-            cols = new Columns();
-            getSettings().put(entity, cols);
-        }
-        return cols;
+        return getSettings().get(entity);
     }
 
     public Map<String, Object> getTableAttrs(String entity) {
-        return getColumnAttrs(entity, COLUMN_OF_TABLE_ATTRS);
+        return getSettings().getTableAttrs(entity);
     }
 
     public Map<String, Object> getTableAttrs(Table table) {
-        return getTableAttrs(table.entity);
+        return getSettings().getTableAttrs(table);
     }
 
     public ColumnAttrs getColumnAttrs(Table table, String varName) {
-        return getColumnAttrs(table.entity, varName);
+        return getSettings().getColumnAttrs(table, varName);
     }
 
     public ColumnAttrs getColumnAttrs(String entity, String varName) {
-        ColumnAttrs attrs = getColumns(entity).get(varName);
-        if (attrs == null) {
-            attrs = new ColumnAttrs();
-            getColumns(entity).put(varName, attrs);
-        }
-        return attrs;
+        return getSettings().getColumnAttrs(entity, varName);
     }
 
     public static Object toValidValue(Object value) {
@@ -162,16 +156,7 @@ public class TableSettings implements Singleton {
                     column = key.substring(index + 1, index2);
                     property = key.substring(index2 + 1);
                 }
-
-                TableSettings.Columns tableColumns = result.get(table);
-                if (tableColumns == null) {
-                    result.put(table, tableColumns = new TableSettings.Columns());
-                }
-                TableSettings.ColumnAttrs columnPropertys = tableColumns.get(column);
-
-                if (columnPropertys == null) {
-                    tableColumns.put(column, columnPropertys = new TableSettings.ColumnAttrs());
-                }
+                TableSettings.ColumnAttrs columnPropertys = result.getColumnAttrs(table, column);
                 columnPropertys.put(property, toValidValue(entry.getValue()));
             }
         });

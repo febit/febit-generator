@@ -70,7 +70,7 @@ public class DefaultColumnFactory extends ColumnFactory {
         final String setterName = columnNaming.setterName(varName, javaType);
         final ArrayList linkColumns = new ArrayList<>();
 
-        final Map<String, Object> attrs = tableSettings.getColumnAttrs(table, varName);
+        final TableSettings.ColumnAttrs attrs = tableSettings.getColumnAttrs(table, varName);
 
         final boolean query;
         final String fkHint;

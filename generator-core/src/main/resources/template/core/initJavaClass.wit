@@ -1,4 +1,7 @@
 <%
+
+@import java.util.ArrayList;
+
 var CONST;
 
 var cfg_class_modifier;
@@ -6,10 +9,10 @@ var cfg_abstract;
 var cfg_final;
 var cfg_extends;
 var cfg_class_interface = false;
-var cfg_implements = new_list();
-var cfg_annotations = new_list();
-var cfg_docs = new_list();
-var cfg_imports = new_list();
+var cfg_implements = ArrayList::new();
+var cfg_annotations = ArrayList::new();
+var cfg_docs = ArrayList::new();
+var cfg_imports = ArrayList::new();
 
 var initClassConfig = function(){
     cfg_class_modifier = "public";
