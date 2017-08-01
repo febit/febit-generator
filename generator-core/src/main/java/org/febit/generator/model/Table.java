@@ -16,6 +16,8 @@
 package org.febit.generator.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,28 +39,38 @@ public class Table implements Comparable<Table> {
     public final String modelSimpleType;
     public final Map<String, Object> attrs;
 
-    public Table(String entity, String sqlName, String remark, Map<String, Object> attrs, Map<String, Column> columnMap, List<Column> columns, List<Column> idColumns, String modelType, String modelSimpleType, boolean blackEntity) {
+    public Table(String entity, String sqlName, String remark, Map<String, Object> attrs, String modelType, String modelSimpleType, boolean blackEntity) {
         this.entity = entity;
         this.sqlName = sqlName;
         this.remark = remark;
         this.attrs = attrs;
-        this.columnMap = columnMap;
-        this.columns = columns;
-        this.idColumns = idColumns;
         this.modelType = modelType;
         this.modelSimpleType = modelSimpleType;
         this.isBlackEntity = blackEntity;
+
+        this.columnMap = new HashMap<>();
+        this.columns = new ArrayList<>();
+        this.idColumns = new ArrayList<>();
     }
 
-    public void init() {
-        for (Map.Entry<String, Column> entry : columnMap.entrySet()) {
-            entry.getValue().resolveFK();
+    public void addColumn(Column column) {
+        this.columns.add(column);
+        this.columnMap.put(column.name, column);
+        if (column.ispk) {
+            this.idColumns.add(column);
         }
     }
 
+    public void init() {
+        Collections.sort(columns);
+        Collections.sort(idColumns);
+        columns.forEach((column) -> {
+            column.resolveFK();
+        });
+    }
+
     /**
-     * Only if has single one id column, returns this single id column, or
-     * returns null.
+     * Only if has single one id column, returns this single id column, or returns null.
      *
      * @return
      */
@@ -83,7 +95,8 @@ public class Table implements Comparable<Table> {
     public List<Column> getFkColumnsByType(String type) {
         final List<Column> results = new ArrayList<>(columns.size());
         for (Column column : columns) {
-            if (column.getIsfk() && column.getFkType().equals(type)) {
+            if (column.getIsfk()
+                    && column.getFkType().equals(type)) {
                 results.add(column);
             }
         }

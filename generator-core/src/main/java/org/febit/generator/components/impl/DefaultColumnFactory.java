@@ -65,10 +65,6 @@ public class DefaultColumnFactory extends ColumnFactory {
         //
         final String varName = columnNaming.varName(raw.name);
         final String javaType = raw.getJavaType();
-        final String javaSimpleType = NamingUtil.getClassSimpleName(javaType);
-        final String getterName = columnNaming.getterName(varName, javaType);
-        final String setterName = columnNaming.setterName(varName, javaType);
-        final ArrayList linkColumns = new ArrayList<>();
 
         final TableSettings.ColumnAttrs attrs = tableSettings.getColumnAttrs(table, varName);
 
@@ -124,17 +120,13 @@ public class DefaultColumnFactory extends ColumnFactory {
                     && (start = remark.lastIndexOf("E(", end)) >= 0) {
                 final String[] emumStr = StringUtil.splitc(remark.substring(start + 2, end), ',');
                 enums = new ArrayList<>();
-                enumMap = new HashMap();
                 for (String emumRaw : emumStr) {
-                    final ColumnEnum columnEnum;
                     try {
-                        columnEnum = ColumnEnum.valueOf(emumRaw);
+                        enums.add(ColumnEnum.valueOf(emumRaw));
                     } catch (Exception e) {
                         Logger.error("Faild to parse column enum: " + raw + " | " + remark);
                         throw new RuntimeException(e);
                     }
-                    enums.add(columnEnum);
-                    enumMap.put(columnEnum.value, columnEnum);
                 }
                 isenum = true;
                 remark = remark.substring(0, start).trim(); //replaceAll(pattern_enum.pattern(), "");
@@ -149,9 +141,9 @@ public class DefaultColumnFactory extends ColumnFactory {
                 raw.size, raw.isUnique, raw.isNullable, raw.isPk, isfk, fkHint,
                 raw.isPk && !raw.getIsFk(), //Note:是否主键自动生成
                 remark,
-                varName, javaType, javaSimpleType,
-                raw.name, getterName, setterName, linkColumns, query,
-                isenum, enums, enumMap,
+                varName, javaType,
+                raw.name, query,
+                enums,
                 defaultValueRaw, defaultValue, hasDefaultValue, defaultValueShow);
     }
 }

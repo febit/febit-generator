@@ -15,6 +15,8 @@
  */
 package org.febit.generator.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.febit.generator.Lazy;
@@ -44,10 +46,7 @@ public class Column implements Comparable<Column> {
     public final String remark;
     public final String name;
     public final String type;
-    public final String simpleType;
     public final String sqlName;
-    public final String getterName;
-    public final String setterName;
     public final List<Column> linkColumns; //被外键
     public final boolean query;
     //
@@ -59,7 +58,6 @@ public class Column implements Comparable<Column> {
     protected final String fkHint;
     protected boolean isfk;
     protected Column fk;
-    protected String fkSimpleType;
     protected String fkVarName;
     protected String fkType;
     protected String fkGetterName;
@@ -70,7 +68,13 @@ public class Column implements Comparable<Column> {
     protected boolean hasDefaultValue;
     protected String defaultValueShow;
 
-    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size, boolean isUnique, boolean optional, boolean ispk, boolean isfk, String fkHint, boolean isGenerated, String remark, String name, String javaType, String javaSimpleType, String sqlName, String getterName, String setterName, List<Column> linkColumns, boolean query, boolean isenum, List<ColumnEnum> enums, Map enumMap, String defaultValueRaw, Object defaultValue, boolean hasDefaultValue, String defaultValueShow) {
+    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size,
+            boolean isUnique, boolean optional, boolean ispk,
+            boolean isfk, String fkHint, boolean isGenerated, String remark,
+            String name, String javaType, String sqlName,
+            boolean query,
+            List<ColumnEnum> enums, String defaultValueRaw, Object defaultValue,
+            boolean hasDefaultValue, String defaultValueShow) {
         this.table = table;
         this.attrs = attrs;
         this.raw = raw;
@@ -84,59 +88,79 @@ public class Column implements Comparable<Column> {
         this.remark = remark;
         this.name = name;
         this.type = javaType;
-        this.simpleType = javaSimpleType;
         this.sqlName = sqlName;
-        this.getterName = getterName;
-        this.setterName = setterName;
-        this.linkColumns = linkColumns;
         this.query = query;
-        this.isenum = isenum;
+        this.isenum = enums != null;
         this.enums = enums;
-        this.enumMap = enumMap;
         this.defaultValueRaw = defaultValueRaw;
         this.defaultValue = defaultValue;
         this.hasDefaultValue = hasDefaultValue;
         this.defaultValueShow = defaultValueShow;
+
+        this.linkColumns = new ArrayList<>();
+        if (enums != null) {
+            this.enumMap = new HashMap();
+            enums.forEach((columnEnum) -> {
+                this.enumMap.put(columnEnum.value, columnEnum);
+            });
+        } else {
+            this.enumMap = null;
+        }
     }
 
     protected void resolveFK() {
+        if (!isfk) {
+            return;
+        }
+        Column linkColumn = null;
+        Table linkTable = null;
 
-        if (isfk) {
-            Column linkColumn = null;
-            Table linkTable = null;
-
-            ForeignKey foreignKey = raw.getHasOne();
-            if (foreignKey != null) {
-                linkColumn = Lazy.get(ColumnFactory.class).getColumn(foreignKey.pk);
-                if (linkColumn != null) {
-                    linkTable = linkColumn.table;
-                } else {
-                    Logger.warn("Loss foreignKey: " + foreignKey);
-                }
-            } else if (fkHint != null) {
-                linkTable = Lazy.get(TableFactory.class).getTable(fkHint);
-                if (linkTable != null) {
-                    linkColumn = linkTable.getIdColumn();
-                } else {
-                    Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
-                }
-            }
-
-            if (linkColumn != null && linkTable != null) {
-                fk = linkColumn;
-                isfk = (fk != null);
-                fkVarName = StringUtil.cutSuffix(name, "Id");
-                fkType = linkTable.modelType;
-                fkSimpleType = NamingUtil.getClassSimpleName(fkType);
-                ColumnNaming columnNaming = Lazy.get(ColumnNaming.class);
-                fkGetterName = columnNaming.getterName(fkVarName, fkType);
-                fkSetterName = columnNaming.setterName(fkVarName, fkType);
-                fk.addLinkColumns(this);
+        ForeignKey foreignKey = raw.getHasOne();
+        if (foreignKey != null) {
+            linkColumn = Lazy.get(ColumnFactory.class).getColumn(foreignKey.pk);
+            if (linkColumn != null) {
+                linkTable = linkColumn.table;
             } else {
-                isfk = false;
-                fk = null;
+                Logger.warn("Loss foreignKey: " + foreignKey);
+            }
+        } else if (fkHint != null) {
+            linkTable = Lazy.get(TableFactory.class).getTable(fkHint);
+            if (linkTable != null) {
+                linkColumn = linkTable.getIdColumn();
+            } else {
+                Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
             }
         }
+
+        if (linkColumn != null && linkTable != null) {
+            fk = linkColumn;
+            isfk = (fk != null);
+            fkVarName = StringUtil.cutSuffix(name, "Id");
+            fkType = linkTable.modelType;
+            ColumnNaming columnNaming = Lazy.get(ColumnNaming.class);
+            fkGetterName = columnNaming.getterName(fkVarName, fkType);
+            fkSetterName = columnNaming.setterName(fkVarName, fkType);
+            fk.addLinkColumns(this);
+        } else {
+            isfk = false;
+            fk = null;
+        }
+    }
+
+    public String getSimpleType() {
+        return NamingUtil.getClassSimpleName(type);
+    }
+
+    public String getGetterName() {
+        return Lazy.get(ColumnNaming.class).getterName(name, type);
+    }
+
+    public String getSetterName() {
+        return Lazy.get(ColumnNaming.class).setterName(name, type);
+    }
+
+    public String getFkSimpleType() {
+        return NamingUtil.getClassSimpleName(fkType);
     }
 
     public Map<String, Object> getAttrs() {
@@ -161,10 +185,6 @@ public class Column implements Comparable<Column> {
 
     public String getType() {
         return type;
-    }
-
-    public String getSimpleType() {
-        return simpleType;
     }
 
     public String getSqlName() {
@@ -199,14 +219,6 @@ public class Column implements Comparable<Column> {
         return isGenerated;
     }
 
-    public String getGetterName() {
-        return getterName;
-    }
-
-    public String getSetterName() {
-        return setterName;
-    }
-
     public Column getFk() {
         return fk;
     }
@@ -234,10 +246,6 @@ public class Column implements Comparable<Column> {
 
     public String getFkType() {
         return fkType;
-    }
-
-    public String getFkSimpleType() {
-        return fkSimpleType;
     }
 
     public String getFkGetterName() {

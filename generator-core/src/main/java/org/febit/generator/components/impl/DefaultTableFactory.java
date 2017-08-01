@@ -15,11 +15,7 @@
  */
 package org.febit.generator.components.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import org.febit.generator.Config;
 import org.febit.generator.TableSettings;
 import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.TableFactory;
@@ -38,7 +34,6 @@ import org.febit.util.ArraysUtil;
 public class DefaultTableFactory extends TableFactory {
 
     protected TableNaming tableNaming;
-    //加载表黑名单
     protected String[] blackEntitys;
     protected ColumnFactory columnFactory;
     protected TableSettings tableSettings;
@@ -48,18 +43,12 @@ public class DefaultTableFactory extends TableFactory {
         final String entity;
         final String sqlName;
         final String remark;
-        final ArrayList<Column> columns;
-        final ArrayList<Column> idColumns;
-        final Map<String, Column> columnMap;
         final String modelType;
         final String modelSimpleType;
         final boolean blackEntity;
         final Map<String, Object> tableAttrs;
 
         remark = tableNaming.remark(tableRaw.remark);
-        columns = new ArrayList<>();
-        idColumns = new ArrayList<>();
-        columnMap = new HashMap<>();
 
         sqlName = tableNaming.sqlName(tableRaw.name);
         entity = tableNaming.entity(sqlName);
@@ -68,28 +57,15 @@ public class DefaultTableFactory extends TableFactory {
         modelSimpleType = tableNaming.modelSimpleType(entity);
         modelType = tableNaming.modelType(modelSimpleType);
         tableAttrs = tableSettings.getTableAttrs(entity);
-        final Table table = new Table(entity, sqlName, remark, tableAttrs, columnMap, columns, idColumns, modelType, modelSimpleType, blackEntity);
-        {
-            //XXX: tableSettings.get("id")
-            for (ColumnRaw columnRaw : tableRaw.getColumns()) {
-                Column cm = columnFactory.create(columnRaw, table);
-                if (cm == null) {
-                    if (Logger.isDebugEnabled()) {
-                        Logger.debug("Skip column (by ColumnFactory): " + columnRaw);
-                    }
-                    continue;
-                }
-                if (cm.getIspk()) {
-                    idColumns.add(cm);
-                }
-                columnMap.put(cm.getVarName(), cm);
+        final Table table = new Table(entity, sqlName, remark, tableAttrs, modelType, modelSimpleType, blackEntity);
+        for (ColumnRaw columnRaw : tableRaw.getColumns()) {
+            Column col = columnFactory.create(columnRaw, table);
+            if (col == null) {
+                Logger.debug("Skip column (by ColumnFactory): {}", columnRaw);
+                continue;
             }
-            columns.addAll(columnMap.values());
-            idColumns.trimToSize();
-            columns.trimToSize();
-            Collections.sort(columns);
+            table.addColumn(col);
         }
-
         return table;
     }
 }

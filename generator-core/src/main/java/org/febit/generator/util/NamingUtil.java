@@ -28,6 +28,9 @@ import org.febit.util.CharUtil;
 public class NamingUtil {
 
     public static String getClassSimpleName(String className) {
+        if (className == null) {
+            return null;
+        }
         final int index = className.lastIndexOf('.');
         if (index >= 0) {
             return className.substring(index + 1);
@@ -36,6 +39,9 @@ public class NamingUtil {
     }
 
     public static String getClassPackageName(String className) {
+        if (className == null) {
+            return null;
+        }
         final int index = className.lastIndexOf('.');
         if (index > 0) {
             return className.substring(0, index);
@@ -44,6 +50,9 @@ public class NamingUtil {
     }
 
     public static String toLowerCamelCase(String name) {
+        if (name == null) {
+            return null;
+        }
         char[] buffer = name.toCharArray();
         int count = 0;
         boolean lastUnderscore = false;
@@ -66,30 +75,31 @@ public class NamingUtil {
     }
 
     public static String upperFirst(String str) {
-        if (str != null
-                && str.length() != 0
-                && CharUtil.isLowercaseAlpha(str.charAt(0))) {
-            final char[] chars = str.toCharArray();
-            chars[0] = CharUtil.toUpperAscii(chars[0]);
-            return new String(chars);
-        } else {
+        if (str == null
+                || str.length() == 0
+                || !CharUtil.isLowercaseAlpha(str.charAt(0))) {
             return str;
         }
+        final char[] chars = str.toCharArray();
+        chars[0] = CharUtil.toUpperAscii(chars[0]);
+        return new String(chars);
     }
 
     public static String lowerFirst(String str) {
-        if (str != null
-                && str.length() != 0
-                && CharUtil.isUppercaseAlpha(str.charAt(0))) {
-            final char[] chars = str.toCharArray();
-            chars[0] = CharUtil.toLowerAscii(chars[0]);
-            return new String(chars);
-        } else {
+        if (str == null
+                || str.length() == 0
+                || !CharUtil.isUppercaseAlpha(str.charAt(0))) {
             return str;
         }
+        final char[] chars = str.toCharArray();
+        chars[0] = CharUtil.toLowerAscii(chars[0]);
+        return new String(chars);
     }
 
     public static String getGetterName(String field, String javaType) {
+        if (field == null) {
+            return null;
+        }
         if (field.length() <= 1
                 || CharUtil.isLowercaseAlpha(field.charAt(1))) {
             field = upperFirst(field);
@@ -98,6 +108,9 @@ public class NamingUtil {
     }
 
     public static String getSetterName(String field) {
+        if (field == null) {
+            return null;
+        }
         if (field.length() <= 1
                 || CharUtil.isLowercaseAlpha(field.charAt(1))) {
             field = upperFirst(field);
@@ -135,6 +148,9 @@ public class NamingUtil {
     }
 
     public static String varNameToUpper(String str) {
+        if (str == null) {
+            return null;
+        }
         final int size;
         final char[] chars;
         final StringBuilder sb = new StringBuilder((size = (chars = str.toCharArray()).length) * 3 / 2 + 1);

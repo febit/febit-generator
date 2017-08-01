@@ -18,6 +18,7 @@ package org.febit.generator.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import org.febit.util.StringUtil;
 
 public class Logger {
 
@@ -91,6 +92,30 @@ public class Logger {
         }
     }
 
+    public static void trace(String s, Object... args) {
+        if (_level <= TRACE) {
+            out.println("[TRACE] " + StringUtil.format(s, args));
+        }
+    }
+
+    public static void debug(String s, Object... args) {
+        if (_level <= DEBUG) {
+            out.println("[DEBUG] " + StringUtil.format(s, args));
+        }
+    }
+
+    public static void info(String s, Object... args) {
+        if (_level <= INFO) {
+            out.println("[INFO ] " + StringUtil.format(s, args));
+        }
+    }
+
+    public static void warn(String s, Object... args) {
+        if (_level <= WARN) {
+            err.println("[WARN ] " + StringUtil.format(s, args));
+        }
+    }
+
     public static void warn(String s, Throwable e) {
         if (_level <= WARN) {
             err.println("[WARN ] " + s + " cause:" + e);
@@ -101,6 +126,12 @@ public class Logger {
     public static void error(String s) {
         if (_level <= ERROR) {
             err.println("[ERROR] " + s);
+        }
+    }
+
+    public static void error(String s, Object... args) {
+        if (_level <= ERROR) {
+            err.println("[ERROR] " + StringUtil.format(s, args));
         }
     }
 

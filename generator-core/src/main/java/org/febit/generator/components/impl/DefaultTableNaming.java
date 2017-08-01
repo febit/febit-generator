@@ -15,7 +15,6 @@
  */
 package org.febit.generator.components.impl;
 
-import org.febit.generator.Config;
 import org.febit.generator.components.TableNaming;
 import org.febit.generator.util.NamingUtil;
 import org.febit.util.StringUtil;
