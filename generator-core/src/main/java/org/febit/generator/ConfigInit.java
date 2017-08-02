@@ -83,7 +83,7 @@ public class ConfigInit implements Singleton {
 
     protected void beforeProcess() {
         eachColumn((Column column) -> {
-            TableSettings.ColumnAttrs columnMap = settings.getColumnAttrs(column);
+            TableSettings.Attrs columnMap = settings.getColumnAttrs(column);
             if (columnMap.isEmpty()) {
                 // merge old settings
                 columnMap.putAll(this.settingsOld.getColumnAttrs(column));
@@ -97,7 +97,7 @@ public class ConfigInit implements Singleton {
             return true;
         });
         eachTable((Table table) -> {
-            Map<String, Object> tableAttrs = this.settings.getTableAttrs(table);
+            TableSettings.Attrs tableAttrs = this.settings.getTableAttrs(table);
             if (tableAttrs.isEmpty()) {
                 // merge old settings
                 tableAttrs.putAll(this.settingsOld.getTableAttrs(table));

@@ -20,14 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.febit.generator.Lazy;
-import org.febit.generator.components.ColumnFactory;
+import org.febit.generator.TableSettings;
 import org.febit.generator.components.ColumnNaming;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.NamingUtil;
 import org.febit.util.StringUtil;
-import org.febit.generator.util.dbaccess.ColumnRaw;
-import org.febit.generator.util.dbaccess.ForeignKey;
 
 /**
  *
@@ -36,63 +34,47 @@ import org.febit.generator.util.dbaccess.ForeignKey;
 public class Column implements Comparable<Column> {
 
     public final Table table;
-    public final Map<String, Object> attrs;
-    public final ColumnRaw raw;
+    public final TableSettings.Attrs attrs;
     public final int size;
     public final boolean isUnique;
     public final boolean optional;
     public final boolean ispk;
-    public final boolean isGenerated; //GeneratedValue(strategy = GenerationType.IDENTITY)
     public final String remark;
     public final String name;
     public final String type;
     public final String sqlName;
-    public final List<Column> linkColumns; //被外键
     public final boolean query;
     //
-    public final boolean isenum;
     public final List<ColumnEnum> enums;
-    public final Map enumMap;
+    public final Map<Object, ColumnEnum> enumMap;
     //
-    protected boolean isLinkKey; //被外键
+    public final List<Column> linkColumns; //被外键
     protected final String fkHint;
-    protected boolean isfk;
     protected Column fk;
     protected String fkVarName;
-    protected String fkType;
-    protected String fkGetterName;
-    protected String fkSetterName;
     //
     protected Object defaultValue;
 
-    public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size,
-            boolean isUnique, boolean optional, boolean ispk,
-            boolean isfk, String fkHint, boolean isGenerated, String remark,
-            String name, String javaType, String sqlName,
-            boolean query,
-            List<ColumnEnum> enums, Object defaultValue) {
+    public Column(Table table, TableSettings.Attrs attrs, String sqlName, String name, String javaType, int size, boolean ispk, boolean isUnique, boolean optional, List<ColumnEnum> enums, String fkHint, Object defaultValue, String remark) {
         this.table = table;
         this.attrs = attrs;
-        this.raw = raw;
         this.size = size;
         this.isUnique = isUnique;
         this.optional = optional;
         this.ispk = ispk;
-        this.isfk = isfk;
-        this.fkHint = fkHint;
-        this.isGenerated = isGenerated;
         this.remark = remark;
         this.name = name;
         this.type = javaType;
         this.sqlName = sqlName;
-        this.query = query;
-        this.isenum = enums != null;
         this.enums = enums;
         this.defaultValue = defaultValue;
 
+        this.fkHint = fkHint != null ? fkHint : attrs.getValidString("fk");
+        this.query = attrs.getBoolean("query");
+        this.fkVarName = StringUtil.cutSuffix(name, "Id");
         this.linkColumns = new ArrayList<>();
         if (enums != null) {
-            this.enumMap = new HashMap();
+            this.enumMap = new HashMap<>();
             enums.forEach((columnEnum) -> {
                 this.enumMap.put(columnEnum.value, columnEnum);
             });
@@ -102,41 +84,15 @@ public class Column implements Comparable<Column> {
     }
 
     protected void resolveFK() {
-        if (!isfk) {
+        if (fkHint == null) {
             return;
         }
-        Column linkColumn = null;
-        Table linkTable = null;
-
-        ForeignKey foreignKey = raw.getHasOne();
-        if (foreignKey != null) {
-            linkColumn = Lazy.get(ColumnFactory.class).getColumn(foreignKey.pk);
-            if (linkColumn != null) {
-                linkTable = linkColumn.table;
-            } else {
-                Logger.warn("Loss foreignKey: " + foreignKey);
-            }
-        } else if (fkHint != null) {
-            linkTable = Lazy.get(TableFactory.class).getTable(fkHint);
-            if (linkTable != null) {
-                linkColumn = linkTable.getIdColumn();
-            } else {
-                Logger.warn("Fk hint not found: " + this + ".fk=" + fkHint);
-            }
-        }
-
-        if (linkColumn != null && linkTable != null) {
-            fk = linkColumn;
-            isfk = (fk != null);
-            fkVarName = StringUtil.cutSuffix(name, "Id");
-            fkType = linkTable.modelType;
-            ColumnNaming columnNaming = Lazy.get(ColumnNaming.class);
-            fkGetterName = columnNaming.getterName(fkVarName, fkType);
-            fkSetterName = columnNaming.setterName(fkVarName, fkType);
+        Table linkTable = Lazy.get(TableFactory.class).getTable(fkHint);
+        if (linkTable != null) {
+            fk = linkTable.getIdColumn();
             fk.addLinkColumns(this);
         } else {
-            isfk = false;
-            fk = null;
+            Logger.warn("Fk hint not found: {}.fk={}", this, fkHint);
         }
     }
 
@@ -145,7 +101,10 @@ public class Column implements Comparable<Column> {
     }
 
     public String getDefaultValueRaw() {
-        return defaultValue == null ? null : defaultValue.toString();
+        if (defaultValue == null) {
+            return null;
+        }
+        return defaultValue.toString();
     }
 
     public boolean isHasDefaultValue() {
@@ -178,19 +137,48 @@ public class Column implements Comparable<Column> {
     }
 
     public String getFkSimpleType() {
-        return NamingUtil.getClassSimpleName(fkType);
+        return fk.table.getModelSimpleType();
     }
 
-    public Map<String, Object> getAttrs() {
+    public String getFkVarName() {
+        if (fk == null) {
+            return null;
+        }
+        return fkVarName;
+    }
+
+    public String getFkType() {
+        return fk.table.modelType;
+    }
+
+    public String getFkGetterName() {
+        if (fk == null) {
+            return null;
+        }
+        return Lazy.get(ColumnNaming.class).getterName(fkVarName, fk.table.modelType);
+    }
+
+    public String getFkSetterName() {
+        if (fk == null) {
+            return null;
+        }
+        return Lazy.get(ColumnNaming.class).setterName(fkVarName, fk.table.modelType);
+    }
+
+    public TableSettings.Attrs getAttrs() {
         return attrs;
     }
 
-    public ColumnRaw getRaw() {
-        return raw;
+    public Object attr(String attr) {
+        return attrs.get(attr);
     }
 
     public List<ColumnEnum> getEnums() {
         return enums;
+    }
+
+    public ColumnEnum getEnum(Object value) {
+        return enumMap.get(value);
     }
 
     public String getName() {
@@ -218,11 +206,11 @@ public class Column implements Comparable<Column> {
     }
 
     public boolean getIsenum() {
-        return isenum;
+        return this.enums != null;
     }
 
     public boolean getIsfk() {
-        return isfk;
+        return fk != null;
     }
 
     public String getRemark() {
@@ -231,10 +219,6 @@ public class Column implements Comparable<Column> {
 
     public boolean getIspk() {
         return ispk;
-    }
-
-    public boolean getIsGenerated() {
-        return isGenerated;
     }
 
     public Column getFk() {
@@ -258,24 +242,8 @@ public class Column implements Comparable<Column> {
         return table;
     }
 
-    public String getFkVarName() {
-        return fkVarName;
-    }
-
-    public String getFkType() {
-        return fkType;
-    }
-
-    public String getFkGetterName() {
-        return fkGetterName;
-    }
-
-    public String getFkSetterName() {
-        return fkSetterName;
-    }
-
     public boolean getIsLinkKey() {
-        return isLinkKey;
+        return !linkColumns.isEmpty();
     }
 
     public List<Column> getLinkColumns() {
@@ -284,7 +252,6 @@ public class Column implements Comparable<Column> {
 
     public void addLinkColumns(Column cm) {
         linkColumns.add(cm);
-        isLinkKey = true;
     }
 
     public Map getEnumMap() {
@@ -325,7 +292,7 @@ public class Column implements Comparable<Column> {
 
     @Override
     public String toString() {
-        return this.table.entity + '.' + this.name;
+        return this.table.toString() + '.' + this.name;
     }
 
 }

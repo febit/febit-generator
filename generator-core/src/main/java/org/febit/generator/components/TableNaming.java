@@ -29,8 +29,6 @@ public abstract class TableNaming implements Singleton {
 
     public abstract String entity(String sqlName);
 
-    public abstract String modelSimpleType(String entity);
-
-    public abstract String modelType(String modelSimpleType);
+    public abstract String modelType(String entity);
 
 }

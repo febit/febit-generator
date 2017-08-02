@@ -26,6 +26,7 @@ import jodd.io.StreamUtil;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.model.Column;
 import org.febit.generator.model.Table;
+import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.FileUtil;
 import org.febit.generator.util.Logger;
 import org.febit.lang.Singleton;
@@ -38,25 +39,45 @@ public class TableSettings implements Singleton {
 
     public static final String COLUMN_OF_TABLE_ATTRS = "$";
 
-    public static class ColumnAttrs extends TreeMap<String, Object> {
+    public static class Attrs extends TreeMap<String, Object> {
+
+        public String getValidString(String key) {
+            Object val = get(key);
+            if (val == null || "".equals(val)) {
+                return null;
+            }
+            return val.toString();
+        }
+
+        public Object getValid(String key) {
+            Object val = get(key);
+            if (val == null || "".equals(val)) {
+                return null;
+            }
+            return val;
+        }
+
+        public boolean getBoolean(String key) {
+            return CommonUtil.toBoolean(get(key), false);
+        }
     }
 
-    public static class Columns extends TreeMap<String, ColumnAttrs> {
+    public static class Columns extends TreeMap<String, Attrs> {
 
         @Override
         @Deprecated
-        public ColumnAttrs get(Object key) {
+        public Attrs get(Object key) {
             return super.get(key);
         }
 
-        public ColumnAttrs get(Column column) {
+        public Attrs get(Column column) {
             return get(column.name);
         }
 
-        public ColumnAttrs get(String key) {
-            ColumnAttrs val = super.get(key);
+        public Attrs get(String key) {
+            Attrs val = super.get(key);
             if (val == null) {
-                val = new ColumnAttrs();
+                val = new Attrs();
                 put(key, val);
             }
             return val;
@@ -66,23 +87,23 @@ public class TableSettings implements Singleton {
 
     public static class Tables extends TreeMap<String, Columns> {
 
-        public ColumnAttrs getColumnAttrs(Column column) {
+        public Attrs getColumnAttrs(Column column) {
             return get(column.table).get(column);
         }
 
-        public ColumnAttrs getColumnAttrs(String table, String column) {
+        public Attrs getColumnAttrs(String table, String column) {
             return get(table).get(column);
         }
 
-        public ColumnAttrs getColumnAttrs(Table table, String column) {
+        public Attrs getColumnAttrs(Table table, String column) {
             return get(table).get(column);
         }
 
-        public Map<String, Object> getTableAttrs(String entity) {
+        public Attrs getTableAttrs(String entity) {
             return getColumnAttrs(entity, TableSettings.COLUMN_OF_TABLE_ATTRS);
         }
 
-        public Map<String, Object> getTableAttrs(Table table) {
+        public Attrs getTableAttrs(Table table) {
             return getTableAttrs(table.entity);
         }
 
@@ -119,19 +140,19 @@ public class TableSettings implements Singleton {
         return getSettings().get(entity);
     }
 
-    public Map<String, Object> getTableAttrs(String entity) {
+    public Attrs getTableAttrs(String entity) {
         return getSettings().getTableAttrs(entity);
     }
 
-    public Map<String, Object> getTableAttrs(Table table) {
+    public Attrs getTableAttrs(Table table) {
         return getSettings().getTableAttrs(table);
     }
 
-    public ColumnAttrs getColumnAttrs(Table table, String varName) {
+    public Attrs getColumnAttrs(Table table, String varName) {
         return getSettings().getColumnAttrs(table, varName);
     }
 
-    public ColumnAttrs getColumnAttrs(String entity, String varName) {
+    public Attrs getColumnAttrs(String entity, String varName) {
         return getSettings().getColumnAttrs(entity, varName);
     }
 
@@ -156,7 +177,7 @@ public class TableSettings implements Singleton {
                     column = key.substring(index + 1, index2);
                     property = key.substring(index2 + 1);
                 }
-                TableSettings.ColumnAttrs columnPropertys = result.getColumnAttrs(table, column);
+                TableSettings.Attrs columnPropertys = result.getColumnAttrs(table, column);
                 columnPropertys.put(property, toValidValue(entry.getValue()));
             }
         });
@@ -174,7 +195,7 @@ public class TableSettings implements Singleton {
                 final Table table = Lazy.get(TableFactory.class).getTable(entity);
                 writer.append("\n\n### ").append(table.remark).append('\n');
                 writer.append('[').append(table.entity).append(']').append("\n\n");
-                for (Map.Entry<String, TableSettings.ColumnAttrs> entry1 : entry.getValue().entrySet()) {
+                for (Map.Entry<String, TableSettings.Attrs> entry1 : entry.getValue().entrySet()) {
                     final String varName = entry1.getKey();
                     if (COLUMN_OF_TABLE_ATTRS.equals(varName)) {
                         for (Map.Entry<String, Object> entry2 : entry1.getValue().entrySet()) {

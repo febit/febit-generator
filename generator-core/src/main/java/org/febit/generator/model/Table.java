@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.febit.generator.TableSettings;
+import org.febit.generator.util.NamingUtil;
 
 /**
  *
@@ -36,21 +38,23 @@ public class Table implements Comparable<Table> {
     public final boolean isBlackEntity;
     //
     public final String modelType;
-    public final String modelSimpleType;
-    public final Map<String, Object> attrs;
+    public final TableSettings.Attrs attrs;
 
-    public Table(String entity, String sqlName, String remark, Map<String, Object> attrs, String modelType, String modelSimpleType, boolean blackEntity) {
+    public Table(TableSettings.Attrs attrs, String sqlName, String entity, String modelType, boolean blackEntity, String remark) {
         this.entity = entity;
         this.sqlName = sqlName;
         this.remark = remark;
         this.attrs = attrs;
         this.modelType = modelType;
-        this.modelSimpleType = modelSimpleType;
         this.isBlackEntity = blackEntity;
 
         this.columnMap = new HashMap<>();
         this.columns = new ArrayList<>();
         this.idColumns = new ArrayList<>();
+    }
+
+    public String getModelSimpleType() {
+        return NamingUtil.getClassSimpleName(modelType);
     }
 
     public void addColumn(Column column) {
@@ -195,4 +199,10 @@ public class Table implements Comparable<Table> {
     public int compareTo(Table o) {
         return entity.compareTo(o.entity);
     }
+
+    @Override
+    public String toString() {
+        return entity;
+    }
+
 }

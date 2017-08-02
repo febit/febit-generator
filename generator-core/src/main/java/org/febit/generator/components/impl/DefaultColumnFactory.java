@@ -25,7 +25,6 @@ import org.febit.generator.model.Column;
 import org.febit.generator.model.ColumnEnum;
 import org.febit.generator.model.Table;
 import org.febit.generator.typeconverter.TypeConverter;
-import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.Logger;
 import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
@@ -60,63 +59,37 @@ public class DefaultColumnFactory extends ColumnFactory {
             return null;
         }
         //
-        final String varName = columnNaming.varName(raw.name);
-        final String javaType = raw.getJavaType();
-
-        final TableSettings.ColumnAttrs attrs = tableSettings.getColumnAttrs(table, varName);
-
-        final boolean query;
-        final String fkHint;
-        final boolean isfk;
-
-        query = CommonUtil.toBoolean(attrs.get("query"));
-        fkHint = (String) TableSettings.toValidValue(attrs.get("fk"));
-        isfk = raw.getIsFk() || fkHint != null;
-
-        final Object defaultValue;
-        if (raw.defaultValue == null) {
-            defaultValue = null;
-        } else {
-            defaultValue = typeConverter.convert(javaType, raw.defaultValue);
-        }
+        String varName = columnNaming.varName(raw.name);
+        String javaType = raw.getJavaType();
+        TableSettings.Attrs attrs = tableSettings.getColumnAttrs(table, varName);
+        String fkHint = raw.getIsFk() ? raw.getHasOne().pk.table.name : null;
+        Object defaultValue = raw.defaultValue != null
+                ? typeConverter.convert(javaType, raw.defaultValue)
+                : null;
 
         //resolveColumnEnums
         String remark = columnNaming.remark(raw.remarks);
         final List<ColumnEnum> enums;
-        if (remark != null) {
-            remark = remark.trim();
-        }
-        {
-            final int start;
-            final int end;
-            if (javaType.equals("java.lang.Short")
-                    && remark != null
-                    && remark.length() != 0
-                    && (end = remark.lastIndexOf(')')) >= 0
-                    && (start = remark.lastIndexOf("E(", end)) >= 0) {
-                final String[] emumStr = StringUtil.splitc(remark.substring(start + 2, end), ',');
-                enums = new ArrayList<>();
-                for (String emumRaw : emumStr) {
-                    try {
-                        enums.add(ColumnEnum.valueOf(emumRaw));
-                    } catch (Exception e) {
-                        Logger.error("Faild to parse column enum: " + raw + " | " + remark);
-                        throw new RuntimeException(e);
-                    }
+        if (remark != null
+                && javaType.equals("java.lang.Short")
+                && remark.contains("E(")
+                && remark.endsWith(")")) {
+            enums = new ArrayList<>();
+            for (String emumRaw : StringUtil.toArrayExcludeCommit(StringUtil.cutBetween(remark, "E(", ")"))) {
+                try {
+                    enums.add(ColumnEnum.valueOf(emumRaw));
+                } catch (Exception e) {
+                    Logger.error("Faild to parse column enum: " + raw + " | " + remark);
+                    throw new RuntimeException(e);
                 }
-                remark = remark.substring(0, start).trim(); //replaceAll(pattern_enum.pattern(), "");
-            } else {
-                enums = null;
             }
+            remark = StringUtil.cutTo(remark, "E(").trim();
+        } else {
+            enums = null;
         }
 
-        return new Column(table, attrs, raw,
-                raw.size, raw.isUnique, raw.isNullable, raw.isPk, isfk, fkHint,
-                raw.isPk && !raw.getIsFk(), //Note:是否主键自动生成
-                remark,
-                varName, javaType,
-                raw.name, query,
-                enums,
-                defaultValue);
+        return new Column(table, attrs, raw.name, varName, javaType,
+                raw.size, raw.isPk, raw.isUnique, raw.isNullable,
+                enums, fkHint, defaultValue, remark);
     }
 }

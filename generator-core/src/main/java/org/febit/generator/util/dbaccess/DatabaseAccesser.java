@@ -30,17 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import org.febit.generator.Lazy;
 import org.febit.generator.util.Logger;
-import org.febit.util.agent.LazyAgent;
 
 public class DatabaseAccesser {
-
-    public static final LazyAgent<DatabaseAccesser> INSATNCE = LazyAgent.create(() -> {
-        DatabaseAccesser accesser = new DatabaseAccesser();
-        Lazy.petite().inject("db", accesser);
-        return accesser;
-    });
 
     protected Pattern includeTables;
     protected Pattern excludeTables;
@@ -58,7 +50,7 @@ public class DatabaseAccesser {
     private TableCache tableCache;
     private ColumnCache columnCache;
 
-    private DatabaseAccesser() {
+    public DatabaseAccesser() {
     }
 
     private boolean isTableInclude(final String tableName) {
@@ -273,6 +265,10 @@ public class DatabaseAccesser {
         return getConnection().getMetaData();
     }
 
+    public String getJdbcType() {
+        return getJdbcType(url);
+    }
+
     public Connection getConnection() {
         try {
             Connection conn = connection;
@@ -317,10 +313,6 @@ public class DatabaseAccesser {
             }
         }
         return "unkown";
-    }
-
-    public String getJdbcType() {
-        return getJdbcType(url);
     }
 
     public static String getJdbcTypeString(int type) {

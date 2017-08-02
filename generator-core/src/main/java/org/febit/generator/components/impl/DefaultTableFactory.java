@@ -15,8 +15,11 @@
  */
 package org.febit.generator.components.impl;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import org.febit.generator.Lazy;
 import org.febit.generator.TableSettings;
+import org.febit.generator.TableSettings.Attrs;
 import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.components.TableNaming;
@@ -24,6 +27,7 @@ import org.febit.generator.model.Column;
 import org.febit.generator.model.Table;
 import org.febit.generator.util.Logger;
 import org.febit.generator.util.dbaccess.ColumnRaw;
+import org.febit.generator.util.dbaccess.DatabaseAccesser;
 import org.febit.generator.util.dbaccess.TableRaw;
 import org.febit.util.ArraysUtil;
 
@@ -39,25 +43,42 @@ public class DefaultTableFactory extends TableFactory {
     protected TableSettings tableSettings;
 
     @Override
+    protected List<Table> collectTables() {
+        List<Table> tableList = new ArrayList<>();
+        createDatabaseAccesser().getAllTables().forEach((raw) -> {
+            Table table = createTable(raw);
+            if (table == null) {
+                Logger.debug("Skip table (by TableFactory): {}", raw);
+                return;
+            }
+            tableList.add(table);
+        });
+        return tableList;
+    }
+
+    protected DatabaseAccesser createDatabaseAccesser() {
+        DatabaseAccesser accesser = new DatabaseAccesser();
+        Lazy.petite().inject("db", accesser);
+        return accesser;
+    }
+
     protected Table createTable(final TableRaw tableRaw) {
         final String entity;
         final String sqlName;
         final String remark;
         final String modelType;
-        final String modelSimpleType;
         final boolean blackEntity;
-        final Map<String, Object> tableAttrs;
-
-        remark = tableNaming.remark(tableRaw.remark);
+        final Attrs tableAttrs;
 
         sqlName = tableNaming.sqlName(tableRaw.name);
+        remark = tableNaming.remark(tableRaw.remark);
         entity = tableNaming.entity(sqlName);
 
         blackEntity = ArraysUtil.contains(blackEntitys, entity);
-        modelSimpleType = tableNaming.modelSimpleType(entity);
-        modelType = tableNaming.modelType(modelSimpleType);
+        modelType = tableNaming.modelType(entity);
         tableAttrs = tableSettings.getTableAttrs(entity);
-        final Table table = new Table(entity, sqlName, remark, tableAttrs, modelType, modelSimpleType, blackEntity);
+
+        final Table table = new Table(tableAttrs, sqlName, entity, modelType, blackEntity, remark);
         for (ColumnRaw columnRaw : tableRaw.getColumns()) {
             Column col = columnFactory.create(columnRaw, table);
             if (col == null) {

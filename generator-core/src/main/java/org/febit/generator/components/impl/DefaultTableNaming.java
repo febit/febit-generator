@@ -44,14 +44,13 @@ public class DefaultTableNaming extends TableNaming {
         return sqlName;
     }
 
-    @Override
-    public String modelSimpleType(String entity) {
+    protected String modelSimpleType(String entity) {
         return modelPrefix + NamingUtil.upperFirst(entity) + modelSuffix;
     }
 
     @Override
-    public String modelType(String modelSimpleType) {
-        return modelPkg + "." + modelSimpleType;
+    public String modelType(String entity) {
+        return modelPkg + "." + modelSimpleType(entity);
     }
 
     @Override

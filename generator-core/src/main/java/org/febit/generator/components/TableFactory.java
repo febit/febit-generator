@@ -25,6 +25,7 @@ import org.febit.generator.util.Logger;
 import org.febit.generator.util.dbaccess.DatabaseAccesser;
 import org.febit.generator.util.dbaccess.TableRaw;
 import org.febit.lang.Singleton;
+import org.febit.util.agent.LazyAgent;
 
 /**
  *
@@ -32,61 +33,52 @@ import org.febit.lang.Singleton;
  */
 public abstract class TableFactory implements Singleton {
 
-    private static List<Table> _tables;
-    private static Map<String, Table> _tableMap;
-
-    protected abstract Table createTable(TableRaw tableRaw);
-
-    public List<Table> collectTables() {
-
-        final List<Table> tableList;
-
-        final Map<String, Table> tableMaps = _tableMap = new HashMap<>();
-        DatabaseAccesser.INSATNCE.get().getAllTables().forEach((raw) -> {
-            Table table = createTable(raw);
-            if (table != null) {
-                tableMaps.put(table.entity, table);
-            } else {
-                if (Logger.isDebugEnabled()) {
-                    Logger.debug("Skip table (by TableFactory): " + raw);
-                }
-            }
-        });
-
-        tableList = new ArrayList<>(tableMaps.values());
+    private final LazyAgent<List<Table>> _tables = LazyAgent.create(() -> {
+        List<Table> tableList = collectTables();
+        // sort
+        Collections.sort(tableList);
         //tables init
         tableList.forEach((table) -> {
             table.init();
-        });
-        //table list sort
-        Collections.sort(tableList);
-
-        tableList.forEach((table) -> {
             Logger.info("Loaded table: " + table.sqlName + "  " + table.remark);
         });
+        return Collections.unmodifiableList(tableList);
+    });
 
-        return tableList;
-    }
+    private final LazyAgent<Map<String, Table>> _tableMap = LazyAgent.create(() -> {
+        Map<String, Table> tableMaps = new HashMap<>();
+        _tables.get().forEach(((table) -> {
+            // check conflict
+            if (tableMaps.containsKey(table.sqlName)) {
+                Logger.error("conflict tables in sql name: {} vs. {}", tableMaps.get(table.sqlName), table);
+            }
+            if (tableMaps.containsKey(table.entity)) {
+                Logger.error("conflict tables in entity name: {} vs. {}", tableMaps.get(table.entity), table);
+            }
+            tableMaps.put(table.sqlName, table);
+            tableMaps.put(table.entity, table);
+        }));
+        return Collections.unmodifiableMap(tableMaps);
+    });
+
+    protected abstract List<Table> collectTables();
 
     public List<Table> getTables() {
-        List<Table> tables = _tables;
-        if (tables == null) {
-            tables = _tables = collectTables();
-        }
-        return tables;
+        return _tables.get();
     }
 
     public Map<String, Table> getTableMap() {
-        Map<String, Table> tableMap = _tableMap;
-        if (tableMap == null) {
-            getTables();
-            return getTableMap();
-        }
-        return tableMap;
+        return _tableMap.get();
     }
 
+    /**
+     * get table by entity name or sql name.
+     *
+     * @param entity or sql name
+     * @return cached table
+     */
     public Table getTable(String entity) {
-        return getTableMap().get(entity);
+        return _tableMap.get().get(entity);
     }
 
 }
