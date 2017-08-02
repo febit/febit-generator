@@ -63,18 +63,14 @@ public class Column implements Comparable<Column> {
     protected String fkGetterName;
     protected String fkSetterName;
     //
-    protected String defaultValueRaw;
     protected Object defaultValue;
-    protected boolean hasDefaultValue;
-    protected String defaultValueShow;
 
     public Column(Table table, Map<String, Object> attrs, ColumnRaw raw, int size,
             boolean isUnique, boolean optional, boolean ispk,
             boolean isfk, String fkHint, boolean isGenerated, String remark,
             String name, String javaType, String sqlName,
             boolean query,
-            List<ColumnEnum> enums, String defaultValueRaw, Object defaultValue,
-            boolean hasDefaultValue, String defaultValueShow) {
+            List<ColumnEnum> enums, Object defaultValue) {
         this.table = table;
         this.attrs = attrs;
         this.raw = raw;
@@ -92,10 +88,7 @@ public class Column implements Comparable<Column> {
         this.query = query;
         this.isenum = enums != null;
         this.enums = enums;
-        this.defaultValueRaw = defaultValueRaw;
         this.defaultValue = defaultValue;
-        this.hasDefaultValue = hasDefaultValue;
-        this.defaultValueShow = defaultValueShow;
 
         this.linkColumns = new ArrayList<>();
         if (enums != null) {
@@ -145,6 +138,31 @@ public class Column implements Comparable<Column> {
             isfk = false;
             fk = null;
         }
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
+    public String getDefaultValueRaw() {
+        return defaultValue == null ? null : defaultValue.toString();
+    }
+
+    public boolean isHasDefaultValue() {
+        return defaultValue != null;
+    }
+
+    public String getDefaultValueShow() {
+        if (defaultValue == null) {
+            return "null";
+        }
+        if (defaultValue instanceof Boolean) {
+            return defaultValue.toString();
+        }
+        if (defaultValue instanceof Number) {
+            return defaultValue.toString();
+        }
+        return "\"" + defaultValue + "\"";
     }
 
     public String getSimpleType() {
@@ -271,22 +289,6 @@ public class Column implements Comparable<Column> {
 
     public Map getEnumMap() {
         return enumMap;
-    }
-
-    public Object getDefaultValue() {
-        return defaultValue;
-    }
-
-    public String getDefaultValueRaw() {
-        return defaultValueRaw;
-    }
-
-    public boolean isHasDefaultValue() {
-        return hasDefaultValue;
-    }
-
-    public String getDefaultValueShow() {
-        return defaultValueShow;
     }
 
     @Override

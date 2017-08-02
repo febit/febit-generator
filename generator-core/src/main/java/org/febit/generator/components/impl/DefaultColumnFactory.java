@@ -16,9 +16,7 @@
 package org.febit.generator.components.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 import org.febit.generator.TableSettings;
 import org.febit.generator.components.ColumnFactory;
@@ -29,7 +27,6 @@ import org.febit.generator.model.Table;
 import org.febit.generator.typeconverter.TypeConverter;
 import org.febit.generator.util.CommonUtil;
 import org.febit.generator.util.Logger;
-import org.febit.generator.util.NamingUtil;
 import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
 
@@ -76,37 +73,16 @@ public class DefaultColumnFactory extends ColumnFactory {
         fkHint = (String) TableSettings.toValidValue(attrs.get("fk"));
         isfk = raw.getIsFk() || fkHint != null;
 
-        //parser default
-        String defaultValueRaw = null;
-        Object defaultValue = null;
-        boolean hasDefaultValue = false;
-        String defaultValueShow = "null";
-        {
-            String defaultValueString = raw.defaultValue;
-            if (defaultValueString != null) {
-                hasDefaultValue = true;
-                defaultValueRaw = defaultValueString;
-                defaultValueString = defaultValueString.trim();
-                final Object defaultValueObject
-                        = defaultValue
-                        = typeConverter.convert(javaType, defaultValueString);
-                if (defaultValueObject instanceof Boolean) {
-                    defaultValueShow = defaultValueObject.toString();
-//            } else if (defaultValueObject instanceof BigDecimal) {
-//                defaultValueShow = defaultValueObject.toString();
-                } else if (defaultValueObject instanceof Number) {
-                    defaultValueShow = defaultValueObject.toString();
-                } else {
-                    defaultValueShow = "\"" + defaultValueString + "\"";
-                }
-            }
+        final Object defaultValue;
+        if (raw.defaultValue == null) {
+            defaultValue = null;
+        } else {
+            defaultValue = typeConverter.convert(javaType, raw.defaultValue);
         }
 
         //resolveColumnEnums
         String remark = columnNaming.remark(raw.remarks);
-        final boolean isenum;
         final List<ColumnEnum> enums;
-        final Map enumMap;
         if (remark != null) {
             remark = remark.trim();
         }
@@ -128,12 +104,9 @@ public class DefaultColumnFactory extends ColumnFactory {
                         throw new RuntimeException(e);
                     }
                 }
-                isenum = true;
                 remark = remark.substring(0, start).trim(); //replaceAll(pattern_enum.pattern(), "");
             } else {
-                isenum = false;
                 enums = null;
-                enumMap = null;
             }
         }
 
@@ -144,6 +117,6 @@ public class DefaultColumnFactory extends ColumnFactory {
                 varName, javaType,
                 raw.name, query,
                 enums,
-                defaultValueRaw, defaultValue, hasDefaultValue, defaultValueShow);
+                defaultValue);
     }
 }
