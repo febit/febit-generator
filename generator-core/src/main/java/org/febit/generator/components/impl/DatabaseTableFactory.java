@@ -20,7 +20,6 @@ import java.util.List;
 import org.febit.generator.Lazy;
 import org.febit.generator.TableSettings;
 import org.febit.generator.TableSettings.Attrs;
-import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.TableFactory;
 import org.febit.generator.components.TableNaming;
 import org.febit.generator.model.Column;
@@ -35,12 +34,13 @@ import org.febit.util.ArraysUtil;
  *
  * @author zqq90
  */
-public class DefaultTableFactory extends TableFactory {
+public class DatabaseTableFactory extends TableFactory {
+
+    protected String[] blackEntitys;
 
     protected TableNaming tableNaming;
-    protected String[] blackEntitys;
-    protected ColumnFactory columnFactory;
     protected TableSettings tableSettings;
+    protected DatabaseColumnFactory columnFactory;
 
     @Override
     protected List<Table> collectTables() {

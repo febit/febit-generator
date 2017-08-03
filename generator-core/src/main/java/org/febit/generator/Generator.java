@@ -168,9 +168,7 @@ public class Generator implements Singleton {
                 if (templateName.startsWith("#")) {
                     continue;
                 }
-                if (Logger.isDebugEnabled()) {
-                    Logger.debug("Run init: " + templateName);
-                }
+                Logger.debug("Run init: {}", templateName);
                 this.templateEngine.getTemplate(templateName)
                         .merge(params, out);
                 //Commit Global

@@ -36,6 +36,8 @@ public class DatabaseAccesser {
 
     protected Pattern includeTables;
     protected Pattern excludeTables;
+    protected Pattern includeColumns;
+    protected Pattern excludeColumns;
 
     protected boolean skipUnreadableTable;
     protected String catalog;
@@ -46,25 +48,25 @@ public class DatabaseAccesser {
     protected String password;
 
     private Connection connection;
-
-    private TableCache tableCache;
-    private ColumnCache columnCache;
+    private final TableCache tableCache = new TableCache();
+    private final ColumnCache columnCache = new ColumnCache();
 
     public DatabaseAccesser() {
     }
 
-    private boolean isTableInclude(final String tableName) {
+    protected boolean isColumnInclude(final String columnName) {
+        return (includeColumns == null || includeColumns.matcher(columnName).matches())
+                && (excludeColumns == null || !excludeColumns.matcher(columnName).matches());
+    }
+
+    protected boolean isTableInclude(final String tableName) {
         return (includeTables == null || includeTables.matcher(tableName).matches())
                 && (excludeTables == null || !excludeTables.matcher(tableName).matches());
     }
 
-    public Collection<TableRaw> getAllTables() {
-        TableCache myTableCache = this.tableCache;
-        if (myTableCache != null) {
-            return tableCache.getTables();
-        }
-        myTableCache = new TableCache();
-        columnCache = new ColumnCache();
+    public synchronized Collection<TableRaw> getAllTables() {
+        tableCache.clear();
+        columnCache.clear();
         final String jdbcType = getJdbcType();
         try {
             final ResultSet rs;
@@ -82,36 +84,32 @@ public class DatabaseAccesser {
                     String remark = rs.getString("REMARKS");
                     boolean isView = "VIEW".equalsIgnoreCase(rs.getString("TABLE_TYPE"));
                     if (!isTableInclude(tableName)) {
-                        if (Logger.isDebugEnabled()) {
-                            Logger.debug("Skip table (by DatabaseAccesser): " + tableName + (remark != null ? "  " + remark : ""));
-                        }
+                        Logger.debug("Skip table (by DatabaseAccesser): {} {}", tableName, remark);
                         continue;
                     }
-                    if (Logger.isDebugEnabled()) {
-                        Logger.debug("Found table " + tableName + (remark != null ? "  " + remark : ""));
-                    }
-                    myTableCache.put(new TableRaw(tableName, remark, isView));
+                    Logger.debug("Found table {} {}", tableName, remark);
+                    tableCache.put(new TableRaw(tableName, remark, isView));
                 }
             } finally {
                 rs.close();
             }
 
-            for (Iterator<TableRaw> it = myTableCache.getTables().iterator(); it.hasNext();) {
+            for (Iterator<TableRaw> it = tableCache.getTables().iterator(); it.hasNext();) {
                 TableRaw table = it.next();
                 boolean result = resolveTableColumns(table);
                 if (!result) {
                     if (skipUnreadableTable) {
-                        Logger.warn("Skip table, unreadable: " + table);
+                        Logger.warn("Skip table, unreadable: {}", table);
                         it.remove();
                     } else {
                         throw new RuntimeException("Can't skip table: " + table);
                     }
                 }
             }
-            for (TableRaw table : myTableCache.getTables()) {
+            for (TableRaw table : tableCache.getTables()) {
                 resolveFKS(table);
             }
-            return myTableCache.getTables();
+            return tableCache.getTables();
         } catch (SQLException e) {
             Logger.error("Unable to read table info.", e);
             throw new RuntimeException("Unable to read table info.", e);
@@ -119,13 +117,10 @@ public class DatabaseAccesser {
     }
 
     private boolean resolveTableColumns(TableRaw table) throws SQLException {
-        if (Logger.isTraceEnabled()) {
-            Logger.trace("Scanf table's columns: " + table);
-        }
-
+        Logger.trace("Scanf table's columns: {}", table);
         List<String> primaryKeys = getTablePrimaryKeys(table);
         if (primaryKeys.isEmpty()) {
-            Logger.warn("Not found primary key columns in table: " + table);
+            Logger.warn("Not found primary key columns in table: {}", table);
         }
 
         final List<String> indices = new ArrayList<>();
@@ -135,26 +130,26 @@ public class DatabaseAccesser {
         try {
             indexRs = getMetaData().getIndexInfo(catalog, schema, table.name, false, true);
         } catch (SQLException ex) {
-            Logger.error("Unable to getIndexInfo of table: " + table);
+            Logger.error("Unable to getIndexInfo of table: {}", table);
             return false;
         }
         try {
             while (indexRs.next()) {
                 String columnName = indexRs.getString("COLUMN_NAME");
-                if (columnName != null) {
-                    //Logger.trace("Indexed column:" + columnName);
-                    indices.add(columnName);
-                    String indexName = indexRs.getString("INDEX_NAME");
-                    boolean unique = !indexRs.getBoolean("NON_UNIQUE");
-                    if (unique && indexName != null) {
-                        List<String> list;
-                        if ((list = uniqueColumns.get(indexName)) == null) {
-                            uniqueColumns.put(indexName, list = new ArrayList<>());
-                        }
-                        list.add(columnName);
-                        uniqueIndices.put(columnName, indexName);
-                        //Logger.trace("unique:" + columnName + " (" + indexName + ")");
+                if (columnName == null) {
+                    continue;
+                }
+                //Logger.trace("Indexed column:" + columnName);
+                indices.add(columnName);
+                String indexName = indexRs.getString("INDEX_NAME");
+                boolean unique = !indexRs.getBoolean("NON_UNIQUE");
+                if (unique && indexName != null) {
+                    List<String> list;
+                    if ((list = uniqueColumns.get(indexName)) == null) {
+                        uniqueColumns.put(indexName, list = new ArrayList<>());
                     }
+                    list.add(columnName);
+                    uniqueIndices.put(columnName, indexName);
                 }
             }
         } catch (SQLException ex) {
@@ -170,7 +165,6 @@ public class DatabaseAccesser {
     }
 
     private List<ColumnRaw> getTableColumns(TableRaw table, List<String> primaryKeys, List<String> indices, Map<String, String> uniqueIndices, Map<String, List<String>> uniqueColumns) throws SQLException {
-
         final List<ColumnRaw> columns = new ArrayList<>();
         try (ResultSet columnRs = getMetaData().getColumns(catalog, schema, table.name, null)) {
             while (columnRs.next()) {
@@ -178,13 +172,14 @@ public class DatabaseAccesser {
                 String sqlTypeName = columnRs.getString("TYPE_NAME");
                 String columnName = columnRs.getString("COLUMN_NAME");
                 String columnDefaultValue = columnRs.getString("COLUMN_DEF");
-
                 String remarks = columnRs.getString("REMARKS");
-
+                if (!isColumnInclude(columnName)) {
+                    Logger.debug("Skip column (by DatabaseAccesser): {}.{} {}", table.name, columnName, remarks);
+                    continue;
+                }
                 boolean isNullable = (DatabaseMetaData.columnNullable == columnRs.getInt("NULLABLE"));
                 int size = columnRs.getInt("COLUMN_SIZE");
                 int decimalDigits = columnRs.getInt("DECIMAL_DIGITS");
-
                 boolean isPk = primaryKeys.contains(columnName);
                 boolean isIndexed = indices.contains(columnName);
                 String uniqueIndex = uniqueIndices.get(columnName);
@@ -275,7 +270,6 @@ public class DatabaseAccesser {
             if (conn == null || conn.isClosed()) {
                 try {
                     Class.forName(driver);
-
                     final String JdbcType = getJdbcType(url);
                     Logger.debug("Jdbc Type: " + JdbcType);
                     Properties info = new Properties();
@@ -289,11 +283,9 @@ public class DatabaseAccesser {
                         info.put("remarksReporting", "true");
                     }
                     conn = DriverManager.getConnection(url, info);
-                    if (Logger.isDebugEnabled()) {
-                        Logger.debug("Initialized connection: " + conn.getClass().getName());
-                        Logger.debug("  Catalog: " + catalog);
-                        Logger.debug("  Schema: " + catalog);
-                    }
+                    Logger.debug("Initialized connection: {} ", conn.getClass().getName());
+                    Logger.debug("  Catalog: {}", catalog);
+                    Logger.debug("  Schema: {}", catalog);
                     connection = conn;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException("Not found jdbc driver class: [" + driver + "]", e);
@@ -496,6 +488,10 @@ public class DatabaseAccesser {
         public boolean contains(String tableName, String columName) {
             return columns.containsKey(getHashKey(tableName, columName));
         }
+
+        public void clear() {
+            columns.clear();
+        }
     }
 
     private static class TableCache {
@@ -511,7 +507,6 @@ public class DatabaseAccesser {
         }
 
         public TableRaw get(String tableName) {
-
             return tables.get(getHashKey(tableName));
         }
 
@@ -525,6 +520,10 @@ public class DatabaseAccesser {
 
         public Map<String, TableRaw> getTableMap() {
             return tables;
+        }
+
+        public void clear() {
+            tables.clear();
         }
     }
 }

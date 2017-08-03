@@ -19,21 +19,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.febit.generator.TableSettings;
-import org.febit.generator.components.ColumnFactory;
 import org.febit.generator.components.ColumnNaming;
 import org.febit.generator.model.Column;
 import org.febit.generator.model.ColumnEnum;
 import org.febit.generator.model.Table;
 import org.febit.generator.typeconverter.TypeConverter;
 import org.febit.generator.util.Logger;
-import org.febit.util.StringUtil;
 import org.febit.generator.util.dbaccess.ColumnRaw;
+import org.febit.lang.Singleton;
+import org.febit.util.StringUtil;
 
 /**
  *
  * @author zqq90
  */
-public class DefaultColumnFactory extends ColumnFactory {
+public class DatabaseColumnFactory implements Singleton {
 
     protected Pattern includes;
     protected Pattern excludes;
@@ -53,43 +53,49 @@ public class DefaultColumnFactory extends ColumnFactory {
                 && (excludes == null || !excludes.matcher(raw.name).matches());
     }
 
-    @Override
-    protected Column createColumn(final ColumnRaw raw, final Table table) {
+    public Column create(final ColumnRaw raw, final Table table) {
         if (!isInclude(raw)) {
             return null;
         }
-        //
         String varName = columnNaming.varName(raw.name);
-        String javaType = raw.getJavaType();
         TableSettings.Attrs attrs = tableSettings.getColumnAttrs(table, varName);
-        String fkHint = raw.getIsFk() ? raw.getHasOne().pk.table.name : null;
+        String fkHint = raw.getIsFk()
+                ? raw.getHasOne().pk.table.name
+                : null;
         Object defaultValue = raw.defaultValue != null
-                ? typeConverter.convert(javaType, raw.defaultValue)
+                ? typeConverter.convert(raw.getJavaType(), raw.defaultValue)
                 : null;
 
-        //resolveColumnEnums
-        String remark = columnNaming.remark(raw.remarks);
-        final List<ColumnEnum> enums;
-        if (remark != null
-                && javaType.equals("java.lang.Short")
-                && remark.contains("E(")
-                && remark.endsWith(")")) {
-            enums = new ArrayList<>();
-            for (String emumRaw : StringUtil.toArrayExcludeCommit(StringUtil.cutBetween(remark, "E(", ")"))) {
-                try {
-                    enums.add(ColumnEnum.valueOf(emumRaw));
-                } catch (Exception e) {
-                    Logger.error("Faild to parse column enum: " + raw + " | " + remark);
-                    throw new RuntimeException(e);
-                }
-            }
-            remark = StringUtil.cutTo(remark, "E(").trim();
-        } else {
-            enums = null;
-        }
-
-        return new Column(table, attrs, raw.name, varName, javaType,
+        return new Column(table, attrs, raw.name, varName, raw.getJavaType(),
                 raw.size, raw.isPk, raw.isUnique, raw.isNullable,
-                enums, fkHint, defaultValue, remark);
+                resolveEnums(raw), fkHint, defaultValue, fixRemark(raw.remarks));
+    }
+
+    protected List<ColumnEnum> resolveEnums(final ColumnRaw raw) {
+        if (raw.remarks == null
+                || !raw.getJavaType().equals("java.lang.Short")) {
+            return null;
+        }
+        String enumsRaw = StringUtil.cutBetween(raw.remarks, "E(", ")");
+        if (enumsRaw == null) {
+            return null;
+        }
+        final List<ColumnEnum> enums = new ArrayList<>();
+        for (String emumRaw : StringUtil.toArrayExcludeCommit(enumsRaw)) {
+            try {
+                enums.add(ColumnEnum.valueOf(emumRaw));
+            } catch (Exception e) {
+                Logger.error("Faild to parse column enum: " + raw + " | " + enumsRaw);
+                throw new RuntimeException(e);
+            }
+        }
+        return enums;
+    }
+
+    protected String fixRemark(String remark) {
+        if (remark == null) {
+            return null;
+        }
+        return columnNaming.remark(StringUtil.cutTo(remark, "E(").trim());
     }
 }

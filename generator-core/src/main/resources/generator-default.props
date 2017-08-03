@@ -24,11 +24,12 @@ logger.level = info
 [generator     :org.febit.generator.Generator]
 [tableSettings :org.febit.generator.TableSettings]
 [typeConverter :org.febit.generator.typeconverter.TypeConverter]
-[tableFactory  :org.febit.generator.components.impl.DefaultTableFactory]
-[columnFactory :org.febit.generator.components.impl.DefaultColumnFactory]
 [tableNaming   :org.febit.generator.components.impl.DefaultTableNaming]
 [columnNaming  :org.febit.generator.components.impl.DefaultColumnNaming]
+[databaseTableFactory  :org.febit.generator.components.impl.DatabaseTableFactory]
+[databaseColumnFactory :org.febit.generator.components.impl.DatabaseColumnFactory]
 
+[tableFactory  :databaseTableFactory]
 
 [generator]
 
@@ -36,7 +37,6 @@ inits+='''
   /core/init
   /core/initJavaClass
 '''
-
 
 # 调试模式
 debug=false
@@ -74,7 +74,7 @@ tablePrefix=
 # Model黑名单，黑名单中的表会被忽略，（注意： 不是数据库表的名字）
 blackEntitys=
 
-[columnFactory]
+[databaseColumnFactory]
 # 数据库列包含规则（正则表达式）
 includes=.*
 # 数据库列排除规则（正则表达式）
